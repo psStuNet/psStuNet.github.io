@@ -280,14 +280,126 @@
             }
         }
     </style>
+<style>
+/* 移动端优化 */
+@media (max-width: 768px) {
+    h1 {
+        font-size: 1.8rem !important;
+        white-space: normal !important;
+        border-right: none !important;
+        animation: none !important;
+        line-height: 1.4;
+        margin: 1rem 0 !important;
+    }
+
+    .container {
+        padding: 0 15px !important;
+        max-width: 100% !important;
+    }
+
+    .log-item {
+        margin: 1.5rem 0;
+        padding: 1rem;
+        border-left-width: 2px;
+    }
+
+    .log-date {
+        font-size: 0.8em;
+        margin-bottom: 0.5rem;
+    }
+
+    .log-content p {
+        font-size: 0.95em;
+        line-height: 1.6;
+    }
+
+    /* 触控优化 */
+    a {
+        padding: 8px 0;
+        display: inline-block;
+        min-width: 60px;
+    }
+
+    .floating-btn {
+        padding: 8px 15px !important;
+        font-size: 0.9em;
+        margin: 0 5px !important;
+    }
+
+    /* 禁用悬停动画 */
+    @media (hover: none) {
+        tr:hover {
+            background: transparent !important;
+            animation: none !important;
+        }
+        
+        .floating-btn:hover {
+            transform: none !important;
+            box-shadow: none !important;
+        }
+    }
+
+    /* 时间轴优化 */
+    .timeline {
+        padding: 0 10px !important;
+        margin: 2rem auto;
+    }
+
+    .log-content p::before {
+        margin-right: 8px;
+    }
+}
+
+/* 超小屏幕优化 */
+@media (max-width: 480px) {
+    h1 {
+        font-size: 1.6rem !important;
+    }
+
+    p {
+        font-size: 0.9em;
+        line-height: 1.6;
+    }
+
+    .log-date {
+        font-size: 0.75em;
+    }
+
+    .log-content p {
+        font-size: 0.85em;
+    }
+
+    /* 按钮组垂直排列 */
+    .fixed-buttons {
+        flex-direction: column;
+        gap: 10px;
+        padding: 10px 0 !important;
+    }
+}
+
+/* 触控反馈优化 */
+a:active, 
+.floating-btn:active {
+    transform: scale(0.98) !important;
+    filter: brightness(1.2);
+}
+
+/* 禁用长按选择 */
+* {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+p, .log-content {
+    -webkit-user-select: text;
+    user-select: text;
+}
+</style>
 
 </head>
 <body>
     <div class="markdown-container">
-      <div class="fixed-buttons">
-        <a href="https://psstunet.github.io" class="floating-btn home-btn">首页</a>
-        <a href="#development-log" class="floating-btn back-btn">开发日志</a>
-      </div>
       
       <div class="container" style="max-width: 1000px; padding: 20px;">
         <h1>学生目录开发日志</h1>
