@@ -200,12 +200,12 @@
 <body>
 <div class="markdown-container">
   <div class="fixed-buttons">
-    <a href="../index.html" class="floating-btn home-btn">返回首页</a>
-    <a href="javascript:history.back()" class="floating-btn back-btn">返回</a> 
+    <!--a href="../index.html" class="floating-btn home-btn">返回首页</a-->
+    <!--a href="javascript:history.back()" class="floating-btn back-btn">返回</a--> 
   </div>
     <div class="container" style="align-items: center">
-        <h1>VPN会话流量统计</h1>
-        <h2 style="text-align:right">让我看看是谁在用网呀~</h2>
+        <h1>欢迎来到学生目录！</h1>
+        <h2>让我看看是谁在用网呀~</h2>
         <table id="sessionTable">
         <thead>
             <tr>
@@ -223,68 +223,7 @@
 
     </div>
     <script>
-        window.addEventListener('DOMContentLoaded', () => {
-            fetch('status/sessionlst.txt')  // 根据实际路径调整
-                .then(response => response.text())
-                .then(text => {
-                    const sessions = parseSessionData(text);
-                    populateTable(sessions);
-                })
-                .catch(error => console.error('读取文件失败:', error));
-        });
-
-        function parseSessionData(text) {
-            const lines = text.split('\n');
-            const sessions = [];
-            let currentSession = {};
-            let counter = 1;
-            let time = ' ';
-
-            lines.forEach(line => {
-                if (line.startsWith('会话名')) {
-                    currentSession.name = line.split('|')[1].trim();
-                } else if (line.startsWith('传输字节')) {
-                    const rawBytes = line.split('|')[1].trim().replace(/,/g, '');
-                    currentSession.bytes = formatBytes(rawBytes);
-                } else if (line.startsWith('传输数据包')) {
-                    currentSession.packets = line.split('|')[1].trim();
-                    sessions.push({
-                        id: counter++,
-                        name: currentSession.name,
-                        bytes: currentSession.bytes,
-                        packets: currentSession.packets
-                    });
-                    currentSession = {};
-                } else if (line.startsWith('时间')) {
-                    time = line.split('|')[1].trim();
-                }
-            });
-
-            return sessions;
-        }
-
-        function formatBytes(bytes) {
-            if (bytes < 1024) return bytes + ' B';
-            if (bytes < 1048576) return (bytes / 1024).toFixed(2) + ' KB';
-            if (bytes < 1073741824) return (bytes / 1048576).toFixed(2) + ' MB';
-            return (bytes / 1073741824).toFixed(2) + ' GB';
-        }
-
-        function populateTable(sessions) {
-            const tbody = document.getElementById('tableBody');
-            tbody.innerHTML = '';
-            
-            sessions.forEach(session => {
-                const row = `<tr>
-                    <td>${session.id}</td>
-                    <td>${session.name}</td>
-                    <td>${session.bytes}</td>
-                    <td>${session.packets}</td>
-                </tr>`;
-                tbody.innerHTML += row;
-            });
-        }
-
+        
     </script>
 </body>
 </html>
