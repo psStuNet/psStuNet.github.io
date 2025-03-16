@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>学生目录</title>
-    <title>学生目录</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
         :root {
             --primary-color: #2a2a2a;
@@ -238,7 +238,19 @@
         width: 100%;
         left: 0;
     }
+.log-item {
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
 
+.log-item:hover {
+    transform: translateX(10px);
+    background: rgba(0, 255, 157, 0.05);
+}
+
+.log-item:active {
+    transform: translateX(5px) scale(0.98);
+}
 
         .timeline {
             margin: 3rem auto;
@@ -265,137 +277,116 @@
             margin-top: 1rem;
         }
 
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 2rem;
-                margin: 1rem 0;
-            }
-            
-            .container {
-                padding: 0 15px;
-            }
-            
-            .floating-btn {
-                padding: 8px 15px;
-            }
-        }
+
     </style>
-<style>
-/* 移动端优化 */
-@media (max-width: 768px) {
-    h1 {
-        font-size: 1.8rem !important;
-        white-space: normal !important;
-        border-right: none !important;
-        animation: none !important;
-        line-height: 1.4;
-        margin: 1rem 0 !important;
-    }
+    <style>
+    /* 移动端优化 */
+    @media (max-width: 768px) {
 
-    .container {
-        padding: 0 15px !important;
-        max-width: 100% !important;
-    }
-
-    .log-item {
-        margin: 1.5rem 0;
-        padding: 1rem;
-        border-left-width: 2px;
-    }
-
-    .log-date {
-        font-size: 0.8em;
-        margin-bottom: 0.5rem;
-    }
-
-    .log-content p {
-        font-size: 0.95em;
-        line-height: 1.6;
-    }
-
-    /* 触控优化 */
-    a {
-        padding: 8px 0;
-        display: inline-block;
-        min-width: 60px;
-    }
-
-    .floating-btn {
-        padding: 8px 15px !important;
-        font-size: 0.9em;
-        margin: 0 5px !important;
-    }
-
-    /* 禁用悬停动画 */
-    @media (hover: none) {
-        tr:hover {
-            background: transparent !important;
-            animation: none !important;
+        .container {
+            padding: 0 15px !important;
+            max-width: 100% !important;
         }
-        
-        .floating-btn:hover {
-            transform: none !important;
-            box-shadow: none !important;
+
+        .log-item {
+            margin: 1.5rem 0;
+            padding: 1rem;
+            border-left-width: 2px;
+        }
+
+        .log-date {
+            font-size: 0.8em;
+            margin-bottom: 0.5rem;
+        }
+
+        .log-content p {
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+
+        /* 触控优化 */
+        a {
+            padding: 8px 0;
+            display: inline-block;
+            min-width: 60px;
+        }
+
+        .floating-btn {
+            padding: 8px 15px !important;
+            font-size: 0.9em;
+            margin: 0 5px !important;
+        }
+
+        /* 禁用悬停动画 */
+        @media (hover: none) {
+            tr:hover {
+                background: transparent !important;
+                animation: none !important;
+            }
+            
+            .floating-btn:hover {
+                transform: none !important;
+                box-shadow: none !important;
+            }
+        }
+
+        /* 时间轴优化 */
+        .timeline {
+            padding: 0 10px !important;
+            margin: 2rem auto;
+        }
+
+        .log-content p::before {
+            margin-right: 8px;
         }
     }
 
-    /* 时间轴优化 */
-    .timeline {
-        padding: 0 10px !important;
-        margin: 2rem auto;
+    /* 超小屏幕优化 */
+    @media (max-width: 480px) {
+        h1 {
+            font-size: 1.6rem !important;
+        }
+
+        p {
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .log-date {
+            font-size: 0.75em;
+        }
+
+        .log-content p {
+            font-size: 0.85em;
+        }
+
+        /* 按钮组垂直排列 */
+        .fixed-buttons {
+            flex-direction: column;
+            gap: 10px;
+            padding: 10px 0 !important;
+        }
     }
 
-    .log-content p::before {
-        margin-right: 8px;
-    }
-}
-
-/* 超小屏幕优化 */
-@media (max-width: 480px) {
-    h1 {
-        font-size: 1.6rem !important;
+    /* 触控反馈优化 */
+    a:active, 
+    .floating-btn:active {
+        transform: scale(0.98) !important;
+        filter: brightness(1.2);
     }
 
-    p {
-        font-size: 0.9em;
-        line-height: 1.6;
+    /* 禁用长按选择 */
+    * {
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        user-select: none;
     }
 
-    .log-date {
-        font-size: 0.75em;
+    p, .log-content {
+        -webkit-user-select: text;
+        user-select: text;
     }
-
-    .log-content p {
-        font-size: 0.85em;
-    }
-
-    /* 按钮组垂直排列 */
-    .fixed-buttons {
-        flex-direction: column;
-        gap: 10px;
-        padding: 10px 0 !important;
-    }
-}
-
-/* 触控反馈优化 */
-a:active, 
-.floating-btn:active {
-    transform: scale(0.98) !important;
-    filter: brightness(1.2);
-}
-
-/* 禁用长按选择 */
-* {
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    user-select: none;
-}
-
-p, .log-content {
-    -webkit-user-select: text;
-    user-select: text;
-}
-</style>
+    </style>
 
 </head>
 <body>
@@ -444,5 +435,22 @@ p, .log-content {
             item.style.animationDelay = `${0.2 + index * 0.2}s`;
         });
       </script>
+      <script>
+        // 在现有脚本后添加
+        document.querySelectorAll('.log-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                // 排除内部链接的点击
+                if(!e.target.closest('a')) { 
+                    // 示例跳转逻辑，替换实际需要跳转的URL
+                    const date = item.querySelector('.log-date').textContent;
+                    if(date.includes('项目启动')) {
+                        window.location.href = '/detail/project-start';
+                    } else if(date.includes('功能更新')) {
+                        window.location.href = '/detail/feature-update'; 
+                    }
+                }
+            });
+        });
+        </script>
 </body>
 </html>
