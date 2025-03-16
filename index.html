@@ -210,36 +210,127 @@
         text-align: right;
         margin-top: 20px;
     }
-    
-    .container a {
-            color:rgb(0, 189, 73);
-        }
+    a {
+        position: relative;
+        color: rgb(0, 189, 73) !important;
+        text-decoration: none;
+        padding: 5px 0;
+        transition: all 0.3s ease;
     }
-    
-    .container a {
-            color:rgb(0, 189, 73);
+
+    a::after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 2px;
+        bottom: 0;
+        left: 50%;
+        background: currentColor;
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    a:hover {
+        color: #00ff9d !important;
+        transform: translateY(-2px);
+    }
+
+    a:hover::after {
+        width: 100%;
+        left: 0;
+    }
+
+
+        .timeline {
+            margin: 3rem auto;
+            max-width: 800px;
+            padding: 0 20px;
         }
 
+        .log-item {
+            background: rgba(255, 255, 255, 0.03);
+            border-left: 3px solid var(--accent-color);
+            margin: 2rem 0;
+            padding: 1.5rem;
+            position: relative;
+            opacity: 0;
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        .log-date {
+            color: var(--accent-color);
+            font-size: 0.9em;
+        }
+
+        .log-content {
+            margin-top: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+                margin: 1rem 0;
+            }
+            
+            .container {
+                padding: 0 15px;
+            }
+            
+            .floating-btn {
+                padding: 8px 15px;
+            }
+        }
     </style>
 
 </head>
 <body>
-<div class="markdown-container">
-  <div class="fixed-buttons">
-    <!--a href="../index.html" class="floating-btn home-btn">返回首页</a-->
-    <!--a href="javascript:history.back()" class="floating-btn back-btn">返回</a--> 
-  </div>
-    <div class="container" style="align-items: center">
-        <h1>欢迎来到学生目录！</h1>
-        <p>此网站为公网镜像站点，完整功能<a href="http://10.88.202.71">点此</a>前往内网官网</p>
-
-    <p>此网站用于记录网站开发过程中的一些有趣的故事，所有内容仅供学习交流使用</p>
-    <p>如需教程，请在内网访问<a href="10.88.202.71">学生目录主页</a></p>
-    <p class="name">注：传输字节单位为字节，传输数据包单位为包</p>
-
-    </div>
-    <script>
-        
-    </script>
+    <div class="markdown-container">
+      <div class="fixed-buttons">
+        <a href="https://psstunet.github.io" class="floating-btn home-btn">首页</a>
+        <a href="#development-log" class="floating-btn back-btn">开发日志</a>
+      </div>
+      
+      <div class="container" style="max-width: 1000px; padding: 20px;">
+        <h1>学生目录开发日志</h1>
+        <p>此网站为公网镜像站点，完整功能<a href="http://10.88.202.71">点此前往内网官网</a></p>
+    
+        <div class="timeline" id="development-log">
+            <div class="log-item" style="animation-delay: 0.2s">
+                <div class="log-date">2024.03.15 - 项目启动</div>
+                <div class="log-content">
+                    <p>✅ 完成基本框架搭建</p>
+                    <p>✅ 配置GitHub Pages仓库</p>
+                    <p>🔧 调试CSS动画效果</p>
+                </div>
+            </div>
+    
+            <div class="log-item" style="animation-delay: 0.4s">
+                <div class="log-date">2024.03.20 - 功能更新</div>
+                <div class="log-content">
+                    <p>✨ 新增响应式布局</p>
+                    <p>📱 优化移动端显示效果</p>
+                    <p>📝 添加开发日志模块</p>
+                    <a href="https://github.com/psstunet/psstunet.github.io/commit/xxxxxx" 
+                       class="code-link">查看提交记录</a>
+                </div>
+            </div>
+        </div>
+      </div>
+    
+      <script>
+        // 滚动监听
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('.fixed-buttons');
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+    
+        // 延迟加载动画
+        document.querySelectorAll('.log-item').forEach((item, index) => {
+            item.style.animationDelay = `${0.2 + index * 0.2}s`;
+        });
+      </script>
 </body>
 </html>
