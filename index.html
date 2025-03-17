@@ -434,8 +434,16 @@
                     <p>🔧 调试CSS动画效果</p>
                 </div>
             </div>
-    
-            <div class="log-item" style="animation-delay: 0.4s">
+
+            <div class="log-item" style="animation-delay: 0.2s;cursor: pointer;">
+                <div class="log-date">2025.03.16 - 会话数统计</div>
+                <div class="log-content">
+                    <p>✅ 完成会话数统计功能</p>
+                    <p>🔧 优化会话数统计逻辑</p>
+                </div>
+            </div>
+
+            <div class="log-item" style="animation-delay: 0.2s;cursor: pointer;">
                 <div class="log-date">Github 仓库</div>
                 <div class="log-content">
                     <p>点击访问<a href="https://github.com/psStuNet" target="_blank">GitHub 仓库</a></p>
@@ -469,12 +477,11 @@
             item.addEventListener('click', (e) => {
                 // 排除内部链接的点击
                 if(!e.target.closest('a')) { 
-                    // 示例跳转逻辑，替换实际需要跳转的URL
                     const date = item.querySelector('.log-date').textContent;
                     if(date.includes('项目启动')) {
                         window.location.href = './article/project-start.html';
-                    } else if(date.includes('功能更新')) {
-                        window.location.href = '/detail/feature-update'; 
+                    } else if(date.includes('会话数统计')) {
+                        window.location.href = '/article/session-count.html'; 
                     }
                 }
             });
