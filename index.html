@@ -238,18 +238,48 @@
         width: 100%;
         left: 0;
     }
-.log-item {
-    cursor: pointer;
-    transition: transform 0.3s ease;
+    .log-item {
+        transition: transform 0.3s ease;
+        will-change: transform; /* 优化动画性能 */
+    }
+
+
+    .log-item:hover {
+        transform: translateY(-15px); /* 向上移动5像素 */
+        background: rgba(0, 255, 157, 0.05);
+        box-shadow: 0 8px 20px rgba(0, 255, 157, 0.1); /* 增加投影增强立体感 */
+        transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* 平滑过渡所有属性 */
+    }
+
+
+    .log-item:active {
+        transform: translateX(5px) scale(0.98);
+    }
+    .log-item {
+    opacity: 0;
+    animation: itemFadeUp 0.5s ease-out forwards;
 }
 
-.log-item:hover {
-    transform: translateX(10px);
-    background: rgba(0, 255, 157, 0.05);
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.log-item:active {
-    transform: translateX(5px) scale(0.98);
+@keyframes itemFadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
         .timeline {
@@ -407,12 +437,12 @@
             </div>
     
             <div class="log-item" style="animation-delay: 0.4s">
-                <div class="log-date">提交记录</div>
+                <div class="log-date">Github 仓库</div>
                 <div class="log-content">
-                    <p></p>
+                    <p>点击访问<a href="https://github.com/psStuNet" target="_blank">GitHub 仓库</a></p>
                     <p>Contributors:<a href="https://github.com/psStuNet/psStuNet.github.io/graphs/contributors" target="_blank" >Check on Github</a></p>
                     <a href="https://github.com/psstunet/psstunet.github.io/commit" 
-                       class="code-link">查看提交记录</a>
+                       class="code-link">查看commit记录</a>
                 </div>
             </div>
         </div>
