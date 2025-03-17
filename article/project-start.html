@@ -1,1 +1,248 @@
-<h1>这你就知道了吧</h1>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>项目启动详情 - 学生目录</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <style>
+        :root {
+            --primary-color: #2a2a2a;
+            --accent-color: #00ff9d;
+            --text-color: #e0e0e0;
+        }
+
+        .name {
+            text-align: right;
+            margin-top: 2rem;
+        }
+
+        body {
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            line-height: 1.8;
+            font-family: 'Noto Sans SC', system-ui, sans-serif;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem 20px;
+        }
+        a {
+            position: relative;
+            color: rgb(0, 189, 73) !important;
+            text-decoration: none;
+            padding: 5px 0;
+            transition: all 0.3s ease;
+        }
+
+        a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 50%;
+            background: currentColor;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        a:hover {
+            color: #00ff9d !important;
+            transform: translateY(-2px);
+        }
+
+        a:hover::after {
+            width: 100%;
+            left: 0;
+        }
+
+        .article-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .article-title {
+            font-size: 2.5rem;
+            color: var(--accent-color);
+            margin-bottom: 1.5rem;
+            animation: slideIn 0.6s ease-out;
+        }
+
+        .meta-info {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            opacity: 0.8;
+            margin-bottom: 2rem;
+        }
+
+        .content-section {
+            opacity: 0;
+            transform: translateY(30px);
+            animation: sectionAppear 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+            transition: all 0.4s ease;
+            margin: 2.5rem 0;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            will-change: transform, opacity;
+        }
+
+        .fixed-buttons {
+            top: 10px;
+            padding: 10px 0;
+            background: rgba(42, 42, 42, 0);
+            backdrop-filter: blur(0px);
+            transition: all 0.3s ease;
+            /* 新增居中样式 */
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            position:sti;
+            left: 0;
+            backdrop-filter: blur(12px);
+        }
+
+        .fixed-buttons.scrolled {
+            background: rgba(42, 42, 42, 0.7);
+            backdrop-filter: blur(8px);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            padding: 12px 0;
+            border-radius: 25px;
+            width: fit-content;
+            margin: 0 auto;
+            /* 保持居中定位 */
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .floating-btn {
+            /* 复用主站样式 */
+            padding: 10px 25px;
+            border-radius: 25px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 2px solid;
+            backdrop-filter: blur(5px);
+        }
+
+        .back-btn {
+            color: #00ff9d;
+            border-color: #00ff9d;
+            background: rgba(0, 255, 157, 0.1);
+        }
+
+        @keyframes sectionAppear {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .content-section:nth-child(1) { animation-delay: 0.2s; }
+        .content-section:nth-child(2) { animation-delay: 0.4s; }
+        .content-section:nth-child(3) { animation-delay: 0.6s; }
+
+        .content-section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 255, 157, 0.05);
+            background: rgba(0, 255, 157, 0.089);
+        }
+
+        .tech-stack {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .tech-item {
+            background: rgba(0, 255, 157, 0.1);
+            padding: 0.8rem;
+            border-radius: 4px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .tech-item:hover {
+            transform: translateY(-3px);
+        }
+
+        /* 复用主站动画 */
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="fixed-buttons">
+        <a href="../index.html" class="floating-btn home-btn">返回首页</a>
+    </div>
+    <div class="container">
+        <article>
+            <div class="article-header">
+                <h1 class="article-title">项目启动全记录</h1>
+                <div class="meta-info">
+                    <span>发布日期：2025.03.15</span>
+                    <span>作者：yuebi</span>
+                </div>
+            </div>
+
+            <div class="content-section">
+                <h2>🎯 项目背景</h2>
+                <p>为响应校园信息化建设需求( 我们启动了学生目录项目，旨在构建一个安全、高效的校园信息管理平台</p>
+            </div>
+
+            <div class="content-section">
+                <h2>⚙️ 技术架构</h2>
+                <div class="tech-stack">
+                    <div class="tech-item">HTML5</div>
+                    <div class="tech-item">CSS3</div>
+                    <div class="tech-item">JavaScript</div>
+                    <div class="tech-item">GitHub Pages</div>
+                </div>
+            </div>
+
+            <div class="content-section">
+                <h2>🚀 开发里程碑</h2>
+                <ul>
+                    <li>✅ 项目需求分析（2025.03.01-03.05）</li>
+                    <li>✅ 技术方案评审（2025.03.08）</li>
+                    <li>✅ 初版原型设计（2025.03.10）</li>
+                    <li>✅ 核心功能开发（2025.03.12-03.14）</li>
+                </ul>
+            </div>
+
+            <div class="content-section">
+                <h2>📌 待办事项</h2>
+                <ul>
+                    <li>🔧 动画优化</li>
+                    <li>🔧 流量分析模块</li>
+                    <li>🔧 移动端适配优化</li>
+                </ul>
+            </div>
+        </article>
+
+        <!--a href="#">需求文档</a> | 
+        <a href="#">API文档</a> | 
+        <a href="#">部署指南</a-->
+        <p class="name">© 2025 学生目录开发团队</p>
+    </div>
+
+    <script>
+        // 复用主站脚本
+        document.querySelectorAll('.content-section').forEach((section, index) => {
+            section.style.opacity = 0;
+            section.style.animation = 'slideIn 0.6s ease-out forwards';
+            section.style.animationDelay = `${index * 0.2}s`;
+        });
+
+
+    </script>
+</body>
+</html>

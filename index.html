@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>学生目录</title>
+    <html lang="zh-CN">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
         :root {
@@ -238,27 +239,25 @@
         width: 100%;
         left: 0;
     }
+    
     .log-item {
-        transition: transform 0.3s ease;
-        will-change: transform; /* 优化动画性能 */
+        transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        will-change: transform;
+        opacity: 0;
+        animation: itemFadeUp 0.5s ease-out forwards;
     }
 
 
     .log-item:hover {
-        transform: translateY(-15px); /* 向上移动5像素 */
+        transform: translateY(-5px); 
         background: rgba(0, 255, 157, 0.05);
         box-shadow: 0 8px 20px rgba(0, 255, 157, 0.1); /* 增加投影增强立体感 */
-        transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* 平滑过渡所有属性 */
     }
 
 
     .log-item:active {
         transform: translateX(5px) scale(0.98);
     }
-    .log-item {
-    opacity: 0;
-    animation: itemFadeUp 0.5s ease-out forwards;
-}
 
 @keyframes fadeInUp {
   from {
@@ -427,7 +426,7 @@
         <p>此网站为公网镜像站点，完整功能<a href="http://10.88.202.71">点此前往内网官网</a></p>
     
         <div class="timeline" id="development-log">
-            <div class="log-item" style="animation-delay: 0.2s">
+            <div class="log-item" style="animation-delay: 0.2s;cursor: pointer;">
                 <div class="log-date">2025.03.15 - 项目启动</div>
                 <div class="log-content">
                     <p>✅ 完成基本框架搭建</p>
