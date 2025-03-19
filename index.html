@@ -472,16 +472,14 @@
         });
       </script>
       <script>
-        // 在现有脚本后添加
         document.querySelectorAll('.log-item').forEach(item => {
             item.addEventListener('click', (e) => {
-                // 排除内部链接的点击
                 if(!e.target.closest('a')) { 
                     const date = item.querySelector('.log-date').textContent;
                     if(date.includes('项目启动')) {
                         window.location.href = './article/project-start.html';
                     } else if(date.includes('会话数统计')) {
-                        window.location.href = '/article/session-count.html'; 
+                        window.location.href = './article/session-count.html'; 
                     }
                 }
             });
