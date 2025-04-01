@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>学生目录月度报告</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <style>
+        :root {
+            --primary-color: #2a2a2a;
+            --accent-color: #00ff9d;
+            --text-color: #e0e0e0;
+        }
+
+        .name {
+            text-align: right;
+            margin-top: 2rem;
+        }
+
+        body {
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            line-height: 1.8;
+            font-family: 'Noto Sans SC', system-ui, sans-serif;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem 20px;
+        }
+        a {
+            position: relative;
+            color: rgb(0, 189, 73) !important;
+            text-decoration: none;
+            padding: 5px 0;
+            transition: all 0.3s ease;
+            background-color: transparent; /* 初始背景颜色 */
+        }
+
+        .floating-btn {
+            padding: 10px 25px;
+            border-radius: 25px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 2px solid;
+            backdrop-filter: blur(5px);
+            background-color: rgba(0, 255, 157, 0.1); /* 初始背景颜色 */
+            transform: scale(1); /* 初始缩放比例 */
+        }
+
+        .floating-btn:hover {
+            background-color: rgba(0, 189, 73, 0.2); /* 悬停时的背景颜色 */
+            transform: scale(1.1); /* 悬停时的缩放比例 */
+            box-shadow: 0 4px 8px rgba(0, 255, 157, 0.1); /* 添加阴影效果 */
+        }
+
+        @keyframes buttonHoverEffect {
+            0% {
+                transform: scale(1);
+                background-color: rgba(0, 255, 157, 0.1);
+                box-shadow: 0 0 0 rgba(0, 255, 157, 0);
+            }
+            50% {
+                transform: scale(1.05);
+                background-color: rgba(0, 189, 73, 0.2);
+                box-shadow: 0 2px 4px rgba(0, 255, 157, 0.1);
+            }
+            100% {
+                transform: scale(1.1);
+                background-color: rgba(0, 189, 73, 0.2);
+                box-shadow: 0 4px 8px rgba(0, 255, 157, 0.1);
+            }
+        }
+
+        .floating-btn:hover {
+            animation: buttonHoverEffect 0.3s ease forwards;
+        }
+
+
+        .floating-btn:hover {
+            animation: buttonHoverEffect 0.3s ease forwards;
+        }
+
+
+        .article-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .article-title {
+            font-size: 2.5rem;
+            color: var(--accent-color);
+            margin-bottom: 1.5rem;
+            animation: slideIn 0.6s ease-out;
+        }
+        article {
+        font-size: 1.1rem;
+        letter-spacing: 0.02em;
+        }
+
+        article p {
+        margin: 1.2em 0;
+        line-height: 1.7;
+        }
+
+        article strong {
+        color: var(--accent-color);
+        position: relative;
+        padding: 0 2px;
+        }
+
+        article em {
+        color: #a0a0a0;
+        font-style: italic;
+        }
+
+        article ul {
+        padding-left: 2em;
+        margin: 1.5rem 0;
+        list-style-type: "⇥";
+        }
+
+        article li {
+        margin: 0.8rem 0;
+        padding-left: 0.8em;
+        }
+
+        article code {
+        background: rgba(0, 255, 157, 0.12);
+        padding: 0.2em 0.4em;
+        border-radius: 3px;
+        font-family: 'Fira Code', monospace;
+        }
+
+        del {
+            color: var(--accent-color);
+            text-decoration: line-through;
+            text-decoration-thickness: 2px;
+            text-decoration-color: rgba(0, 255, 157, 0.5);
+            position: relative;
+        }
+
+
+        hr {
+        border: 0;
+        height: 1px;
+        background: linear-gradient(90deg, 
+            transparent 0%, 
+            rgba(0, 255, 157, 0.3) 50%, 
+            transparent 100%);
+        margin: 2.5rem 0;
+        }
+
+        .ip-address {
+        font-family: monospace;
+        color: #00ff9d;
+        text-shadow: 0 0 8px rgba(0, 255, 157, 0.2);
+        }
+
+        .comment {
+        color: #6c757d;
+        font-size: 0.9em;
+        }
+
+        @media (max-width: 768px) {
+        .container {
+            padding: 1.5rem 15px;
+        }
+        
+        article {
+            font-size: 1rem;
+        }
+        
+        .article-title {
+            font-size: 2rem;
+        }
+        }
+
+        .quote {
+            color: #00ff9d;
+            border-left: 3px solid;
+            padding-left: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .chart-placeholder {
+            background: rgba(0,255,157,0.05);
+            border: 2px dashed var(--accent-color);
+            border-radius: 8px;
+            margin: 1rem 0;
+            padding: 10px; 
+            display: inline-block; 
+            max-width: 100%; 
+        }
+
+        .chart-placeholder img {
+            display: block;
+            max-width: 100%; 
+            height: auto; 
+            border-radius: 4px; 
+            margin: 0 auto; 
+        }
+
+
+        @media screen and (max-width: 768px) {
+            .chart-placeholder img {
+                padding: 10px;
+                border-radius: 6px;
+            }
+        }
+
+        .highlight {
+            color: var(--accent-color);
+            font-weight: 700;
+            text-shadow: 0 0 8px rgba(0,255,157,0.2);
+        }
+
+        .warning-box {
+            background: rgba(255, 71, 71, 0.1) !important;
+            border: 1px solid #ff4747;
+        }
+
+        .plan-list li {
+            background: rgba(255,255,255,0.03);
+            padding: 1rem;
+            border-radius: 6px;
+            margin: 1rem 0;
+        }
+
+        .disclaimer-list {
+            list-style-type: '⚠️';
+            padding-left: 2rem;
+        }
+
+
+        .meta-info {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            opacity: 0.8;
+            margin-bottom: 2rem;
+        }
+
+        .content-section {
+            opacity: 0;
+            transform: translateY(30px);
+            animation: sectionAppear 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+            transition: all 0.4s ease;
+            margin: 2.5rem 0;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            will-change: transform, opacity;
+        }
+
+        .fixed-buttons {
+            top: 10px;
+            padding: 10px 0;
+            background: rgba(42, 42, 42, 0);
+            backdrop-filter: blur(0px);
+            transition: all 0.3s ease;
+            /* 新增居中样式 */
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            position:sti;
+            left: 0;
+            backdrop-filter: blur(12px);
+        }
+
+        .fixed-buttons.scrolled {
+            background: rgba(42, 42, 42, 0.7);
+            backdrop-filter: blur(8px);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            padding: 12px 0;
+            border-radius: 25px;
+            width: fit-content;
+            margin: 0 auto;
+            /* 保持居中定位 */
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .floating-btn {
+            /* 复用主站样式 */
+            padding: 10px 25px;
+            border-radius: 25px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 2px solid;
+            backdrop-filter: blur(5px);
+        }
+
+        .back-btn {
+            color: #00ff9d;
+            border-color: #00ff9d;
+            background: rgba(0, 255, 157, 0.1);
+        }
+
+        @keyframes sectionAppear {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .content-section:nth-child(1) { animation-delay: 0.2s; }
+        .content-section:nth-child(2) { animation-delay: 0.4s; }
+        .content-section:nth-child(3) { animation-delay: 0.6s; }
+
+        .content-section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 255, 157, 0.05);
+            background: rgba(0, 255, 157, 0.089);
+        }
+
+        .tech-stack {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .tech-item {
+            background: rgba(0, 255, 157, 0.1);
+            padding: 0.8rem;
+            border-radius: 4px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .tech-item:hover {
+            transform: translateY(-3px);
+        }
+
+        /* 复用主站动画 */
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="fixed-buttons">
+        <a href="../index.html" class="floating-btn home-btn">返回首页</a>
+    </div>
+    <article class="container">
+        <header class="article-header">
+            <h1 class="article-title">学生目录月度报告</h1>
+            <p class="subtitle"><em>又名：与校园防火墙斗智斗勇的30天</em></p>
+        </header>
+
+        <section class="content-section">
+            <h3>各位校园网在逃人员：</h3>
+            <p>经过我们团队的不懈努力，我们的"学生目录"项目已经在这个学期成功运营满月！现将本月的工作成果用人类能理解的姿势汇报如下：</p>
+        </section>
+
+        <section class="content-section">
+            <h2>一、校园网接入服务篇</h2>
+            <p class="quote">"我们不是流量的搬运工，是流量的魔术师"</p>
+            <p>从最初的4个人，到现在的日均15+活跃用户，我们的VPN已经成为学校里"最抢手"的资源。3月17日更是创下了<strong>24人连接的史诗级记录</strong>！</p>
+            
+            <div class="chart-container">
+                <p>如下是是本月的流量统计与VPN各日的使用分析。</p>
+                <div class="chart-placeholder">
+                    <img src="..\img\3.png"   alt="流量图">
+                </div>
+            </div>
+
+            <p>从图一我们可以看出，接受与发送的流量达到了惊人的<strong>1TB</strong>！这实在是有些超乎想象。当然，以为数据的重复计算，在统计中我们需要对流量数据除以2 <em>（我们姑且假设接受的流量=发送的流量）</em>，那么本月大概使用了500GB流量（估计应较实际数据偏小），那也是个不小的数字了q(≧▽≦q)</p>
+        </section>
+
+        <section class="content-section">
+            <h2>二、学生目录篇</h2>
+            <p>我重写了学生目录的网站，并将服务器移到了<code>10.88.20.71</code>上 <em>（原本的<code>10.88.202.54</code>的功能已废弃）</em>，命名为"学生目录2.0"。</p>
+            <p>在“共享目录”中，我使用Alist重新搭建了目录 <em><del>因为感觉写的太丑了不如用现成的</del></em>
+ 我还将各科目的教师目录挂载到了目录中</p>
+            <div class="tech-stack">
+                <div class="tech-item">
+                    <p>账号：student<br>密码：qwe</p>
+                    <p>每一个科目的密码都是 aaaa </p>
+                </div>
+            </div>
+            <br>
+            <p>我还开发了一个有趣的功能：<span class="highlight">VPN状态指示灯</span>。</p>
+            <p>它可以每五分钟检测一次VPN的连接人数，并将结果显示在网页上。它还会依据连接人数变色哦</p>
+        </section>
+
+        <section class="content-section">
+            <h2>三、下月计划</h2>
+            <ul class="plan-list">
+                <li>
+                    <h3>优化VPN速度</h3>
+                    <p>别急，差不多搞完啦，网速最高有200Mbps哦，我们将继续挑战更高的速度，让大家上网体验更流畅</p>
+                </li>
+                <li>
+                    <h3>继续完善学生目录</h3>
+                    <p>将会持续优化手机端浏览体验</p>
+                </li>
+            </ul>
+        </section>
+
+        <section class="content-section warning-box">
+            <h2>四、最后声明</h2>
+            <ul class="disclaimer-list">
+                <li>本团队一切行为都遵循《高中生自救准则》第114514条——所有技术操作都是为了更好地学习（迫真）！</li>
+                <li>根据《学生目录管理保护法》第1919810条规定：
+                    <ul>
+                        <li>本项目一切行为最终解释权归yuebi所有</li>
+                        <li>若遇教师突袭检查，本团队提供：
+                            <ul>
+                                <li>设备销毁指南（免费）</li>
+                                <li>专业哭丧服务（免费）</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </section>
+
+        <footer class="content-section">
+            <h3>鸣谢~</h3>
+            <p>感谢某位热心的用户捐赠的内存条ヾ(≧ ▽ ≦)ゝ</p>
+            <p>感谢各位的支持！</p>
+            
+            <div class="name">
+                <p><strong>yuebi</strong></p>
+                <p><time>2025年4月1日</time></p>
+                <p><em>于某节课的某个角落起草</em></p>
+            </div>
+        </footer>
+    </article>
+
+<div class="modal">
+    <span class="close">&times;</span>
+    <img class="modal-content">
+</div>
+
+<style>
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 9999;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.9);
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal-content {
+        max-width: 90%;
+        max-height: 90vh;
+        object-fit: contain;
+        border: 2px solid var(--accent-color);
+        border-radius: 8px;
+    }
+
+    
+    .close {
+        position: absolute;
+        top: 20px;
+        right: 35px;
+        color: var(--accent-color);
+        font-size: 40px;
+        cursor: pointer;
+        transition: opacity 0.3s;
+    }
+
+    .close:hover {
+        opacity: 0.7;
+    }
+</style>
+
+<script>
+    document.querySelectorAll('.chart-placeholder img').forEach(img => {
+        img.onclick = function() {
+            const modal = document.querySelector('.modal');
+            const modalImg = document.querySelector('.modal-content');
+            modal.style.display = "flex";
+            modalImg.src = this.src;
+        }
+    });
+
+    document.querySelector('.close').onclick = function() {
+        document.querySelector('.modal').style.display = "none";
+    }
+
+    window.onclick = function(event) {
+        if (event.target.className === 'modal') {
+            document.querySelector('.modal').style.display = "none";
+        }
+    }
+
+    window.onkeydown = function(event) {
+        if (event.key === "Escape") {
+            document.querySelector('.modal').style.display = "none";
+        }
+    }
+</script>
+
+
+<script>
+    document.querySelectorAll('.content-section').forEach((section, index) => {
+        section.style.opacity = 0;
+        section.style.animation = 'slideIn 0.6s ease-out forwards';
+        section.style.animationDelay = `${index * 0.2}s`;
+    });
+
+
+</script>
+    
+</body>
+</html>
