@@ -259,6 +259,23 @@
         transform: translateX(5px) scale(0.98);
     }
 
+    .month-report-link {
+        display: inline-block;
+        padding: 8px 15px;
+        border-radius: 18px;
+        background: rgba(0, 255, 157, 0.1);
+        color: var(--accent-color);
+        transition: all 0.3s ease;
+        margin-top: 10px;
+    }
+
+    .month-report-link:hover {
+        background: rgba(0, 255, 157, 0.2);
+        box-shadow: 0 0 12px rgba(0, 255, 157, 0.15);
+        transform: translateY(-2px);
+    }
+
+
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -426,8 +443,27 @@
         <p>此网站为公网镜像站点，完整功能<a href="http://10.88.202.71">点此前往内网官网</a></p>
     
         <div class="timeline" id="development-log">
+
             <div class="log-item" style="animation-delay: 0.2s;cursor: pointer;">
-                <div class="log-date">2025.03.15 - 项目启动</div>
+                <div class="log-date">2024.03.31 - 月度报告</div>
+                <div class="log-content">
+                    <p>三月月度报告已发布！</p>
+                    <a href="./article/2503.html" class="month-report-link">
+                        查看完整3月月度报告 →
+                    </a>
+                </div>
+            </div>
+
+            <div class="log-item" style="animation-delay: 0.2s;cursor: pointer;">
+                <div class="log-date">会话数统计 - 2025.03.16 </div>
+                <div class="log-content">
+                    <p>✅ 完成会话数统计功能</p>
+                    <p>🔧 优化会话数统计逻辑</p>
+                </div>
+            </div>
+
+            <div class="log-item" style="animation-delay: 0.2s;cursor: pointer;">
+                <div class="log-date">项目启动 - 2025.03.15</div>
                 <div class="log-content">
                     <p>✅ 完成基本框架搭建</p>
                     <p>✅ 配置GitHub Pages仓库</p>
@@ -435,13 +471,6 @@
                 </div>
             </div>
 
-            <div class="log-item" style="animation-delay: 0.2s;cursor: pointer;">
-                <div class="log-date">2025.03.16 - 会话数统计</div>
-                <div class="log-content">
-                    <p>✅ 完成会话数统计功能</p>
-                    <p>🔧 优化会话数统计逻辑</p>
-                </div>
-            </div>
 
             <div class="log-item" style="animation-delay: 0.2s;cursor: pointer;">
                 <div class="log-date">Github 仓库</div>
