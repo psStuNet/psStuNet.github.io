@@ -34,8 +34,30 @@
             text-decoration: none;
             padding: 5px 0;
             transition: all 0.3s ease;
-            background-color: transparent; /* 初始背景颜色 */
         }
+
+        a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 50%;
+            background: currentColor;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        a:hover {
+            color: #00ff9d !important;
+            transform: translateY(-2px);
+        }
+
+        a:hover::after {
+            width: 100%;
+            left: 0;
+        }
+        
+
 
         .floating-btn {
             padding: 10px 25px;
@@ -224,12 +246,88 @@
             </div>
 
             <div class="content-section">
-                <h2>bug</h2>
+                <h2>bug原因</h2>
                 <p>出现原因</p>
                 <p>当我们在v2rayN在参数设置中将端口调整为10003后未重新设置均衡负载</p>
                 <p>导致v2rayN无法正常使用</p>
                 <p>当v2rayN的局域网代理更改后，均衡负载的配置文件不会做出相应的更改，此时均衡负载仍将监听10003端口</p>
             </div>
+
+            <div class="content-section">
+                <h2>新的代理规则</h2>
+                <div class="table-container">
+                    <table class="issue-table">
+                        <thead>
+                            <tr>
+                                <th>服务器</th>
+                                <th>端口</th>
+                                <th>服务适用范围</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>10.88.202.71</td>
+                                <td>10001</td>
+                                <td>此代理与VPN共用同一线路，连接较为稳定，速度适中</td>
+                            </tr>
+                            <tr>
+                                <td>10.88.202.71</td>
+                                <td>10002</td>
+                                <td>这是一个海外代理服务，你可以通过代理端口来访问外网</td>
+                            </tr>
+                            <tr>
+                                <td>10.88.202.71</td>
+                                <td>10003</td>
+                                <td>通过v2rayN连接，这是一个速度极快的代理，但有时不可用</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="content-section">
+                <h2>还不会使用代理？</h2>
+                <p>你可以方便地使用我制作的软件<a href="http://10.88.202.71:5244/%E5%AD%A6%E7%94%9F%E7%9B%AE%E5%BD%95/%E4%BB%A3%E7%90%86/proxy.exe">proxy.exe</a>来设置v2rayN参数</p>
+                <p>导致v2rayN无法正常使用</p>
+                <p>当v2rayN的局域网代理更改后，均衡负载的配置文件不会做出相应的更改，此时均衡负载仍将监听10003端口</p>
+            </div>
+
+<style>
+.table-container {
+    overflow-x: auto;
+    margin: 1.5rem 0;
+}
+
+.issue-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 6px;
+}
+
+.issue-table th,
+.issue-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid rgba(0, 255, 157, 0.1);
+}
+
+.issue-table th {
+    background-color: rgba(0, 255, 157, 0.08);
+    color: var(--accent-color);
+}
+
+.issue-table tr:hover {
+    background-color: rgba(0, 255, 157, 0.05);
+}
+
+@media (max-width: 600px) {
+    .issue-table {
+        font-size: 0.9rem;
+    }
+}
+</style>
+
 
             <!--div class="content-section">
                 <h2>唐人郭宇恒</h2>
