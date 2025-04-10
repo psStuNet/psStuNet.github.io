@@ -445,6 +445,13 @@
         <div class="timeline" id="development-log">
 
             <div class="log-item" style="animation-delay: 0.2s;cursor: pointer;">
+                <div class="log-date">Bug fixed - 2025.04.10 </div>
+                <div class="log-content">
+                    <p>🔧 修复了会话数统计功能的一些bug</p>
+                </div>
+            </div>
+
+            <div class="log-item" style="animation-delay: 0.2s;cursor: pointer;">
                 <div class="log-date">2024.03.31 - 月度报告</div>
                 <div class="log-content">
                     <p>三月月度报告已发布！</p>
@@ -509,6 +516,9 @@
                         window.location.href = './article/project-start.html';
                     } else if(date.includes('会话数统计')) {
                         window.location.href = './article/session-count.html'; 
+                    }
+                    else if(date.includes('2025.04.10')) {
+                        window.location.href = './article/0410bug-fixed.html'; 
                     }
                 }
             });
