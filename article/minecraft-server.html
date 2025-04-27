@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>我们搭了一个Minecraft服务器！ - 学生目录</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <style>
+        :root {
+            --primary-color: #2a2a2a;
+            --accent-color: #00ff9d;
+            --text-color: #e0e0e0;
+        }
+
+        .name {
+            text-align: right;
+            margin-top: 2rem;
+        }
+
+        body {
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            line-height: 1.8;
+            font-family: 'Noto Sans SC', system-ui, sans-serif;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem 20px;
+        }
+        a {
+            position: relative;
+            color: rgb(0, 189, 73) !important;
+            text-decoration: none;
+            padding: 5px 0;
+            transition: all 0.3s ease;
+            background-color: transparent; /* 初始背景颜色 */
+        }
+
+        .floating-btn {
+            padding: 10px 25px;
+            border-radius: 25px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 2px solid;
+            backdrop-filter: blur(5px);
+            background-color: rgba(0, 255, 157, 0.1); /* 初始背景颜色 */
+            transform: scale(1); /* 初始缩放比例 */
+        }
+
+        .floating-btn:hover {
+            background-color: rgba(0, 189, 73, 0.2); /* 悬停时的背景颜色 */
+            transform: scale(1.1); /* 悬停时的缩放比例 */
+            box-shadow: 0 4px 8px rgba(0, 255, 157, 0.1); /* 添加阴影效果 */
+        }
+
+        @keyframes buttonHoverEffect {
+            0% {
+                transform: scale(1);
+                background-color: rgba(0, 255, 157, 0.1);
+                box-shadow: 0 0 0 rgba(0, 255, 157, 0);
+            }
+            50% {
+                transform: scale(1.05);
+                background-color: rgba(0, 189, 73, 0.2);
+                box-shadow: 0 2px 4px rgba(0, 255, 157, 0.1);
+            }
+            100% {
+                transform: scale(1.1);
+                background-color: rgba(0, 189, 73, 0.2);
+                box-shadow: 0 4px 8px rgba(0, 255, 157, 0.1);
+            }
+        }
+
+        .floating-btn:hover {
+            animation: buttonHoverEffect 0.3s ease forwards;
+        }
+
+
+        .floating-btn:hover {
+            animation: buttonHoverEffect 0.3s ease forwards;
+        }
+
+
+        .article-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .article-title {
+            font-size: 2.5rem;
+            color: var(--accent-color);
+            margin-bottom: 1.5rem;
+            animation: slideIn 0.6s ease-out;
+        }
+
+        .meta-info {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            opacity: 0.8;
+            margin-bottom: 2rem;
+        }
+
+        .content-section {
+            opacity: 0;
+            transform: translateY(30px);
+            animation: sectionAppear 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+            transition: all 0.4s ease;
+            margin: 2.5rem 0;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            will-change: transform, opacity;
+        }
+
+        .fixed-buttons {
+            top: 10px;
+            padding: 10px 0;
+            background: rgba(42, 42, 42, 0);
+            backdrop-filter: blur(0px);
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            position:sti;
+            left: 0;
+            backdrop-filter: blur(12px);
+        }
+
+        .fixed-buttons.scrolled {
+            background: rgba(42, 42, 42, 0.7);
+            backdrop-filter: blur(8px);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            padding: 12px 0;
+            border-radius: 25px;
+            width: fit-content;
+            margin: 0 auto;
+            /* 保持居中定位 */
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .floating-btn {
+            /* 复用主站样式 */
+            padding: 10px 25px;
+            border-radius: 25px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 2px solid;
+            backdrop-filter: blur(5px);
+        }
+
+        .back-btn {
+            color: #00ff9d;
+            border-color: #00ff9d;
+            background: rgba(0, 255, 157, 0.1);
+        }
+
+        @keyframes sectionAppear {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .content-section:nth-child(1) { animation-delay: 0.2s; }
+        .content-section:nth-child(2) { animation-delay: 0.4s; }
+        .content-section:nth-child(3) { animation-delay: 0.6s; }
+
+        .content-section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 255, 157, 0.05);
+            background: rgba(0, 255, 157, 0.089);
+        }
+
+        .tech-stack {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .tech-item {
+            background: rgba(0, 255, 157, 0.1);
+            padding: 0.8rem;
+            border-radius: 4px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .tech-item:hover {
+            transform: translateY(-3px);
+        }
+
+        /* 复用主站动画 */
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="fixed-buttons">
+        <a href="../index.html" class="floating-btn home-btn">返回首页</a>
+    </div>
+    <article class="container">
+        <header class="article-header">
+            <h1 class="article-title">我们搭了一个Minecraft服务器！</h1>
+            <div class="meta-info">
+                <span>发布日期：2025.04.19</span>
+                <span>作者：yuebi</span>
+            </div>
+        </header>
+
+        <section class="content-section">
+            <p>运行内存升级以来，总是感觉内存没有发挥出它最大的价值。经过思考与讨论，我们决定搭建一个Minecraft服务器，让全校的学生都能够享受到Minecraft的乐趣。</p>
+        </section>
+
+        <section class="content-section">
+            <h2>🎯项目背景</h2>
+            <p class="quote">"让校园内的每一个玩家都能享受到Minecraft的乐趣"</p>
+            <p>为了满足校园内玩家的娱乐需求，我们成功搭建了一个Minecraft服务器。此次项目旨在为全校学生提供一个安全、便捷的游戏平台。Minecraft是一款备受欢迎的沙盒游戏，它允许玩家在虚拟世界中自由建造、探索和创造。通过搭建自己的服务器，我们可以定制游戏规则，增加更多的游戏乐趣。</p>
+        </section>
+
+        <section class="content-section">
+            <h2>🛠️ 服务器搭建</h2>
+            <p>我们选择了Minecraft 1.21.5版本作为服务器的基础，并使用Fabric插件来支持正版皮肤的使用 。首先，我们下载了paper mc，并进行了详细的配置。接着，我们安装了Fabric Loader和Fabric API，以便后续的插件安装和使用。最后，我们配置了正版皮肤支持，让玩家可以使用自己账号的皮肤。</p>
+            <p>在搭建过程中，我们遇到了一些挑战。首先是服务器资源的配置，我们需要确保服务器有足够的内存和CPU来支持大量的玩家同时在线。其次是插件的兼容性和稳定性，我们选择了多个实用的插件，但需要逐一测试和调试以确保它们能够正常运行。最后是网络连接问题，我们需要确保服务器能够稳定地连接到互联网，以便玩家能够顺利地加入游戏。</p>
+        </section>
+
+        <section class="content-section">
+            <h2>🌐 外网访问</h2>
+            <p>通过Radmin工具，我们实现了Minecraft服务器的外网访问，让远程的玩家也能加入我们的游戏社区。Radmin是一个远程管理工具，可以帮助我们轻松地将本地服务器暴露在外网中。我们配置了端口转发和防火墙规则，确保服务器的安全性和稳定性。现在，无论你身处何地，都可以通过我们的服务器地址加入游戏。</p>
+            <p>为了更方便地访问服务器，我们还开发了一个简单的网页界面，玩家可以直接在这个页面上查看服务器状态、下载客户端模组，并获取加入服务器的详细步骤。此外，我们还设置了服务器状态指示灯，每五分钟检测一次服务器的连接人数，并将结果显示在网页上。当服务器接近最大承载人数时，指示灯会变色，提醒我们及时进行优化。</p>
+        </section>
+
+        <section class="content-section">
+            <h2>🎮 游戏体验</h2>
+            <p>我们的Minecraft服务器提供了多种游戏模式，包括生存模式、创造模式和冒险模式。每个模式都有独特的玩法和挑战，让玩家能够享受不同的游戏乐趣。</p>
+            <p>在生存模式下，玩家需要收集资源、建造避难所，并对抗怪物。创造模式则允许玩家自由地建造建筑和打造物品，非常适合团队协作和创意展示。冒险模式结合了生存和创造的优点，玩家可以在一个相对安全的环境中进行探索和建造。</p>
+        </section>
+
+        <section class="content-section">
+            <h2>📊 数据分析</h2>
+            <p>为了更好地了解玩家的使用情况和游戏行为，我制作了日志数据分析工具。通过这个工具，我们可以查看玩家的在线时间、建造活动和游戏进度，了解服务器的使用情况和玩家的需求。</p>
+        </section>
+
+        <section class="content-section">
+            <h2>🚀 开发里程碑</h2>
+            <ul class="plan-list">
+                <li>
+                    <h3>服务器配置</h3>
+                    <p>从最初的服务器配置到现在的稳定运行，我们团队付出了大量的努力。我们选择了Minecraft 1.21.4版本，并进行了详细的配置和优化。</p>
+                </li>
+                <li>
+                    <h3>Fabric插件安装与配置</h3>
+                    <p>为了支持正版皮肤的使用，我们安装并配置了Fabric插件。这不仅确保了游戏的公平性，还让玩家能够使用自己的正版皮肤。</p>
+                </li>
+                <li>
+                    <h3>服务器测试与优化</h3>
+                    <p>在服务器运行初期，我们进行了多次测试和优化，包括网络连接、性能调优和插件兼容性测试。</p>
+                </li>
+                <li>
+                    <h3>外网访问设置</h3>
+                    <p>通过Radmin工具，我们成功实现了服务器的外网访问，让远程的玩家也能加入我们的游戏社区。</p>
+                </li>
+            </ul>
+        </section>
+
+        <footer class="content-section">
+            <h3>鸣谢~</h3>
+            <p>感谢pysyzx提供的服务器资源=￣ω￣=</p>
+            <p>感谢各位的支持！</p>
+            
+            <div class="name">
+                <p><strong>yuebi</strong></p>
+                <p><time>2025年4月19日</time></p>
+                <p><em>Mc启动！</em></p>
+            </div>
+        </footer>
+    </article>
+
+    <script>
+        // 复用主站脚本
+        document.querySelectorAll('.content-section').forEach((section, index) => {
+            section.style.opacity = 0;
+            section.style.animation = 'slideIn 0.6s ease-out forwards';
+            section.style.animationDelay = `${index * 0.2}s`;
+        });
+    </script>
+</body>
+</html>
