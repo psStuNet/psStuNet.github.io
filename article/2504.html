@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>学生目录四月月度报告</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" type="text/css" href="../style.css">
+</head>
+<body>
+    <!-- 保持固定按钮和header结构 -->
+    <article class="container">
+        <header class="article-header">
+            <h1 class="article-title">学生目录4月月度报告</h1>
+        </header>
+
+        <section class="content-section">
+            <h3>各位数字游牧民：</h3>
+            <p>在樱花盛开的四月，我们的学生目录又平稳度过了一个月！以下是本月技术升级的机密简报：</p>
+        </section>
+
+        <section class="content-section">
+            <h2>一、TLS分片技术支持</h2>
+            
+            <h3>1. 技术原理</h3>
+            <p>本系统通过多层级分片技术突破深度包检测（DPI）：</p>
+            <ul>
+                <li><strong>TCP层分片</strong>：将初始TCP报文拆分为2-4个随机长度分片</li>
+                <li><strong>TLS记录层分片</strong>：将ClientHello的SNI字段分散到3个TLS记录中</li>
+                <li><strong>混淆策略</strong>：每个分片添加16字节伪HTTP头，模拟常规Web流量特征</li>
+            </ul>
+
+            <h3>2. 反检测机制</h3>
+            <p>实现FAKEdesync抗协议分析技术：</p>
+            <ul>
+                <li>发送TTL值异常的伪造TCP握手包（使用TransmitFile/管道传输）</li>
+                <li>动态调整真实数据包发送间隔（50-300ms随机延迟）</li>
+                <li>支持TTL自动二分探测策略（--FAKE_ttl=query）</li>
+            </ul>
+
+            <h3>3. 技术参数</h3>
+            <table class="tech-spec">
+                <tr>
+                    <th>参数</th>
+                    <th>作用</th>
+                    <th>默认值</th>
+                </tr>
+                <tr>
+                    <td><code>num_TCP_fragment</code></td>
+                    <td>TCP层最大分片数</td>
+                    <td>3</td>
+                </tr>
+                <tr>
+                    <td><code>TLS_frag</code></td>
+                    <td>TLS记录分片长度</td>
+                    <td>512字节</td>
+                </tr>
+                <tr>
+                    <td><code>FAKE_sleep</code></td>
+                    <td>假包发送间隔</td>
+                    <td>150ms</td>
+                </tr>
+            </table>
+
+            <h3>4. 实现效果</h3>
+            <p>使用tls分片，你可以流畅地访问GitHub、Discord甚至是Google这些网站。</p>
+            
+            <div class="chart-placeholder">
+                <p>未使用tls分片</p>
+                <img src="../img/Snipaste_2025-04-28_01-19-27.png"   alt="4">
+            </div>
+            <div class="chart-placeholder">
+                <p>使用tls分片</p>
+                <img src="../img/Snipaste_2025-04-28_01-20-46.png"   alt="5">
+            </div>
+            <p>现在tls分片技术已应用于代理服务的线路一，详见下一部分</p>
+        </section>
+
+
+        <section class="content-section">
+            <h2>二、代理服务超进化</h2>
+            <p class="quote">"这次我们不仅翻墙，还要在墙上开全景天窗"</p>
+            <p>经过对代理端口的量子级改造：
+                <ul>
+                    <li>新增<strong>多端口负载均衡</strong>技术</li>
+                    <li>客户端升级至<code>v2.1</code>版本，请前往共享目录下载最新版本，新增：
+                        <ul>
+                            <li>tls分片技术支持</li>
+                            <li>线路切换的支持</li>
+                            <li>稍微好看了一些的UI</li>
+                        </ul>
+                    </li>
+                    <li>Github仓库地址：<a href="https://github.com/eightclaTony/proxy">点击跳转</a></li>
+                </ul>
+            <P>以下是软件的截图：</P>
+            <div class="chart-placeholder">
+                <img src="../img/Snipaste_2025-04-28_01-00-00.png"   alt="1">
+            </div>
+            <div class="chart-placeholder">
+                <img src="../img/Snipaste_2025-04-28_01-00-35.png"   alt="2">
+            </div>
+            <div class="chart-placeholder">
+                <img src="../img/Snipaste_2025-04-28_01-01-05.png"   alt="3">
+            </div>
+            <p>另外，在代理连接成功后将会跳转至一个<a href="https://eightclatony.github.io/proxy/">网页</a></p>
+        </section>
+
+        <section class="content-section">
+            <h2>三、欢迎来到我的世界</h2>
+            <p>我们在服务器上成功部署了<code>Minecraft 1.21.5</code>原版服务器</p>
+            <div class="tech-stack">
+                <div class="tech-item">
+                    <p>服务器IP：10.88.20.71:25565<br><br>
+                    特色玩法<br>
+                    悦币商城</p>
+                </div>
+            </div>
+            <p>关于服务器的搭建，详见<a href="https://psstunet.github.io/article/minecraft-server.html">此报告</a></p>
+            <p>关于如何访问服务器，请阅读学生目录中的教程</a>
+        </section>
+
+        <section class="content-section">
+            <h2>三、下月作战计划</h2>
+            <ul class="plan-list">
+                <li>
+                    <h3>MC服务器搭建</h3>
+                    <p>我们将继续完善MC服务器的搭建，欢迎有兴趣的同学加入我们！</p>
+                </li>
+            </ul>
+        </section>
+
+        <!-- 保持原有声明和鸣谢格式 -->
+        <footer class="content-section">
+            <div class="name">
+                <p><strong>yuebi</strong></p>
+                <p><time>2025年4月30日</time></p>
+                <p><em>于MC服务器主城区</em></p>
+            </div>
+        </footer>
+    </article>
+
+    <!-- 保持原有modal和脚本 -->
+</body>
+</html>
