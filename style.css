@@ -28,8 +28,30 @@ a {
     text-decoration: none;
     padding: 5px 0;
     transition: all 0.3s ease;
-    background-color: transparent; /* 初始背景颜色 */
 }
+
+a::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 0;
+    left: 50%;
+    background: currentColor;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+a:hover {
+    color: #00ff9d !important;
+    transform: translateY(-2px);
+}
+
+a:hover::after {
+    width: 100%;
+    left: 0;
+}
+
+
 
 .floating-btn {
     padding: 10px 25px;
