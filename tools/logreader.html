@@ -95,12 +95,30 @@
             </h2>
             
             <div id="chart-container" class="hidden">
-                <div class="bg-gray-50 rounded-lg p-4 mb-4">
-                    <h3 id="chart-title" class="text-lg font-medium mb-2">协议统计数据</h3>
+                <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
+                        <h3 class="text-lg font-medium">协议总持续时间统计</h3>
+                        <div class="mt-2 md:mt-0 flex space-x-2">
+                            <button class="chart-type-btn bg-primary text-white px-3 py-1 rounded-md text-sm" data-type="bar">柱状图</button>
+                            <button class="chart-type-btn bg-gray-200 text-gray-700 px-3 py-1 rounded-md text-sm" data-type="line">折线图</button>
+                        </div>
+                    </div>
                     <div id="chart" class="w-full h-[400px]"></div>
                 </div>
                 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <h3 class="text-lg font-medium mb-4">连接类型占比分析</h3>
+                        <div id="pie-chart" class="w-full h-[300px]"></div>
+                    </div>
+                    
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <h3 class="text-lg font-medium mb-4">每日连接趋势</h3>
+                        <div id="trend-chart" class="w-full h-[300px]"></div>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div class="bg-gray-50 rounded-lg p-4">
                         <h4 class="font-medium text-gray-700 mb-2">总连接数</h4>
                         <p id="total-connections" class="text-2xl font-bold text-primary">0</p>
@@ -148,8 +166,9 @@
         const generateChartBtn = document.getElementById('generate-chart');
         const chartContainer = document.getElementById('chart-container');
         const emptyState = document.getElementById('empty-state');
-        const chartTitle = document.getElementById('chart-title');
         const chartElement = document.getElementById('chart');
+        const pieChartElement = document.getElementById('pie-chart');
+        const trendChartElement = document.getElementById('trend-chart');
         const totalConnections = document.getElementById('total-connections');
         const avgDuration = document.getElementById('avg-duration');
         const protocolCount = document.getElementById('protocol-count');
@@ -157,6 +176,10 @@
         const notificationMessage = document.getElementById('notification-message');
         const notificationIcon = document.getElementById('notification-icon');
         const themeToggle = document.getElementById('theme-toggle');
+        const chartTypeBtns = document.querySelectorAll('.chart-type-btn');
+
+        // 当前图表类型
+        let currentChartType = 'bar';
 
         // 文件选项点击事件
         fileOptions.forEach(option => {
@@ -194,6 +217,29 @@
                 showNotification('错误', `处理文件时出错: ${error.message}`, 'error');
                 console.error(error);
             }
+        });
+
+        // 图表类型切换按钮事件
+        chartTypeBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const type = btn.getAttribute('data-type');
+                if (type !== currentChartType) {
+                    currentChartType = type;
+                    chartTypeBtns.forEach(b => {
+                        if (b.getAttribute('data-type') === type) {
+                            b.classList.remove('bg-gray-200', 'text-gray-700');
+                            b.classList.add('bg-primary', 'text-white');
+                        } else {
+                            b.classList.remove('bg-primary', 'text-white');
+                            b.classList.add('bg-gray-200', 'text-gray-700');
+                        }
+                    });
+                    // 如果有数据，重新渲染主图表
+                    if (window.allChartData && window.allChartData.length > 0) {
+                        renderChart(window.allChartData);
+                    }
+                }
+            });
         });
 
         // 处理选中的文件
@@ -243,7 +289,12 @@
             }
             
             if (allData.length > 0) {
+                // 保存数据到全局变量，以便图表类型切换时使用
+                window.allChartData = allData;
+                
                 renderChart(allData);
+                renderPieChart(allData);
+                renderTrendChart(allData);
                 updateStats(allData);
                 chartContainer.classList.remove('hidden');
                 emptyState.classList.add('hidden');
@@ -276,6 +327,25 @@
                         row[header] = isNaN(parseFloat(value)) ? value : parseFloat(value);
                     });
                     
+                    // 尝试提取日期信息
+                    const dateRegex = /\d{4}-\d{2}-\d{2}/;
+                    const dateMatch = content.match(dateRegex);
+                    if (dateMatch) {
+                        row['日期'] = dateMatch[0];
+                    } else {
+                        // 如果没有明确日期，尝试从文件名提取
+                        const fileDateRegex = /\d{4}/;
+                        const fileDateMatch = content.match(fileDateRegex);
+                        if (fileDateMatch) {
+                            // 假设文件名中的前4位数字是日期的一部分
+                            row['日期'] = `20${fileDateMatch[0]}-01-01`; // 默认月份和日期
+                        } else {
+                            // 如果都没有，使用当前日期
+                            const now = new Date();
+                            row['日期'] = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}`;
+                        }
+                    }
+                    
                     statsData.push(row);
                 }
             });
@@ -283,7 +353,7 @@
             return statsData;
         }
 
-        // 渲染图表
+        // 渲染主图表（协议持续时间）
         function renderChart(data) {
             const uniqueProtocols = [...new Set(data.map(item => item['协议类型']))];
             const fileNames = [...new Set(data.map(item => item.file))];
@@ -302,7 +372,7 @@
                 traces.push({
                     x: x,
                     y: y,
-                    type: 'bar',
+                    type: currentChartType,
                     name: protocol,
                     hovertemplate: `<b>%{x}</b><br>总持续时间: %{y}秒<br>协议: ${protocol}<extra></extra>`
                 });
@@ -352,7 +422,126 @@
             Plotly.newPlot(chartElement, traces, layout);
         }
 
-        // 更新统计信息
+        // 渲染饼图（连接类型占比）
+        function renderPieChart(data) {
+            // 按协议类型分组并计算连接数总和
+            const protocolGroups = {};
+            data.forEach(item => {
+                if (!protocolGroups[item['协议类型']]) {
+                    protocolGroups[item['协议类型']] = 0;
+                }
+                protocolGroups[item['协议类型']] += item['连接数'];
+            });
+            
+            // 准备饼图数据
+            const labels = Object.keys(protocolGroups);
+            const values = Object.values(protocolGroups);
+            
+            // 创建饼图数据
+            const trace = {
+                labels: labels,
+                values: values,
+                type: 'pie',
+                hovertemplate: '%{label}: %{value} 连接数<br>占比: %{percent}<extra></extra>'
+            };
+            
+            // 设置图表布局
+            const layout = {
+                title: {
+                    text: '连接类型占比分析',
+                    font: {
+                        size: 18,
+                        family: 'Inter, sans-serif'
+                    }
+                },
+                font: {
+                    family: 'Inter, sans-serif'
+                },
+                margin: {
+                    t: 50,
+                    b: 20,
+                    l: 20,
+                    r: 20
+                }
+            };
+            
+            // 创建饼图
+            Plotly.newPlot(pieChartElement, [trace], layout);
+        }
+
+        // 渲染趋势图（每日连接）
+        function renderTrendChart(data) {
+            // 按日期分组并计算连接数总和
+            const dateGroups = {};
+            data.forEach(item => {
+                if (!dateGroups[item['日期']]) {
+                    dateGroups[item['日期']] = 0;
+                }
+                dateGroups[item['日期']] += item['连接数'];
+            });
+            
+            // 准备趋势图数据
+            const dates = Object.keys(dateGroups).sort();
+            const connections = dates.map(date => dateGroups[date]);
+            
+            // 创建趋势图数据 - 使用散点图类型
+            const trace = {
+                x: dates,
+                y: connections,
+                type: 'scatter',
+                mode: 'markers', // 只显示数据点，不显示连接线
+                marker: {
+                    size: 12,
+                    color: '#165DFF',
+                    opacity: 0.8,
+                    line: {
+                        width: 2,
+                        color: '#fff'
+                    }
+                },
+                hovertemplate: '%{x}<br>连接数: %{y}<extra></extra>'
+            };
+            
+            // 设置图表布局
+            const layout = {
+                title: {
+                    text: '每日连接分布',
+                    font: {
+                        size: 18,
+                        family: 'Inter, sans-serif'
+                    }
+                },
+                xaxis: {
+                    title: '日期',
+                    type: 'category',
+                    tickangle: 45,
+                    automargin: true,
+                    font: {
+                        family: 'Inter, sans-serif'
+                    }
+                },
+                yaxis: {
+                    title: '连接数',
+                    font: {
+                        family: 'Inter, sans-serif'
+                    }
+                },
+                font: {
+                    family: 'Inter, sans-serif'
+                },
+                hovermode: 'closest',
+                margin: {
+                    t: 50,
+                    b: 80, // 增加底部边距以显示完整的日期标签
+                    l: 50,
+                    r: 20
+                }
+            };
+            
+            // 创建趋势图
+            Plotly.newPlot(trendChartElement, [trace], layout);
+        }
+        
         function updateStats(data) {
             const totalConn = data.reduce((sum, item) => sum + item['连接数'], 0);
             const totalDuration = data.reduce((sum, item) => sum + item['总持续时间(秒)'], 0);
