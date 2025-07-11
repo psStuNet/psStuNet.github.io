@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown数据可视化工具</title>
+    <!-- 引入Plotly库 -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <!-- 引入Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    
+    <!-- 配置Tailwind -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#FF7D00',
+                        neutral: '#F5F7FA',
+                        dark: '#1D2129',
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .card-shadow {
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            }
+            .hover-scale {
+                transition: transform 0.3s ease;
+            }
+            .hover-scale:hover {
+                transform: scale(1.02);
+            }
+        }
+    </style>
+</head>
+<body class="font-inter bg-gray-50 text-dark min-h-screen flex flex-col">
+    <!-- 顶部导航栏 -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center">
+                <i class="fa fa-bar-chart text-primary text-2xl mr-2"></i>
+                <h1 class="text-xl font-bold">Markdown数据可视化工具</h1>
+            </div>
+            <div>
+                <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-100 transition-colors">
+                    <i class="fa fa-moon-o text-gray-600"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主要内容区 -->
+    <main class="flex-grow container mx-auto px-4 py-8">
+        <!-- 文件选择卡片 -->
+        <div class="bg-white rounded-xl p-6 shadow-lg mb-8 hover:shadow-xl transition-shadow duration-300">
+            <h2 class="text-xl font-semibold mb-4 flex items-center">
+                <i class="fa fa-file-text-o text-primary mr-2"></i> 选择Markdown文件
+            </h2>
+            
+            <div class="space-y-3">
+                <div class="flex items-center p-3 border border-gray-200 rounded-lg hover:border-primary transition-colors cursor-pointer file-option" data-file="https://psstunet.github.io/logs/2504.md">
+                    <input type="checkbox" id="file-2504" class="h-5 w-5 text-primary focus:ring-primary/50 border-gray-300 rounded">
+                    <label for="file-2504" class="ml-3 text-gray-700">2504.md - 网络协议统计报告</label>
+                </div>
+                
+                <div class="flex items-center p-3 border border-gray-200 rounded-lg hover:border-primary transition-colors cursor-pointer file-option" data-file="https://psstunet.github.io/logs/2507.md">
+                    <input type="checkbox" id="file-2507" class="h-5 w-5 text-primary focus:ring-primary/50 border-gray-300 rounded">
+                    <label for="file-2507" class="ml-3 text-gray-700">2507.md - 服务器性能分析报告</label>
+                </div>
+            </div>
+            
+            <button id="generate-chart" class="mt-6 px-6 py-3 bg-primary text-white rounded-md hover:bg-primary/90 transition-colors duration-200 shadow-sm flex items-center">
+                <i class="fa fa-refresh mr-2"></i> 生成图表
+            </button>
+        </div>
+        
+        <!-- 图表展示卡片 -->
+        <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <h2 class="text-xl font-semibold mb-4 flex items-center">
+                <i class="fa fa-line-chart text-primary mr-2"></i> 数据可视化
+            </h2>
+            
+            <div id="chart-container" class="hidden">
+                <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                    <h3 id="chart-title" class="text-lg font-medium mb-2">协议统计数据</h3>
+                    <div id="chart" class="w-full h-[400px]"></div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <h4 class="font-medium text-gray-700 mb-2">总连接数</h4>
+                        <p id="total-connections" class="text-2xl font-bold text-primary">0</p>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <h4 class="font-medium text-gray-700 mb-2">平均持续时间</h4>
+                        <p id="avg-duration" class="text-2xl font-bold text-primary">0 秒</p>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <h4 class="font-medium text-gray-700 mb-2">协议种类</h4>
+                        <p id="protocol-count" class="text-2xl font-bold text-primary">0</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="empty-state" class="py-12 text-center">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
+                    <i class="fa fa-file-text-o text-gray-400 text-2xl"></i>
+                </div>
+                <h3 class="text-lg font-medium text-gray-700 mb-2">请选择Markdown文件</h3>
+                <p class="text-gray-500 max-w-md mx-auto">选择一个或多个Markdown文件，然后点击"生成图表"按钮来查看数据可视化结果</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-white border-t border-gray-200 py-6">
+        <div class="container mx-auto px-4 text-center text-gray-500 text-sm">
+            <p>© 2023 Markdown数据可视化工具 | 纯前端实现</p>
+        </div>
+    </footer>
+
+    <!-- 通知组件 -->
+    <div id="notification" class="fixed top-20 right-4 p-4 rounded-lg shadow-lg transform transition-all duration-300 translate-x-full opacity-0 z-50 flex items-center">
+        <i id="notification-icon" class="mr-2"></i>
+        <span id="notification-message"></span>
+        <button class="ml-4 text-gray-400 hover:text-gray-600">
+            <i class="fa fa-times"></i>
+        </button>
+    </div>
+
+    <script>
+        // DOM元素
+        const fileOptions = document.querySelectorAll('.file-option');
+        const generateChartBtn = document.getElementById('generate-chart');
+        const chartContainer = document.getElementById('chart-container');
+        const emptyState = document.getElementById('empty-state');
+        const chartTitle = document.getElementById('chart-title');
+        const chartElement = document.getElementById('chart');
+        const totalConnections = document.getElementById('total-connections');
+        const avgDuration = document.getElementById('avg-duration');
+        const protocolCount = document.getElementById('protocol-count');
+        const notification = document.getElementById('notification');
+        const notificationMessage = document.getElementById('notification-message');
+        const notificationIcon = document.getElementById('notification-icon');
+        const themeToggle = document.getElementById('theme-toggle');
+
+        // 文件选项点击事件
+        fileOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                const checkbox = option.querySelector('input[type="checkbox"]');
+                checkbox.checked = !checkbox.checked;
+                updateChartButtonState();
+            });
+        });
+
+        // 更新生成图表按钮状态
+        function updateChartButtonState() {
+            const isAnyFileSelected = Array.from(fileOptions).some(option => 
+                option.querySelector('input[type="checkbox"]').checked
+            );
+            generateChartBtn.disabled = !isAnyFileSelected;
+            generateChartBtn.classList.toggle('opacity-50', !isAnyFileSelected);
+            generateChartBtn.classList.toggle('cursor-not-allowed', !isAnyFileSelected);
+        }
+
+        // 生成图表按钮点击事件
+        generateChartBtn.addEventListener('click', async function() {
+            const selectedFiles = Array.from(fileOptions)
+                .filter(option => option.querySelector('input[type="checkbox"]').checked)
+                .map(option => option.getAttribute('data-file'));
+            
+            if (selectedFiles.length === 0) {
+                showNotification('警告', '请至少选择一个文件', 'warning');
+                return;
+            }
+            
+            try {
+                await processSelectedFiles(selectedFiles);
+            } catch (error) {
+                showNotification('错误', `处理文件时出错: ${error.message}`, 'error');
+                console.error(error);
+            }
+        });
+
+        // 处理选中的文件
+        async function processSelectedFiles(selectedFiles) {
+            const allData = [];
+            const errors = [];
+            
+            // 显示加载状态
+            generateChartBtn.disabled = true;
+            generateChartBtn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i> 加载中...';
+            
+            // 并发获取所有文件
+            const fetchPromises = selectedFiles.map(async fileName => {
+                try {
+                    const response = await fetch(fileName);
+                    
+                    if (!response.ok) {
+                        throw new Error(`无法获取文件 ${fileName}: ${response.statusText}`);
+                    }
+                    
+                    const content = await response.text();
+                    const statsData = parseMarkdownStats(content);
+                    
+                    if (statsData && statsData.length > 0) {
+                        statsData.forEach(item => {
+                            item.file = fileName.split('/').pop(); // 只保留文件名
+                        });
+                        allData.push(...statsData);
+                    } else {
+                        errors.push(`文件 ${fileName} 中未找到有效数据`);
+                    }
+                } catch (error) {
+                    errors.push(`获取文件 ${fileName} 失败: ${error.message}`);
+                }
+            });
+            
+            // 等待所有请求完成
+            await Promise.all(fetchPromises);
+            
+            // 恢复按钮状态
+            generateChartBtn.disabled = false;
+            generateChartBtn.innerHTML = '<i class="fa fa-refresh mr-2"></i> 生成图表';
+            
+            // 显示错误信息（如果有）
+            if (errors.length > 0) {
+                showNotification('警告', errors.join('; '), 'warning');
+            }
+            
+            if (allData.length > 0) {
+                renderChart(allData);
+                updateStats(allData);
+                chartContainer.classList.remove('hidden');
+                emptyState.classList.add('hidden');
+                
+                // 平滑滚动到图表
+                chartContainer.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                showNotification('错误', '未找到有效数据，请选择其他文件', 'error');
+            }
+        }
+
+        // 解析Markdown文件中的协议统计数据
+        function parseMarkdownStats(content) {
+            const regex = /### 协议统计\n([\s\S]*?)\n### 总结/g;
+            const matches = content.match(regex);
+            if (!matches) return null;
+
+            const statsData = [];
+            matches.forEach(match => {
+                const tableLines = match.split('\n').filter(line => line.includes('|') && !line.includes('---'));
+                const headers = tableLines[0].split('|').map(header => header.trim()).filter(header => header);
+                
+                for (let i = 1; i < tableLines.length; i++) {
+                    const values = tableLines[i].split('|').map(value => value.trim()).filter(value => value);
+                    const row = {};
+                    
+                    headers.forEach((header, index) => {
+                        // 尝试将值转换为数字
+                        const value = values[index];
+                        row[header] = isNaN(parseFloat(value)) ? value : parseFloat(value);
+                    });
+                    
+                    statsData.push(row);
+                }
+            });
+            
+            return statsData;
+        }
+
+        // 渲染图表
+        function renderChart(data) {
+            const uniqueProtocols = [...new Set(data.map(item => item['协议类型']))];
+            const fileNames = [...new Set(data.map(item => item.file))];
+            
+            // 创建图表数据
+            const traces = [];
+            
+            uniqueProtocols.forEach(protocol => {
+                const protocolData = data.filter(item => item['协议类型'] === protocol);
+                const x = fileNames;
+                const y = fileNames.map(file => {
+                    const item = protocolData.find(item => item.file === file);
+                    return item ? item['总持续时间(秒)'] : 0;
+                });
+                
+                traces.push({
+                    x: x,
+                    y: y,
+                    type: 'bar',
+                    name: protocol,
+                    hovertemplate: `<b>%{x}</b><br>总持续时间: %{y}秒<br>协议: ${protocol}<extra></extra>`
+                });
+            });
+            
+            // 设置图表布局
+            const layout = {
+                barmode: 'group',
+                title: {
+                    text: '协议总持续时间统计',
+                    font: {
+                        size: 20,
+                        family: 'Inter, sans-serif'
+                    }
+                },
+                xaxis: {
+                    title: '文件',
+                    font: {
+                        family: 'Inter, sans-serif'
+                    }
+                },
+                yaxis: {
+                    title: '总持续时间(秒)',
+                    font: {
+                        family: 'Inter, sans-serif'
+                    }
+                },
+                legend: {
+                    title: '协议类型',
+                    font: {
+                        family: 'Inter, sans-serif'
+                    }
+                },
+                font: {
+                    family: 'Inter, sans-serif'
+                },
+                hovermode: 'closest',
+                margin: {
+                    t: 50,
+                    b: 50,
+                    l: 50,
+                    r: 20
+                }
+            };
+            
+            // 创建图表
+            Plotly.newPlot(chartElement, traces, layout);
+        }
+
+        // 更新统计信息
+        function updateStats(data) {
+            const totalConn = data.reduce((sum, item) => sum + item['连接数'], 0);
+            const totalDuration = data.reduce((sum, item) => sum + item['总持续时间(秒)'], 0);
+            const uniqueProtocols = [...new Set(data.map(item => item['协议类型']))];
+            
+            totalConnections.textContent = totalConn;
+            avgDuration.textContent = (totalDuration / data.length).toFixed(1) + ' 秒';
+            protocolCount.textContent = uniqueProtocols.length;
+        }
+
+        // 显示通知
+        function showNotification(title, message, type) {
+            notificationMessage.textContent = `${title}: ${message}`;
+            
+            // 设置图标和样式
+            if (type === 'success') {
+                notification.className = 'fixed top-20 right-4 p-4 rounded-lg shadow-lg transform transition-all duration-300 bg-green-50 text-green-800 flex items-center z-50';
+                notificationIcon.className = 'fa fa-check-circle text-green-500';
+            } else if (type === 'error') {
+                notification.className = 'fixed top-20 right-4 p-4 rounded-lg shadow-lg transform transition-all duration-300 bg-red-50 text-red-800 flex items-center z-50';
+                notificationIcon.className = 'fa fa-exclamation-circle text-red-500';
+            } else if (type === 'warning') {
+                notification.className = 'fixed top-20 right-4 p-4 rounded-lg shadow-lg transform transition-all duration-300 bg-yellow-50 text-yellow-800 flex items-center z-50';
+                notificationIcon.className = 'fa fa-exclamation-triangle text-yellow-500';
+            }
+            
+            // 显示通知
+            notification.classList.remove('translate-x-full', 'opacity-0');
+            
+            // 3秒后隐藏通知
+            setTimeout(() => {
+                notification.classList.add('translate-x-full', 'opacity-0');
+            }, 3000);
+        }
+
+        // 暗色/亮色主题切换
+        themeToggle.addEventListener('click', function() {
+            document.body.classList.toggle('dark-mode');
+            const isDarkMode = document.body.classList.contains('dark-mode');
+            
+            if (isDarkMode) {
+                document.body.classList.add('bg-gray-900', 'text-white');
+                document.body.classList.remove('bg-gray-50', 'text-dark');
+                themeToggle.innerHTML = '<i class="fa fa-sun-o text-yellow-400"></i>';
+            } else {
+                document.body.classList.remove('bg-gray-900', 'text-white');
+                document.body.classList.add('bg-gray-50', 'text-dark');
+                themeToggle.innerHTML = '<i class="fa fa-moon-o text-gray-600"></i>';
+            }
+        });
+
+        // 初始化
+        updateChartButtonState();
+    </script>
+</body>
+</html>
