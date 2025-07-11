@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Markdown数据可视化工具</title>
+    <title>来看看日志趴(/≧▽≦)/</title>
     <!-- 引入Plotly库 -->
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <!-- 引入Tailwind CSS -->
@@ -44,16 +44,22 @@
             .hover-scale:hover {
                 transform: scale(1.02);
             }
+            .chart-container-mobile {
+                @apply w-full h-[300px];
+            }
+            .chart-container-desktop {
+                @apply w-full h-[400px];
+            }
         }
     </style>
 </head>
 <body class="font-inter bg-gray-50 text-dark min-h-screen flex flex-col">
     <!-- 顶部导航栏 -->
     <header class="bg-white shadow-sm sticky top-0 z-50">
-        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
             <div class="flex items-center">
-                <i class="fa fa-bar-chart text-primary text-2xl mr-2"></i>
-                <h1 class="text-xl font-bold">Markdown数据可视化工具</h1>
+                <i class="fa fa-bar-chart text-primary text-xl mr-2"></i>
+                <h1 class="text-lg font-bold">Markdown数据可视化工具</h1>
             </div>
             <div>
                 <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-100 transition-colors">
@@ -64,98 +70,98 @@
     </header>
 
     <!-- 主要内容区 -->
-    <main class="flex-grow container mx-auto px-4 py-8">
+    <main class="flex-grow container mx-auto px-3 py-6">
         <!-- 文件选择卡片 -->
-        <div class="bg-white rounded-xl p-6 shadow-lg mb-8 hover:shadow-xl transition-shadow duration-300">
-            <h2 class="text-xl font-semibold mb-4 flex items-center">
+        <div class="bg-white rounded-xl p-5 shadow-lg mb-6 hover:shadow-xl transition-shadow duration-300">
+            <h2 class="text-lg font-semibold mb-3 flex items-center">
                 <i class="fa fa-file-text-o text-primary mr-2"></i> 选择Markdown文件
             </h2>
             
-            <div class="space-y-3">
-                <div class="flex items-center p-3 border border-gray-200 rounded-lg hover:border-primary transition-colors cursor-pointer file-option" data-file="https://psstunet.github.io/logs/2504.md">
-                    <input type="checkbox" id="file-2504" class="h-5 w-5 text-primary focus:ring-primary/50 border-gray-300 rounded">
-                    <label for="file-2504" class="ml-3 text-gray-700">2504.md - 网络协议统计报告</label>
+            <div class="space-y-2">
+                <div class="flex items-center p-2 border border-gray-200 rounded-lg hover:border-primary transition-colors cursor-pointer file-option" data-file="https://psstunet.github.io/logs/2504.md">
+                    <input type="checkbox" id="file-2504" class="h-4 w-4 text-primary focus:ring-primary/50 border-gray-300 rounded">
+                    <label for="file-2504" class="ml-2 text-gray-700 text-sm">2504.md - 网络协议统计报告</label>
                 </div>
                 
-                <div class="flex items-center p-3 border border-gray-200 rounded-lg hover:border-primary transition-colors cursor-pointer file-option" data-file="https://psstunet.github.io/logs/2507.md">
-                    <input type="checkbox" id="file-2507" class="h-5 w-5 text-primary focus:ring-primary/50 border-gray-300 rounded">
-                    <label for="file-2507" class="ml-3 text-gray-700">2507.md - 服务器性能分析报告</label>
+                <div class="flex items-center p-2 border border-gray-200 rounded-lg hover:border-primary transition-colors cursor-pointer file-option" data-file="https://psstunet.github.io/logs/2507.md">
+                    <input type="checkbox" id="file-2507" class="h-4 w-4 text-primary focus:ring-primary/50 border-gray-300 rounded">
+                    <label for="file-2507" class="ml-2 text-gray-700 text-sm">2507.md - 服务器性能分析报告</label>
                 </div>
             </div>
             
-            <button id="generate-chart" class="mt-6 px-6 py-3 bg-primary text-white rounded-md hover:bg-primary/90 transition-colors duration-200 shadow-sm flex items-center">
+            <button id="generate-chart" class="mt-5 px-5 py-2.5 bg-primary text-white rounded-md hover:bg-primary/90 transition-colors duration-200 shadow-sm flex items-center w-full justify-center">
                 <i class="fa fa-refresh mr-2"></i> 生成图表
             </button>
         </div>
         
         <!-- 图表展示卡片 -->
-        <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300">
-            <h2 class="text-xl font-semibold mb-4 flex items-center">
+        <div class="bg-white rounded-xl p-5 shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <h2 class="text-lg font-semibold mb-4 flex items-center">
                 <i class="fa fa-line-chart text-primary mr-2"></i> 数据可视化
             </h2>
             
             <div id="chart-container" class="hidden">
-                <div class="bg-gray-50 rounded-lg p-4 mb-6">
-                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
-                        <h3 class="text-lg font-medium">协议总持续时间统计</h3>
+                <div class="bg-gray-50 rounded-lg p-3 mb-5">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-3">
+                        <h3 class="text-base font-medium">协议总持续时间统计</h3>
                         <div class="mt-2 md:mt-0 flex space-x-2">
-                            <button class="chart-type-btn bg-primary text-white px-3 py-1 rounded-md text-sm" data-type="bar">柱状图</button>
-                            <button class="chart-type-btn bg-gray-200 text-gray-700 px-3 py-1 rounded-md text-sm" data-type="line">折线图</button>
+                            <button class="chart-type-btn bg-primary text-white px-2 py-1 rounded-md text-xs" data-type="bar">柱状图</button>
+                            <button class="chart-type-btn bg-gray-200 text-gray-700 px-2 py-1 rounded-md text-xs" data-type="line">折线图</button>
                         </div>
                     </div>
-                    <div id="chart" class="w-full h-[400px]"></div>
+                    <div id="chart" class="chart-container-mobile md:chart-container-desktop"></div>
                 </div>
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                    <div class="bg-gray-50 rounded-lg p-4">
-                        <h3 class="text-lg font-medium mb-4">连接类型占比分析</h3>
-                        <div id="pie-chart" class="w-full h-[300px]"></div>
+                <div class="grid grid-cols-1 gap-5 mb-5">
+                    <div class="bg-gray-50 rounded-lg p-3">
+                        <h3 class="text-base font-medium mb-3">连接类型占比分析</h3>
+                        <div id="pie-chart" class="chart-container-mobile"></div>
                     </div>
                     
-                    <div class="bg-gray-50 rounded-lg p-4">
-                        <h3 class="text-lg font-medium mb-4">每日连接趋势</h3>
-                        <div id="trend-chart" class="w-full h-[300px]"></div>
+                    <div class="bg-gray-50 rounded-lg p-3">
+                        <h3 class="text-base font-medium mb-3">每日连接趋势</h3>
+                        <div id="trend-chart" class="chart-container-mobile"></div>
                     </div>
                 </div>
                 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="bg-gray-50 rounded-lg p-4">
-                        <h4 class="font-medium text-gray-700 mb-2">总连接数</h4>
-                        <p id="total-connections" class="text-2xl font-bold text-primary">0</p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div class="bg-gray-50 rounded-lg p-3">
+                        <h4 class="font-medium text-gray-700 mb-1 text-sm">总连接数</h4>
+                        <p id="total-connections" class="text-xl font-bold text-primary">0</p>
                     </div>
-                    <div class="bg-gray-50 rounded-lg p-4">
-                        <h4 class="font-medium text-gray-700 mb-2">平均持续时间</h4>
-                        <p id="avg-duration" class="text-2xl font-bold text-primary">0 秒</p>
+                    <div class="bg-gray-50 rounded-lg p-3">
+                        <h4 class="font-medium text-gray-700 mb-1 text-sm">平均持续时间</h4>
+                        <p id="avg-duration" class="text-xl font-bold text-primary">0 秒</p>
                     </div>
-                    <div class="bg-gray-50 rounded-lg p-4">
-                        <h4 class="font-medium text-gray-700 mb-2">协议种类</h4>
-                        <p id="protocol-count" class="text-2xl font-bold text-primary">0</p>
+                    <div class="bg-gray-50 rounded-lg p-3">
+                        <h4 class="font-medium text-gray-700 mb-1 text-sm">协议种类</h4>
+                        <p id="protocol-count" class="text-xl font-bold text-primary">0</p>
                     </div>
                 </div>
             </div>
             
-            <div id="empty-state" class="py-12 text-center">
-                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
-                    <i class="fa fa-file-text-o text-gray-400 text-2xl"></i>
+            <div id="empty-state" class="py-10 text-center">
+                <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-gray-100 mb-3">
+                    <i class="fa fa-file-text-o text-gray-400 text-xl"></i>
                 </div>
-                <h3 class="text-lg font-medium text-gray-700 mb-2">请选择Markdown文件</h3>
-                <p class="text-gray-500 max-w-md mx-auto">选择一个或多个Markdown文件，然后点击"生成图表"按钮来查看数据可视化结果</p>
+                <h3 class="text-base font-medium text-gray-700 mb-2">请选择Markdown文件</h3>
+                <p class="text-gray-500 max-w-md mx-auto text-sm">选择一个或多个Markdown文件，然后点击"生成图表"按钮来查看数据可视化结果</p>
             </div>
         </div>
     </main>
 
     <!-- 页脚 -->
-    <footer class="bg-white border-t border-gray-200 py-6">
-        <div class="container mx-auto px-4 text-center text-gray-500 text-sm">
+    <footer class="bg-white border-t border-gray-200 py-5">
+        <div class="container mx-auto px-3 text-center text-gray-500 text-xs">
             <p>2025 PsStuNet | yuebi</p>
         </div>
     </footer>
 
     <!-- 通知组件 -->
-    <div id="notification" class="fixed top-20 right-4 p-4 rounded-lg shadow-lg transform transition-all duration-300 translate-x-full opacity-0 z-50 flex items-center">
+    <div id="notification" class="fixed top-16 right-3 p-3 rounded-lg shadow-lg transform transition-all duration-300 translate-x-full opacity-0 z-50 flex items-center max-w-xs">
         <i id="notification-icon" class="mr-2"></i>
-        <span id="notification-message"></span>
-        <button class="ml-4 text-gray-400 hover:text-gray-600">
+        <span id="notification-message" class="text-sm"></span>
+        <button class="ml-3 text-gray-400 hover:text-gray-600">
             <i class="fa fa-times"></i>
         </button>
     </div>
@@ -384,37 +390,49 @@
                 title: {
                     text: '协议总持续时间统计',
                     font: {
-                        size: 20,
+                        size: 16,
                         family: 'Inter, sans-serif'
                     }
                 },
                 xaxis: {
                     title: '文件',
                     font: {
+                        size: 10,
                         family: 'Inter, sans-serif'
-                    }
+                    },
+                    tickangle: isMobile() ? 45 : 0,
+                    automargin: true
                 },
                 yaxis: {
                     title: '总持续时间(秒)',
                     font: {
+                        size: 10,
                         family: 'Inter, sans-serif'
                     }
                 },
                 legend: {
                     title: '协议类型',
                     font: {
+                        size: 10,
                         family: 'Inter, sans-serif'
-                    }
+                    },
+                    orientation: isMobile() ? 'h' : 'v',
+                    yanchor: 'top',
+                    y: isMobile() ? -0.2 : 1,
+                    xanchor: 'center',
+                    x: isMobile() ? 0.5 : 1.05
                 },
                 font: {
+                    size: 10,
                     family: 'Inter, sans-serif'
                 },
                 hovermode: 'closest',
                 margin: {
-                    t: 50,
-                    b: 50,
-                    l: 50,
-                    r: 20
+                    t: 40,
+                    b: isMobile() ? 80 : 50,
+                    l: 40,
+                    r: isMobile() ? 20 : 50,
+                    pad: 4
                 }
             };
             
@@ -442,7 +460,11 @@
                 labels: labels,
                 values: values,
                 type: 'pie',
-                hovertemplate: '%{label}: %{value} 连接数<br>占比: %{percent}<extra></extra>'
+                hovertemplate: '%{label}: %{value} 连接数<br>占比: %{percent}<extra></extra>',
+                textinfo: 'percent',
+                textfont: {
+                    size: 10
+                }
             };
             
             // 设置图表布局
@@ -450,19 +472,21 @@
                 title: {
                     text: '连接类型占比分析',
                     font: {
-                        size: 18,
+                        size: 16,
                         family: 'Inter, sans-serif'
                     }
                 },
                 font: {
+                    size: 10,
                     family: 'Inter, sans-serif'
                 },
                 margin: {
-                    t: 50,
+                    t: 40,
                     b: 20,
                     l: 20,
                     r: 20
-                }
+                },
+                showlegend: isMobile() ? false : true
             };
             
             // 创建饼图
@@ -475,73 +499,125 @@
             const dateGroups = {};
             data.forEach(item => {
                 if (!dateGroups[item['日期']]) {
-                    dateGroups[item['日期']] = 0;
+                    dateGroups[item['日期']] = {
+                        connections: 0,
+                        duration: 0
+                    };
                 }
-                dateGroups[item['日期']] += item['连接数'];
+                dateGroups[item['日期']].connections += item['连接数'];
+                dateGroups[item['日期']].duration += item['总持续时间(秒)'];
             });
             
             // 准备趋势图数据
             const dates = Object.keys(dateGroups).sort();
-            const connections = dates.map(date => dateGroups[date]);
+            const connections = dates.map(date => dateGroups[date].connections);
+            const durations = dates.map(date => dateGroups[date].duration);
             
-            // 创建趋势图数据 - 使用散点图类型
-            const trace = {
+            // 创建连接数折线
+            const connectionTrace = {
                 x: dates,
                 y: connections,
-                type: 'scatter',
-                mode: 'markers', // 只显示数据点，不显示连接线
-                marker: {
-                    size: 12,
+                type: 'line',
+                mode: 'lines+markers',
+                name: '连接数',
+                yaxis: 'y',
+                line: {
                     color: '#165DFF',
-                    opacity: 0.8,
-                    line: {
-                        width: 2,
-                        color: '#fff'
-                    }
+                    width: 2
+                },
+                marker: {
+                    size: 6,
+                    color: '#165DFF'
                 },
                 hovertemplate: '%{x}<br>连接数: %{y}<extra></extra>'
+            };
+            
+            // 创建连接时间折线
+            const durationTrace = {
+                x: dates,
+                y: durations,
+                type: 'line',
+                mode: 'lines+markers',
+                name: '连接总时间(秒)',
+                yaxis: 'y2',
+                line: {
+                    color: '#FF7D00',
+                    width: 2
+                },
+                marker: {
+                    size: 6,
+                    color: '#FF7D00'
+                },
+                hovertemplate: '%{x}<br>连接总时间: %{y}秒<extra></extra>'
             };
             
             // 设置图表布局
             const layout = {
                 title: {
-                    text: '每日连接分布',
+                    text: '每日连接数与连接时间关系',
                     font: {
-                        size: 18,
+                        size: 16,
                         family: 'Inter, sans-serif'
                     }
                 },
                 xaxis: {
                     title: '日期',
                     type: 'category',
-                    tickangle: 45,
-                    automargin: true,
                     font: {
+                        size: 10,
                         family: 'Inter, sans-serif'
-                    }
+                    },
+                    tickangle: 45,
+                    automargin: true
                 },
                 yaxis: {
                     title: '连接数',
+                    titlefont: {color: '#165DFF', size: 10},
+                    tickfont: {color: '#165DFF', size: 10},
                     font: {
                         family: 'Inter, sans-serif'
                     }
                 },
+                yaxis2: {
+                    title: '连接总时间(秒)',
+                    titlefont: {color: '#FF7D00', size: 10},
+                    tickfont: {color: '#FF7D00', size: 10},
+                    font: {
+                        family: 'Inter, sans-serif'
+                    },
+                    overlaying: 'y',
+                    side: 'right'
+                },
                 font: {
+                    size: 10,
                     family: 'Inter, sans-serif'
                 },
                 hovermode: 'closest',
                 margin: {
-                    t: 50,
-                    b: 80, // 增加底部边距以显示完整的日期标签
-                    l: 50,
-                    r: 20
+                    t: 40,
+                    b: 80,
+                    l: 40,
+                    r: 50,
+                    pad: 4
+                },
+                legend: {
+                    font: {
+                        size: 10,
+                        family: 'Inter, sans-serif'
+                    },
+                    orientation: 'h',
+                    yanchor: 'top',
+                    y: 1.05,
+                    xanchor: 'center',
+                    x: 0.5
                 }
             };
             
             // 创建趋势图
-            Plotly.newPlot(trendChartElement, [trace], layout);
+            Plotly.newPlot(trendChartElement, [connectionTrace, durationTrace], layout);
         }
-        
+
+        // 更新统计信息
         function updateStats(data) {
             const totalConn = data.reduce((sum, item) => sum + item['连接数'], 0);
             const totalDuration = data.reduce((sum, item) => sum + item['总持续时间(秒)'], 0);
@@ -558,13 +634,13 @@
             
             // 设置图标和样式
             if (type === 'success') {
-                notification.className = 'fixed top-20 right-4 p-4 rounded-lg shadow-lg transform transition-all duration-300 bg-green-50 text-green-800 flex items-center z-50';
+                notification.className = 'fixed top-16 right-3 p-3 rounded-lg shadow-lg transform transition-all duration-300 bg-green-50 text-green-800 flex items-center z-50 max-w-xs';
                 notificationIcon.className = 'fa fa-check-circle text-green-500';
             } else if (type === 'error') {
-                notification.className = 'fixed top-20 right-4 p-4 rounded-lg shadow-lg transform transition-all duration-300 bg-red-50 text-red-800 flex items-center z-50';
+                notification.className = 'fixed top-16 right-3 p-3 rounded-lg shadow-lg transform transition-all duration-300 bg-red-50 text-red-800 flex items-center z-50 max-w-xs';
                 notificationIcon.className = 'fa fa-exclamation-circle text-red-500';
             } else if (type === 'warning') {
-                notification.className = 'fixed top-20 right-4 p-4 rounded-lg shadow-lg transform transition-all duration-300 bg-yellow-50 text-yellow-800 flex items-center z-50';
+                notification.className = 'fixed top-16 right-3 p-3 rounded-lg shadow-lg transform transition-all duration-300 bg-yellow-50 text-yellow-800 flex items-center z-50 max-w-xs';
                 notificationIcon.className = 'fa fa-exclamation-triangle text-yellow-500';
             }
             
@@ -593,8 +669,22 @@
             }
         });
 
+        // 检测是否为移动设备
+        function isMobile() {
+            return window.innerWidth < 768;
+        }
+
         // 初始化
         updateChartButtonState();
+        
+        // 监听窗口大小变化，重新渲染图表
+        window.addEventListener('resize', function() {
+            if (window.allChartData && window.allChartData.length > 0) {
+                renderChart(window.allChartData);
+                renderPieChart(window.allChartData);
+                renderTrendChart(window.allChartData);
+            }
+        });
     </script>
 </body>
 </html>
