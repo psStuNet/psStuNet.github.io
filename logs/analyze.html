@@ -116,11 +116,23 @@
                             <option value="range">区间</option>
                         </select>
                         <select id="date-select" class="flex-1 px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all">
+                            <option value="01" selected>1日</option>
+                            <option value="02">2日</option>
+                            <option value="03">3日</option>
+                            <option value="04">4日</option>
+                            <option value="05">5日</option>
+                            <option value="06">6日</option>
+                            <option value="07">7日</option>
+                            <option value="08">8日</option>
+                            <option value="09">9日</option>
+                            <option value="10">10日</option>
+                            <option value="11">11日</option>
+                            <option value="12">12日</option>
                             <option value="13">13日</option>
                             <option value="14">14日</option>
                             <option value="15">15日</option>
                             <option value="16">16日</option>
-                            <option value="17" selected>17日</option>
+                            <option value="17">17日</option>
                             <option value="18">18日</option>
                             <option value="19">19日</option>
                             <option value="20">20日</option>
@@ -132,6 +144,9 @@
                             <option value="26">26日</option>
                             <option value="27">27日</option>
                             <option value="28">28日</option>
+                            <option value="29">29日</option>
+                            <option value="30">30日</option>
+                            <option value="31">31日</option>
                         </select>
                     </div>
                 </div>
@@ -362,7 +377,7 @@
     <!-- 页脚 -->
     <footer class="bg-white border-t border-gray-200 py-6">
         <div class="container mx-auto px-4 text-center text-gray-500 text-sm">
-            <p>© 2025 VPN日志分析工具 | 设计与开发</p>
+            <p>2025 Softether VPN日志分析工具 | yuebi</p>
         </div>
     </footer>
 
@@ -566,8 +581,10 @@
                     updateStats(logData);
                     
                     // 更新IP统计表格
-                    updateIPStatsTable(logData.ipStats);
+                    updateIPStatsTable(logData);
                     
+                    // 更新图表数据
+                    updateDailyTrafficChart(logData.dailyTraffic);
                     // 更新图表
                     updateCharts(logData);
                     
@@ -588,7 +605,7 @@
             });
             
             // 读取并分析日志文件
-            async function readAndAnalyzeLogs(folder, fileNames) {
+            async function readAndAnalyzeLogs(folder, fileNames, year, month) {
                 const logData = {
                     connections: 0,
                     uniqueIps: 0,
@@ -596,19 +613,33 @@
                     avgDuration: 0,
                     ipStats: {},
                     vpnProtocolStats: {},
-                    timeStats: Array(24).fill(0)
+                    timeStats: Array(24).fill(0), // 存储每小时的连接数
+                    dailyTraffic: {} // 存储每日流量数据
                 };
+                
+                // 初始化当月每日的流量数据
+                const daysInMonth = new Date(2000 + parseInt(year), parseInt(month), 0).getDate();
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const dayStr = day.toString().padStart(2, '0');
+                    logData.dailyTraffic[dayStr] = 0;
+                }
                 
                 // 存储正在处理的会话信息
                 const activeSessions = {};
                 
                 for (const fileName of fileNames) {
                     try {
+                        // 提取文件名中的日期
+                        const dateMatch = fileName.match(/vpn_20\d{2}(\d{2})(\d{2})\.log/);
+                        const fileMonth = dateMatch ? dateMatch[1] : null;
+                        const fileDay = dateMatch ? dateMatch[2] : null;
+                        
                         // 使用Fetch API获取文件内容
                         const response = await fetch(`${folder}/${fileName}`);
                         
                         if (!response.ok) {
-                            throw new Error(`无法获取文件 ${fileName}: ${response.statusText}`);
+                            console.warn(`无法获取文件 ${fileName}: ${response.statusText}，将跳过此文件`);
+                            continue;
                         }
                         
                         const content = await response.text();
@@ -619,18 +650,31 @@
                         
                         // 解析日志行
                         for (const line of lines) {
+                            // 提取时间戳（确保正确提取）
+                            let timestamp = '';
+                            const timestampMatch = line.match(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/);
+                            if (timestampMatch) {
+                                timestamp = timestampMatch[0];
+                            }
+                            
                             // 匹配会话开始行 - 提取连接ID
                             const sessionStartMatch = line.match(/连接 "([^"]+)" 已建立/);
                             if (sessionStartMatch) {
                                 const connectionId = sessionStartMatch[1];
                                 currentSessionId = connectionId;
                                 
-                                // 尝试提取IP地址（使用更通用的匹配模式）
+                                // 提取IP地址（使用更可靠的模式）
                                 const ipMatch = line.match(/\b(?:\d{1,3}\.){3}\d{1,3}\b/);
                                 const ip = ipMatch ? ipMatch[0] : '未知IP';
                                 
-                                // 提取时间戳
-                                const timestamp = line.substring(0, 19);
+                                // 提取小时信息用于时段统计（修复问题）
+                                const hourMatch = timestamp.match(/\s(\d{2}):/);
+                                const hour = hourMatch ? parseInt(hourMatch[1]) : 0;
+                                
+                                // 更新时段统计
+                                if (hour >= 0 && hour < 24) {
+                                    logData.timeStats[hour]++;
+                                }
                                 
                                 // 创建新会话
                                 activeSessions[connectionId] = {
@@ -643,10 +687,6 @@
                                     inputData: 0,
                                     outputData: 0
                                 };
-                                
-                                // 更新时段统计
-                                const hour = parseInt(timestamp.substring(11, 13));
-                                logData.timeStats[hour]++;
                                 
                                 // 初始化IP统计信息
                                 if (!logData.ipStats[ip]) {
@@ -689,7 +729,7 @@
                             if (sessionEndMatch && currentSessionId && activeSessions[currentSessionId]) {
                                 const outputData = parseInt(sessionEndMatch[1]);
                                 const inputData = parseInt(sessionEndMatch[2]);
-                                const endTime = line.substring(0, 19);
+                                const endTime = timestamp;
                                 
                                 const session = activeSessions[currentSessionId];
                                 
@@ -703,6 +743,11 @@
                                 
                                 session.inputData = inputData;
                                 session.outputData = outputData;
+                                
+                                // 更新每日流量统计
+                                if (fileDay) {
+                                    logData.dailyTraffic[fileDay] += (inputData + outputData) / (1024 * 1024); // MB
+                                }
                                 
                                 // 更新IP统计信息
                                 const ipStats = logData.ipStats[session.ip];
@@ -736,12 +781,11 @@
                 
                 logData.connections = totalConnections;
                 logData.uniqueIps = Object.keys(logData.ipStats).length;
-                logData.totalData = totalData;
+                logData.totalData = totalData / (1024 * 1024); // MB
                 logData.avgDuration = totalConnections > 0 ? totalDuration / totalConnections : 0;
                 
                 return logData;
             }
-
             
             // 更新统计信息
             function updateStats(logData) {
@@ -791,6 +835,47 @@
                 renderIPStatsTable();
             }
             
+            // 更新每日流量图表
+            function updateDailyTrafficChart(logData) {
+                const ctx = document.getElementById('daily-traffic-chart').getContext('2d');
+                
+                // 准备数据
+                const daysInMonth = new Date(2000 + parseInt(yearSelect.value), parseInt(monthSelect.value), 0).getDate();
+                const labels = Array.from({length: daysInMonth}, (_, i) => `${i+1}日`);
+                const trafficData = labels.map((_, i) => {
+                    const dayStr = (i+1).toString().padStart(2, '0');
+                    return logData.dailyTraffic[dayStr] || 0;
+                });
+                
+                // 计算移动平均线（趋势线）
+                const trendData = calculateMovingAverage(trafficData, 3);
+                
+                // 更新图表
+                dailyTrafficChart.data.labels = labels;
+                dailyTrafficChart.data.datasets[0].data = trafficData;
+                dailyTrafficChart.data.datasets[1].data = trendData;
+                dailyTrafficChart.update();
+            }
+
+            // 计算移动平均值（用于趋势线）
+            function calculateMovingAverage(data, windowSize = 3) {
+                const result = [];
+                for (let i = 0; i < data.length; i++) {
+                    let start = Math.max(0, i - Math.floor(windowSize / 2));
+                    let end = Math.min(data.length - 1, i + Math.ceil(windowSize / 2));
+                    let sum = 0;
+                    let count = 0;
+                    
+                    for (let j = start; j <= end; j++) {
+                        sum += data[j];
+                        count++;
+                    }
+                    
+                    result.push(sum / count);
+                }
+                return result;
+            }
+
             // 渲染IP统计表格
             function renderIPStatsTable() {
                 const tableBody = document.getElementById('ip-stats-table');
