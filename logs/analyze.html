@@ -616,11 +616,11 @@
                         let currentIP = null;
                         
                         for (const line of lines) {
-                            // 匹配会话开始行
-                            const sessionStartMatch = line.match(/\[OpenVPN\] (\d+\.\d+\.\d+\.\d+):\d+ -> \d+\.\d+\.\d+\.\d+:\d+ \((\w+)\): Session started/);
-                            if (sessionStartMatch) {
-                                currentIP = sessionStartMatch[1];
-                                const protocol = sessionStartMatch[2];
+                            // 匹配会话删除行（包含IP和协议信息）
+                            const sessionDeleteMatch = line.match(/\[OpenVPN\] (\d+\.\d+\.\d+\.\d+):\d+ -> \d+\.\d+\.\d+\.\d+:\d+ \((\w+)\): Session deleted/);
+                            if (sessionDeleteMatch) {
+                                currentIP = sessionDeleteMatch[1];
+                                const protocol = sessionDeleteMatch[2];
                                 const timestamp = line.substring(0, 19);
                                 
                                 // 初始化IP统计信息
@@ -634,10 +634,11 @@
                                     };
                                 }
                                 
+                                // 记录会话
                                 currentSession = {
                                     ip: currentIP,
                                     protocol: protocol,
-                                    startTime: timestamp,
+                                    startTime: timestamp,  // 注意：这里使用删除时间作为开始时间，因为日志中没有明确的开始时间
                                     endTime: null,
                                     duration: 0,
                                     inputData: 0,
@@ -657,18 +658,15 @@
                                 continue;
                             }
                             
-                            // 匹配会话结束行
+                            // 匹配会话结束行（包含数据大小信息）
                             const sessionEndMatch = line.match(/会话已结束。统计信息如下: 总输出数据大小: (\d+) 字节，总输入数据大小: (\d+) 字节/);
                             if (sessionEndMatch && currentSession) {
                                 const outputData = parseInt(sessionEndMatch[1]);
                                 const inputData = parseInt(sessionEndMatch[2]);
                                 const endTime = line.substring(0, 19);
                                 
-                                // 计算会话持续时间
-                                const startTimeObj = new Date(currentSession.startTime);
-                                const endTimeObj = new Date(endTime);
-                                const durationMs = endTimeObj - startTimeObj;
-                                const durationMinutes = Math.round(durationMs / (1000 * 60));
+                                // 计算会话持续时间（由于日志中没有明确的开始时间，这里假设持续时间为0）
+                                const durationMinutes = 0;
                                 
                                 // 更新会话信息
                                 currentSession.endTime = endTime;
@@ -899,7 +897,7 @@
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${session.startTime}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${session.endTime}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${session.endTime || '-'}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${formatDuration(session.duration)}</td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
@@ -1058,5 +1056,4 @@
         });
     </script>
 </body>
-</html>
-    
+</html>    
