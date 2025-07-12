@@ -222,11 +222,11 @@
                     </div>
                 </div>
                 
-                <!-- 协议分布 -->
+                <!-- VPN协议分布 -->
                 <div class="bg-white rounded-xl shadow-lg p-6 mb-6 transition-all duration-300 hover:shadow-xl">
                     <h2 class="text-xl font-bold mb-4 flex items-center">
                         <i class="fa fa-exchange text-primary mr-2"></i>
-                        协议分布
+                        VPN协议分布
                     </h2>
                     <div class="h-64">
                         <canvas id="protocol-chart"></canvas>
@@ -274,7 +274,7 @@
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">连接次数</th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">总时长</th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">传输数据</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">常用协议</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">常用VPN协议</th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">详情</th>
                                 </tr>
                             </thead>
@@ -338,7 +338,7 @@
                                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">开始时间</th>
                                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">结束时间</th>
                                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">持续时间</th>
-                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">协议</th>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">VPN协议</th>
                                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">传输数据</th>
                                         </tr>
                                     </thead>
@@ -595,7 +595,7 @@
                     totalData: 0,
                     avgDuration: 0,
                     ipStats: {},
-                    protocolStats: {},
+                    vpnProtocolStats: {},
                     timeStats: Array(24).fill(0)
                 };
                 
@@ -614,20 +614,29 @@
                         const content = await response.text();
                         const lines = content.split('\n');
                         
+                        // 当前处理的会话ID
+                        let currentSessionId = null;
+                        
                         // 解析日志行
                         for (const line of lines) {
-                            // 匹配会话开始行
-                            const sessionStartMatch = line.match(/在 (TCP|UDP) 监听器\(端口 \d+\)上，客户端 \(IP 地址 (\d+\.\d+\.\d+\.\d+)/);
+                            // 匹配会话开始行 - 提取连接ID
+                            const sessionStartMatch = line.match(/连接 "([^"]+)" 已建立/);
                             if (sessionStartMatch) {
-                                const protocol = sessionStartMatch[1];
-                                const ip = sessionStartMatch[2];
+                                const connectionId = sessionStartMatch[1];
+                                currentSessionId = connectionId;
+                                
+                                // 尝试提取IP地址
+                                const ipMatch = line.match(/IP 地址 (\d+\.\d+\.\d+\.\d+)/);
+                                const ip = ipMatch ? ipMatch[1] : '未知IP';
+                                
+                                // 提取时间戳
                                 const timestamp = line.substring(0, 19);
                                 
                                 // 创建新会话
-                                const sessionId = `${ip}-${timestamp}`;
-                                activeSessions[sessionId] = {
+                                activeSessions[connectionId] = {
+                                    connectionId,
                                     ip,
-                                    protocol,
+                                    vpnProtocol: '未知协议', // 默认值
                                     startTime: timestamp,
                                     endTime: null,
                                     duration: 0,
@@ -645,73 +654,67 @@
                                         connections: 0,
                                         totalDuration: 0,
                                         totalData: 0,
-                                        protocols: {},
+                                        vpnProtocols: {},
                                         sessions: []
                                     };
                                 }
                                 
-                                // 更新协议统计
-                                if (!logData.protocolStats[protocol]) {
-                                    logData.protocolStats[protocol] = 0;
-                                }
-                                logData.protocolStats[protocol]++;
-                                
                                 continue;
+                            }
+                            
+                            // 如果有当前会话，尝试提取VPN协议
+                            if (currentSessionId && activeSessions[currentSessionId]) {
+                                const vpnProtocolMatch = line.match(/物理底层协议："([^"]+)"/);
+                                if (vpnProtocolMatch) {
+                                    const vpnProtocol = vpnProtocolMatch[1];
+                                    activeSessions[currentSessionId].vpnProtocol = vpnProtocol;
+                                    
+                                    // 更新VPN协议统计
+                                    if (!logData.vpnProtocolStats[vpnProtocol]) {
+                                        logData.vpnProtocolStats[vpnProtocol] = 0;
+                                    }
+                                    logData.vpnProtocolStats[vpnProtocol]++;
+                                    
+                                    // 更新IP使用的VPN协议统计
+                                    const ip = activeSessions[currentSessionId].ip;
+                                    if (!logData.ipStats[ip].vpnProtocols[vpnProtocol]) {
+                                        logData.ipStats[ip].vpnProtocols[vpnProtocol] = 0;
+                                    }
+                                    logData.ipStats[ip].vpnProtocols[vpnProtocol]++;
+                                }
                             }
                             
                             // 匹配会话结束行
                             const sessionEndMatch = line.match(/会话已结束。统计信息如下: 总输出数据大小: (\d+) 字节，总输入数据大小: (\d+) 字节/);
-                            if (sessionEndMatch) {
+                            if (sessionEndMatch && currentSessionId && activeSessions[currentSessionId]) {
                                 const outputData = parseInt(sessionEndMatch[1]);
                                 const inputData = parseInt(sessionEndMatch[2]);
                                 const endTime = line.substring(0, 19);
                                 
-                                // 查找最近的会话（基于时间戳）
-                                let closestSessionId = null;
-                                let minTimeDiff = Infinity;
+                                const session = activeSessions[currentSessionId];
                                 
-                                for (const sessionId in activeSessions) {
-                                    const session = activeSessions[sessionId];
-                                    // 计算时间差（毫秒）
-                                    const startTime = new Date(session.startTime.replace(' ', 'T') + 'Z');
-                                    const endTimeObj = new Date(endTime.replace(' ', 'T') + 'Z');
-                                    const timeDiff = endTimeObj - startTime;
-                                    
-                                    // 如果时间差为正且小于当前最小值，并且不超过合理范围（例如1小时）
-                                    if (timeDiff > 0 && timeDiff < minTimeDiff && timeDiff < 3600000) {
-                                        minTimeDiff = timeDiff;
-                                        closestSessionId = sessionId;
-                                    }
-                                }
+                                // 更新会话信息
+                                session.endTime = endTime;
                                 
-                                // 如果找到匹配的会话
-                                if (closestSessionId) {
-                                    const session = activeSessions[closestSessionId];
-                                    
-                                    // 更新会话信息
-                                    session.endTime = endTime;
-                                    session.duration = minTimeDiff / (1000 * 60); // 转换为分钟
-                                    session.inputData = inputData;
-                                    session.outputData = outputData;
-                                    
-                                    // 更新IP统计信息
-                                    const ipStats = logData.ipStats[session.ip];
-                                    ipStats.connections++;
-                                    ipStats.totalDuration += session.duration;
-                                    ipStats.totalData += inputData + outputData;
-                                    
-                                    // 更新IP使用的协议统计
-                                    if (!ipStats.protocols[session.protocol]) {
-                                        ipStats.protocols[session.protocol] = 0;
-                                    }
-                                    ipStats.protocols[session.protocol]++;
-                                    
-                                    // 添加会话到IP的会话列表
-                                    ipStats.sessions.push(session);
-                                    
-                                    // 从活跃会话中移除
-                                    delete activeSessions[closestSessionId];
-                                }
+                                // 计算持续时间
+                                const startTimeObj = new Date(session.startTime.replace(' ', 'T') + 'Z');
+                                const endTimeObj = new Date(endTime.replace(' ', 'T') + 'Z');
+                                session.duration = (endTimeObj - startTimeObj) / (1000 * 60); // 转换为分钟
+                                
+                                session.inputData = inputData;
+                                session.outputData = outputData;
+                                
+                                // 更新IP统计信息
+                                const ipStats = logData.ipStats[session.ip];
+                                ipStats.connections++;
+                                ipStats.totalDuration += session.duration;
+                                ipStats.totalData += inputData + outputData;
+                                
+                                // 添加会话到IP的会话列表
+                                ipStats.sessions.push(session);
+                                
+                                // 从活跃会话中移除
+                                delete activeSessions[currentSessionId];
                             }
                         }
                     } catch (error) {
@@ -759,13 +762,13 @@
             // 更新IP统计表格
             function updateIPStatsTable(ipStats) {
                 allIPStats = Object.entries(ipStats).map(([ip, stats]) => {
-                    // 找出最常用的协议
-                    let mostUsedProtocol = '';
+                    // 找出最常用的VPN协议
+                    let mostUsedVPNProtocol = '未知协议';
                     let maxCount = 0;
-                    Object.entries(stats.protocols).forEach(([protocol, count]) => {
+                    Object.entries(stats.vpnProtocols).forEach(([protocol, count]) => {
                         if (count > maxCount) {
                             maxCount = count;
-                            mostUsedProtocol = protocol;
+                            mostUsedVPNProtocol = protocol;
                         }
                     });
                     
@@ -774,7 +777,7 @@
                         connections: stats.connections,
                         totalDuration: stats.totalDuration,
                         totalData: stats.totalData,
-                        mostUsedProtocol,
+                        mostUsedVPNProtocol,
                         sessions: stats.sessions
                     };
                 });
@@ -854,7 +857,7 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
-                                ${ipData.mostUsedProtocol}
+                                ${ipData.mostUsedVPNProtocol}
                             </span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -927,7 +930,7 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${formatDuration(session.duration)}</td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
-                                ${session.protocol}
+                                ${session.vpnProtocol}
                             </span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
@@ -952,9 +955,9 @@
             
             // 更新图表
             function updateCharts(logData) {
-                // 更新协议图表
-                const protocolLabels = Object.keys(logData.protocolStats);
-                const protocolData = Object.values(logData.protocolStats);
+                // 更新VPN协议图表
+                const protocolLabels = Object.keys(logData.vpnProtocolStats);
+                const protocolData = Object.values(logData.vpnProtocolStats);
                 
                 protocolChart.data.labels = protocolLabels;
                 protocolChart.data.datasets[0].data = protocolData;
@@ -1020,41 +1023,51 @@
                 const notification = document.createElement('div');
                 notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 transform transition-all duration-300 translate-x-full ${
                     type === 'success' ? 'bg-green-50 text-green-800 border-l-4 border-green-400' : 
-                    type === 'error' ? 'bg-red-50 text-red-800 border-l-4 border-red-400' :
+                    type === 'error' ? 'bg-red-50 text-red-800 border-l-4 border-red-400' : 
                     'bg-blue-50 text-blue-800 border-l-4 border-blue-400'
                 }`;
-
-                // 添加通知内容
+                
                 notification.innerHTML = `
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
                             <i class="fa ${
-                                type === 'success' ? 'fa-check-circle' :
-                                type === 'error' ? 'fa-times-circle' :
+                                type === 'success' ? 'fa-check-circle' : 
+                                type === 'error' ? 'fa-exclamation-circle' : 
                                 'fa-info-circle'
-                            } mr-3 text-lg"></i>
+                            } text-xl"></i>
                         </div>
-                        <div>
+                        <div class="ml-3">
                             <p class="text-sm font-medium">${message}</p>
                         </div>
+                        <button class="ml-auto focus:outline-none">
+                            <i class="fa fa-times text-gray-400 hover:text-gray-600"></i>
+                        </button>
                     </div>
                 `;
-
-                // 将通知添加到body中
+                
+                // 添加到页面
                 document.body.appendChild(notification);
-
+                
                 // 显示通知
                 setTimeout(() => {
                     notification.classList.remove('translate-x-full');
-                }, 10);
-
-                // 自动移除通知
+                }, 100);
+                
+                // 关闭按钮
+                notification.querySelector('button').addEventListener('click', function() {
+                    notification.classList.add('translate-x-full');
+                    setTimeout(() => {
+                        document.body.removeChild(notification);
+                    }, 300);
+                });
+                
+                // 自动关闭
                 setTimeout(() => {
                     notification.classList.add('translate-x-full');
                     setTimeout(() => {
-                        notification.remove();
+                        document.body.removeChild(notification);
                     }, 300);
-                }, 3000);
+                }, 5000);
             }
         });
     </script>
