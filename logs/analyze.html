@@ -599,6 +599,9 @@
                     timeStats: Array(24).fill(0)
                 };
                 
+                // 存储正在处理的会话信息
+                const activeSessions = {};
+                
                 for (const fileName of fileNames) {
                     try {
                         // 使用Fetch API获取文件内容
@@ -612,20 +615,33 @@
                         const lines = content.split('\n');
                         
                         // 解析日志行
-                        let currentSession = null;
-                        let currentIP = null;
-                        
                         for (const line of lines) {
-                            // 匹配会话删除行（包含IP和协议信息）
-                            const sessionDeleteMatch = line.match(/\[OpenVPN\] (\d+\.\d+\.\d+\.\d+):\d+ -> \d+\.\d+\.\d+\.\d+:\d+ \((\w+)\): Session deleted/);
-                            if (sessionDeleteMatch) {
-                                currentIP = sessionDeleteMatch[1];
-                                const protocol = sessionDeleteMatch[2];
+                            // 匹配会话开始行
+                            const sessionStartMatch = line.match(/在 (TCP|UDP) 监听器\(端口 \d+\)上，客户端 \(IP 地址 (\d+\.\d+\.\d+\.\d+)/);
+                            if (sessionStartMatch) {
+                                const protocol = sessionStartMatch[1];
+                                const ip = sessionStartMatch[2];
                                 const timestamp = line.substring(0, 19);
                                 
+                                // 创建新会话
+                                const sessionId = `${ip}-${timestamp}`;
+                                activeSessions[sessionId] = {
+                                    ip,
+                                    protocol,
+                                    startTime: timestamp,
+                                    endTime: null,
+                                    duration: 0,
+                                    inputData: 0,
+                                    outputData: 0
+                                };
+                                
+                                // 更新时段统计
+                                const hour = parseInt(timestamp.substring(11, 13));
+                                logData.timeStats[hour]++;
+                                
                                 // 初始化IP统计信息
-                                if (!logData.ipStats[currentIP]) {
-                                    logData.ipStats[currentIP] = {
+                                if (!logData.ipStats[ip]) {
+                                    logData.ipStats[ip] = {
                                         connections: 0,
                                         totalDuration: 0,
                                         totalData: 0,
@@ -634,63 +650,68 @@
                                     };
                                 }
                                 
-                                // 记录会话
-                                currentSession = {
-                                    ip: currentIP,
-                                    protocol: protocol,
-                                    startTime: timestamp,  // 注意：这里使用删除时间作为开始时间，因为日志中没有明确的开始时间
-                                    endTime: null,
-                                    duration: 0,
-                                    inputData: 0,
-                                    outputData: 0
-                                };
-                                
                                 // 更新协议统计
                                 if (!logData.protocolStats[protocol]) {
                                     logData.protocolStats[protocol] = 0;
                                 }
                                 logData.protocolStats[protocol]++;
                                 
-                                // 更新时段统计
-                                const hour = parseInt(timestamp.substring(11, 13));
-                                logData.timeStats[hour]++;
-                                
                                 continue;
                             }
                             
-                            // 匹配会话结束行（包含数据大小信息）
+                            // 匹配会话结束行
                             const sessionEndMatch = line.match(/会话已结束。统计信息如下: 总输出数据大小: (\d+) 字节，总输入数据大小: (\d+) 字节/);
-                            if (sessionEndMatch && currentSession) {
+                            if (sessionEndMatch) {
                                 const outputData = parseInt(sessionEndMatch[1]);
                                 const inputData = parseInt(sessionEndMatch[2]);
                                 const endTime = line.substring(0, 19);
                                 
-                                // 计算会话持续时间（由于日志中没有明确的开始时间，这里假设持续时间为0）
-                                const durationMinutes = 0;
+                                // 查找最近的会话（基于时间戳）
+                                let closestSessionId = null;
+                                let minTimeDiff = Infinity;
                                 
-                                // 更新会话信息
-                                currentSession.endTime = endTime;
-                                currentSession.duration = durationMinutes;
-                                currentSession.inputData = inputData;
-                                currentSession.outputData = outputData;
-                                
-                                // 更新IP统计信息
-                                const ipStats = logData.ipStats[currentIP];
-                                ipStats.connections++;
-                                ipStats.totalDuration += durationMinutes;
-                                ipStats.totalData += inputData + outputData;
-                                
-                                // 更新IP使用的协议统计
-                                if (!ipStats.protocols[currentSession.protocol]) {
-                                    ipStats.protocols[currentSession.protocol] = 0;
+                                for (const sessionId in activeSessions) {
+                                    const session = activeSessions[sessionId];
+                                    // 计算时间差（毫秒）
+                                    const startTime = new Date(session.startTime.replace(' ', 'T') + 'Z');
+                                    const endTimeObj = new Date(endTime.replace(' ', 'T') + 'Z');
+                                    const timeDiff = endTimeObj - startTime;
+                                    
+                                    // 如果时间差为正且小于当前最小值，并且不超过合理范围（例如1小时）
+                                    if (timeDiff > 0 && timeDiff < minTimeDiff && timeDiff < 3600000) {
+                                        minTimeDiff = timeDiff;
+                                        closestSessionId = sessionId;
+                                    }
                                 }
-                                ipStats.protocols[currentSession.protocol]++;
                                 
-                                // 添加会话到IP的会话列表
-                                ipStats.sessions.push(currentSession);
-                                
-                                // 重置当前会话
-                                currentSession = null;
+                                // 如果找到匹配的会话
+                                if (closestSessionId) {
+                                    const session = activeSessions[closestSessionId];
+                                    
+                                    // 更新会话信息
+                                    session.endTime = endTime;
+                                    session.duration = minTimeDiff / (1000 * 60); // 转换为分钟
+                                    session.inputData = inputData;
+                                    session.outputData = outputData;
+                                    
+                                    // 更新IP统计信息
+                                    const ipStats = logData.ipStats[session.ip];
+                                    ipStats.connections++;
+                                    ipStats.totalDuration += session.duration;
+                                    ipStats.totalData += inputData + outputData;
+                                    
+                                    // 更新IP使用的协议统计
+                                    if (!ipStats.protocols[session.protocol]) {
+                                        ipStats.protocols[session.protocol] = 0;
+                                    }
+                                    ipStats.protocols[session.protocol]++;
+                                    
+                                    // 添加会话到IP的会话列表
+                                    ipStats.sessions.push(session);
+                                    
+                                    // 从活跃会话中移除
+                                    delete activeSessions[closestSessionId];
+                                }
                             }
                         }
                     } catch (error) {
@@ -800,10 +821,10 @@
                 
                 // 格式化时长
                 const formatDuration = (minutes) => {
-                    if (minutes < 60) return `${minutes} 分钟`;
+                    if (minutes < 60) return `${minutes.toFixed(1)} 分钟`;
                     const hours = Math.floor(minutes / 60);
                     const remainingMinutes = minutes % 60;
-                    return `${hours} 小时 ${remainingMinutes} 分钟`;
+                    return `${hours} 小时 ${remainingMinutes.toFixed(1)} 分钟`;
                 };
                 
                 // 填充表格
@@ -877,10 +898,10 @@
                 
                 // 格式化时长
                 const formatDuration = (minutes) => {
-                    if (minutes < 60) return `${minutes} 分钟`;
+                    if (minutes < 60) return `${minutes.toFixed(1)} 分钟`;
                     const hours = Math.floor(minutes / 60);
                     const remainingMinutes = minutes % 60;
-                    return `${hours} 小时 ${remainingMinutes} 分钟`;
+                    return `${hours} 小时 ${remainingMinutes.toFixed(1)} 分钟`;
                 };
                 
                 // 更新模态框内容
@@ -893,7 +914,12 @@
                 const connectionsTable = document.getElementById('connection-details');
                 connectionsTable.innerHTML = '';
                 
-                ipData.sessions.forEach(session => {
+                // 按开始时间排序会话
+                const sortedSessions = [...ipData.sessions].sort((a, b) => 
+                    new Date(a.startTime) - new Date(b.startTime)
+                );
+                
+                sortedSessions.forEach(session => {
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${session.startTime}</td>
@@ -994,66 +1020,43 @@
                 const notification = document.createElement('div');
                 notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 transform transition-all duration-300 translate-x-full ${
                     type === 'success' ? 'bg-green-50 text-green-800 border-l-4 border-green-400' : 
-                    type === 'error' ? 'bg-red-50 text-red-800 border-l-4 border-red-400' : 
+                    type === 'error' ? 'bg-red-50 text-red-800 border-l-4 border-red-400' :
                     'bg-blue-50 text-blue-800 border-l-4 border-blue-400'
                 }`;
-                
+
+                // 添加通知内容
                 notification.innerHTML = `
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
                             <i class="fa ${
-                                type === 'success' ? 'fa-check-circle' : 
-                                type === 'error' ? 'fa-exclamation-circle' : 
+                                type === 'success' ? 'fa-check-circle' :
+                                type === 'error' ? 'fa-times-circle' :
                                 'fa-info-circle'
-                            } text-lg"></i>
+                            } mr-3 text-lg"></i>
                         </div>
-                        <div class="ml-3">
+                        <div>
                             <p class="text-sm font-medium">${message}</p>
                         </div>
-                        <button class="ml-auto focus:outline-none">
-                            <i class="fa fa-times text-gray-400 hover:text-gray-600"></i>
-                        </button>
                     </div>
                 `;
-                
-                // 添加到页面
+
+                // 将通知添加到body中
                 document.body.appendChild(notification);
-                
+
                 // 显示通知
                 setTimeout(() => {
                     notification.classList.remove('translate-x-full');
                 }, 10);
-                
-                // 自动关闭
-                const closeTimeout = setTimeout(() => {
+
+                // 自动移除通知
+                setTimeout(() => {
                     notification.classList.add('translate-x-full');
                     setTimeout(() => {
                         notification.remove();
                     }, 300);
-                }, 5000);
-                
-                // 点击关闭
-                notification.querySelector('button').addEventListener('click', function() {
-                    clearTimeout(closeTimeout);
-                    notification.classList.add('translate-x-full');
-                    setTimeout(() => {
-                        notification.remove();
-                    }, 300);
-                });
+                }, 3000);
             }
-            
-            // 监听滚动事件，改变导航栏样式
-            window.addEventListener('scroll', function() {
-                const navbar = document.getElementById('navbar');
-                if (window.scrollY > 10) {
-                    navbar.classList.add('py-2');
-                    navbar.classList.remove('py-3');
-                } else {
-                    navbar.classList.add('py-3');
-                    navbar.classList.remove('py-2');
-                }
-            });
         });
     </script>
 </body>
-</html>    
+</html>
