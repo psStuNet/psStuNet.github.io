@@ -165,9 +165,13 @@
         
         <!-- 加载指示器 -->
         <section id="loading-indicator" class="hidden bg-white/80 backdrop-blur-sm fixed inset-0 flex items-center justify-center z-50">
-            <div class="bg-white rounded-xl shadow-xl p-8 flex flex-col items-center">
+            <div class="bg-white rounded-xl shadow-xl p-8 flex flex-col items-center w-96">
                 <div class="w-16 h-16 border-4 border-primary/30 border-t-primary rounded-full animate-spin mb-4"></div>
-                <p class="text-lg font-medium text-gray-700">正在分析日志文件...</p>
+                <h3 class="text-lg font-medium text-gray-700 mb-2">正在分析日志文件...</h3>
+                <div class="w-full bg-gray-200 rounded-full h-2.5 mb-2">
+                    <div id="progress-bar" class="bg-primary h-2.5 rounded-full" style="width: 0%"></div>
+                </div>
+                <p id="progress-text" class="text-sm text-gray-500">0% 完成</p>
                 <p class="text-sm text-gray-500 mt-2">请稍候，这可能需要一些时间...</p>
             </div>
         </section>
@@ -596,6 +600,21 @@
             
             // 读取并分析日志文件
             async function readAndAnalyzeLogs(folder, fileNames) {
+                const loadingIndicator = document.getElementById('loading-indicator');
+                const progressBar = document.getElementById('progress-bar');
+                const progressText = document.getElementById('progress-text');
+                
+                loadingIndicator.classList.remove('hidden');
+                
+                let totalFiles = fileNames.length;
+                let processedFiles = 0;
+                
+                const updateProgress = () => {
+                    const progress = Math.round((processedFiles / totalFiles) * 100);
+                    progressBar.style.width = `${progress}%`;
+                    progressText.textContent = `${progress}% 完成`;
+                };
+                
                 const logData = {
                     connections: 0,
                     uniqueIps: 0,
@@ -609,142 +628,149 @@
                 // 存储正在处理的会话信息
                 const activeSessions = {};
                 
-                for (const fileName of fileNames) {
-                    try {
-                        // 使用Fetch API获取文件内容
-                        const response = await fetch(`${folder}/${fileName}`);
+                try {
+                    for (const fileName of fileNames) {
+                        try {
+                            // 使用Fetch API获取文件内容
+                            const response = await fetch(`${folder}/${fileName}`);
                         
-                        if (!response.ok) {
-                            throw new Error(`无法获取文件 ${fileName}: ${response.statusText}`);
-                        }
+                            if (!response.ok) {
+                                throw new Error(`无法获取文件 ${fileName}: ${response.statusText}`);
+                            }
+                            
+                            const content = await response.text();
+                            const lines = content.split('\n');
                         
-                        const content = await response.text();
-                        const lines = content.split('\n');
-                        
-                        // 当前处理的会话ID
-                        let currentSessionId = null;
-                        
-                        // 解析日志行
-                        for (const line of lines) {
-                            // 匹配会话开始行 - 提取连接ID
-                            const sessionStartMatch = line.match(/连接 "([^"]+)" 已建立/);
-                            if (sessionStartMatch) {
-                                const connectionId = sessionStartMatch[1];
-                                currentSessionId = connectionId;
+                            // 当前处理的会话ID
+                            let currentSessionId = null;
+                            
+                            // 解析日志行
+                            for (const line of lines) {
+                                // 匹配会话开始行 - 提取连接ID
+                                const sessionStartMatch = line.match(/连接 "([^"]+)" 已建立/);
+                                if (sessionStartMatch) {
+                                    const connectionId = sessionStartMatch[1];
+                                    currentSessionId = connectionId;
                                 
-                                // 尝试提取IP地址（使用更通用的匹配模式）
-                                const ipMatch = line.match(/\b(?:\d{1,3}\.){3}\d{1,3}\b/);
-                                const ip = ipMatch ? ipMatch[0] : '未知IP';
+                                    // 尝试提取IP地址（使用更通用的匹配模式）
+                                    const ipMatch = line.match(/\b(?:\d{1,3}\.){3}\d{1,3}\b/);
+                                    const ip = ipMatch ? ipMatch[0] : '未知IP';
                                 
-                                // 提取时间戳
-                                const timestamp = line.substring(0, 19);
+                                    // 提取时间戳
+                                    const timestamp = line.substring(0, 19);
                                 
-                                // 创建新会话
-                                activeSessions[connectionId] = {
-                                    connectionId,
-                                    ip,
-                                    vpnProtocol: '未知协议', // 默认值
-                                    startTime: timestamp,
-                                    endTime: null,
-                                    duration: 0,
-                                    inputData: 0,
-                                    outputData: 0
-                                };
-                                
-                                // 更新时段统计
-                                const hour = parseInt(timestamp.substring(11, 13));
-                                logData.timeStats[hour]++;
-                                
-                                // 初始化IP统计信息
-                                if (!logData.ipStats[ip]) {
-                                    logData.ipStats[ip] = {
-                                        connections: 0,
-                                        totalDuration: 0,
-                                        totalData: 0,
-                                        vpnProtocols: {},
-                                        sessions: []
+                                    // 创建新会话
+                                    activeSessions[connectionId] = {
+                                        connectionId,
+                                        ip,
+                                        vpnProtocol: '未知协议', // 默认值
+                                        startTime: timestamp,
+                                        endTime: null,
+                                        duration: 0,
+                                        inputData: 0,
+                                        outputData: 0
                                     };
-                                }
                                 
-                                continue;
-                            }
-                            
-                            // 如果有当前会话，尝试提取VPN协议
-                            if (currentSessionId && activeSessions[currentSessionId]) {
-                                const vpnProtocolMatch = line.match(/物理底层协议："([^"]+)"/);
-                                if (vpnProtocolMatch) {
-                                    const vpnProtocol = vpnProtocolMatch[1];
-                                    activeSessions[currentSessionId].vpnProtocol = vpnProtocol;
-                                    
-                                    // 更新VPN协议统计
-                                    if (!logData.vpnProtocolStats[vpnProtocol]) {
-                                        logData.vpnProtocolStats[vpnProtocol] = 0;
+                                    // 更新时段统计
+                                    const hour = parseInt(timestamp.substring(11, 13));
+                                    logData.timeStats[hour]++;
+                                
+                                    // 初始化IP统计信息
+                                    if (!logData.ipStats[ip]) {
+                                        logData.ipStats[ip] = {
+                                            connections: 0,
+                                            totalDuration: 0,
+                                            totalData: 0,
+                                            vpnProtocols: {},
+                                            sessions: []
+                                        };
                                     }
-                                    logData.vpnProtocolStats[vpnProtocol]++;
+                                
+                                    continue;
+                                }
+                            
+                                // 如果有当前会话，尝试提取VPN协议
+                                if (currentSessionId && activeSessions[currentSessionId]) {
+                                    const vpnProtocolMatch = line.match(/物理底层协议："([^"]+)"/);
+                                    if (vpnProtocolMatch) {
+                                        const vpnProtocol = vpnProtocolMatch[1];
+                                        activeSessions[currentSessionId].vpnProtocol = vpnProtocol;
                                     
-                                    // 更新IP使用的VPN协议统计
-                                    const ip = activeSessions[currentSessionId].ip;
-                                    if (!logData.ipStats[ip].vpnProtocols[vpnProtocol]) {
-                                        logData.ipStats[ip].vpnProtocols[vpnProtocol] = 0;
+                                        // 更新VPN协议统计
+                                        if (!logData.vpnProtocolStats[vpnProtocol]) {
+                                            logData.vpnProtocolStats[vpnProtocol] = 0;
+                                        }
+                                        logData.vpnProtocolStats[vpnProtocol]++;
+                                    
+                                        // 更新IP使用的VPN协议统计
+                                        const ip = activeSessions[currentSessionId].ip;
+                                        if (!logData.ipStats[ip].vpnProtocols[vpnProtocol]) {
+                                            logData.ipStats[ip].vpnProtocols[vpnProtocol] = 0;
+                                        }
+                                        logData.ipStats[ip].vpnProtocols[vpnProtocol]++;
                                     }
-                                    logData.ipStats[ip].vpnProtocols[vpnProtocol]++;
+                                }
+                            
+                                // 匹配会话结束行
+                                const sessionEndMatch = line.match(/会话已结束。统计信息如下: 总输出数据大小: (\d+) 字节，总输入数据大小: (\d+) 字节/);
+                                if (sessionEndMatch && currentSessionId && activeSessions[currentSessionId]) {
+                                    const outputData = parseInt(sessionEndMatch[1]);
+                                    const inputData = parseInt(sessionEndMatch[2]);
+                                    const endTime = line.substring(0, 19);
+                                
+                                    const session = activeSessions[currentSessionId];
+                                
+                                    // 更新会话信息
+                                    session.endTime = endTime;
+                                
+                                    // 计算持续时间
+                                    const startTimeObj = new Date(session.startTime.replace(' ', 'T') + 'Z');
+                                    const endTimeObj = new Date(endTime.replace(' ', 'T') + 'Z');
+                                    session.duration = (endTimeObj - startTimeObj) / (1000 * 60); // 转换为分钟
+                                
+                                    session.inputData = inputData;
+                                    session.outputData = outputData;
+                                
+                                    // 更新IP统计信息
+                                    const ipStats = logData.ipStats[session.ip];
+                                    ipStats.connections++;
+                                    ipStats.totalDuration += session.duration;
+                                    ipStats.totalData += inputData + outputData;
+                                
+                                    // 添加会话到IP的会话列表
+                                    ipStats.sessions.push(session);
+                                
+                                    // 从活跃会话中移除
+                                    delete activeSessions[currentSessionId];
                                 }
                             }
-                            
-                            // 匹配会话结束行
-                            const sessionEndMatch = line.match(/会话已结束。统计信息如下: 总输出数据大小: (\d+) 字节，总输入数据大小: (\d+) 字节/);
-                            if (sessionEndMatch && currentSessionId && activeSessions[currentSessionId]) {
-                                const outputData = parseInt(sessionEndMatch[1]);
-                                const inputData = parseInt(sessionEndMatch[2]);
-                                const endTime = line.substring(0, 19);
-                                
-                                const session = activeSessions[currentSessionId];
-                                
-                                // 更新会话信息
-                                session.endTime = endTime;
-                                
-                                // 计算持续时间
-                                const startTimeObj = new Date(session.startTime.replace(' ', 'T') + 'Z');
-                                const endTimeObj = new Date(endTime.replace(' ', 'T') + 'Z');
-                                session.duration = (endTimeObj - startTimeObj) / (1000 * 60); // 转换为分钟
-                                
-                                session.inputData = inputData;
-                                session.outputData = outputData;
-                                
-                                // 更新IP统计信息
-                                const ipStats = logData.ipStats[session.ip];
-                                ipStats.connections++;
-                                ipStats.totalDuration += session.duration;
-                                ipStats.totalData += inputData + outputData;
-                                
-                                // 添加会话到IP的会话列表
-                                ipStats.sessions.push(session);
-                                
-                                // 从活跃会话中移除
-                                delete activeSessions[currentSessionId];
-                            }
+                        } catch (error) {
+                            console.error(`处理文件 ${fileName} 时出错:`, error);
+                            // 继续处理其他文件
                         }
-                    } catch (error) {
-                        console.error(`处理文件 ${fileName} 时出错:`, error);
-                        // 继续处理其他文件
+                        
+                        processedFiles++;
+                        updateProgress();
                     }
+                
+                    // 计算总体统计信息
+                    let totalConnections = 0;
+                    let totalDuration = 0;
+                    let totalData = 0;
+                
+                    Object.values(logData.ipStats).forEach(ipStats => {
+                        totalConnections += ipStats.connections;
+                        totalDuration += ipStats.totalDuration;
+                        totalData += ipStats.totalData;
+                    });
+                
+                    logData.connections = totalConnections;
+                    logData.uniqueIps = Object.keys(logData.ipStats).length;
+                    logData.totalData = totalData;
+                    logData.avgDuration = totalConnections > 0 ? totalDuration / totalConnections : 0;
+                } finally {
+                    loadingIndicator.classList.add('hidden');
                 }
-                
-                // 计算总体统计信息
-                let totalConnections = 0;
-                let totalDuration = 0;
-                let totalData = 0;
-                
-                Object.values(logData.ipStats).forEach(ipStats => {
-                    totalConnections += ipStats.connections;
-                    totalDuration += ipStats.totalDuration;
-                    totalData += ipStats.totalData;
-                });
-                
-                logData.connections = totalConnections;
-                logData.uniqueIps = Object.keys(logData.ipStats).length;
-                logData.totalData = totalData;
-                logData.avgDuration = totalConnections > 0 ? totalDuration / totalConnections : 0;
                 
                 return logData;
             }
