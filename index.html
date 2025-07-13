@@ -304,6 +304,34 @@
             padding: 0 20px;
         }
 
+        .category-filter {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 2rem 0;
+            justify-content: center;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border-radius: 20px;
+            background: rgba(0, 255, 157, 0.1);
+            border: 1px solid rgba(0, 255, 157, 0.3);
+            color: var(--accent-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            background: rgba(0, 255, 157, 0.2);
+            box-shadow: 0 0 10px rgba(0, 255, 157, 0.2);
+        }
+
+        .filter-btn.active {
+            background: rgba(0, 255, 157, 0.3);
+            font-weight: bold;
+        }
+
         .log-item {
             background: rgba(255, 255, 255, 0.03);
             border-left: 3px solid var(--accent-color);
@@ -312,6 +340,26 @@
             position: relative;
             opacity: 0;
             animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        .log-item[data-category="report"] {
+            border-left-color: #00b4ff;
+        }
+
+        .log-item[data-category="progress"] {
+            border-left-color: #00ff9d;
+        }
+
+        .log-item[data-category="bugfix"] {
+            border-left-color: #ff6b6b;
+        }
+
+        .log-item[data-category="server"] {
+            border-left-color: #a162e8;
+        }
+
+        .log-item[data-category="github"] {
+            border-left-color: #6e40c9;
         }
 
         .log-date {
@@ -328,6 +376,14 @@
     <style>
     /* 移动端优化 */
     @media (max-width: 768px) {
+        .category-filter {
+            gap: 8px;
+        }
+
+        .filter-btn {
+            padding: 6px 12px;
+            font-size: 0.9em;
+        }
 
         .container {
             padding: 0 15px !important;
@@ -389,6 +445,17 @@
 
     /* 超小屏幕优化 */
     @media (max-width: 480px) {
+        .category-filter {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .filter-btn {
+            width: 100%;
+            max-width: 200px;
+            text-align: center;
+        }
+
         h1 {
             font-size: 1.6rem !important;
         }
@@ -441,10 +508,19 @@
       <div class="container" style="max-width: 1000px; padding: 20px;">
         <h1>学生目录开发日志</h1>
         <p>此网站为公网镜像站点，完整功能<a href="http://10.88.202.71">点此前往内网官网</a></p>
+        
+        <div class="category-filter">
+            <button class="filter-btn active" data-category="all">全部</button>
+            <button class="filter-btn" data-category="report">月度报告</button>
+            <button class="filter-btn" data-category="progress">项目进展</button>
+            <button class="filter-btn" data-category="bugfix">Bug修复</button>
+            <button class="filter-btn" data-category="server">服务器相关</button>
+            <button class="filter-btn" data-category="github">GitHub信息</button>
+        </div>
     
         <div class="timeline" id="development-log">
 
-            <div class="log-item" style="animation-delay: 0.2s;cursor: pointer;">
+            <div class="log-item" style="animation-delay: 0.2s;cursor: pointer;" data-category="report">
                 <div class="log-date">2024.07.12- 月度报告</div>
                 <div class="log-content">
                     <p>五、六月月度报告已发布！</p>
@@ -454,7 +530,7 @@
                 </div>
             </div> 
 
-            <div class="log-item" style="animation-delay: 0.2s;cursor: pointer;">
+            <div class="log-item" style="animation-delay: 0.2s;cursor: pointer;" data-category="report">
                 <div class="log-date">2024.04.30 - 月度报告</div>
                 <div class="log-content">
                     <p>四月月度报告已发布！</p>
@@ -464,7 +540,7 @@
                 </div>
             </div>
 
-            <div class="log-item" style="animation-delay: 0.2s;cursor: pointer;">
+            <div class="log-item" style="animation-delay: 0.2s;cursor: pointer;" data-category="server">
                 <div class="log-date">我们搭了一个Minecraft服务器！ - 2025.04.19 </div>
                 <div class="log-content">
                     <p>✅ 完成我的世界1.21.5的Mc服务器搭建</p>
@@ -473,14 +549,14 @@
                 </div>
             </div>
 
-            <div class="log-item" style="animation-delay: 0.2s;cursor: pointer;">
+            <div class="log-item" style="animation-delay: 0.2s;cursor: pointer;" data-category="bugfix">
                 <div class="log-date">Bug fixed - 2025.04.10 </div>
                 <div class="log-content">
                     <p>🔧 修复了会话数统计功能的一些bug</p>
                 </div>
             </div>
 
-            <div class="log-item" style="animation-delay: 0.2s;cursor: pointer;">
+            <div class="log-item" style="animation-delay: 0.2s;cursor: pointer;" data-category="report">
                 <div class="log-date">2024.03.31 - 月度报告</div>
                 <div class="log-content">
                     <p>三月月度报告已发布！</p>
@@ -490,7 +566,7 @@
                 </div>
             </div>
 
-            <div class="log-item" style="animation-delay: 0.2s;cursor: pointer;">
+            <div class="log-item" style="animation-delay: 0.2s;cursor: pointer;" data-category="progress">
                 <div class="log-date">会话数统计 - 2025.03.16 </div>
                 <div class="log-content">
                     <p>✅ 完成会话数统计功能</p>
@@ -498,7 +574,7 @@
                 </div>
             </div>
 
-            <div class="log-item" style="animation-delay: 0.2s;cursor: pointer;">
+            <div class="log-item" style="animation-delay: 0.2s;cursor: pointer;" data-category="progress">
                 <div class="log-date">项目启动 - 2025.03.15</div>
                 <div class="log-content">
                     <p>✅ 完成基本框架搭建</p>
@@ -508,7 +584,7 @@
             </div>
 
 
-            <div class="log-item" style="animation-delay: 0.2s;cursor: pointer;">
+            <div class="log-item" style="animation-delay: 0.2s;cursor: pointer;" data-category="github">
                 <div class="log-date">Github 仓库</div>
                 <div class="log-content">
                     <p>点击访问<a href="https://github.com/psStuNet" target="_blank">GitHub 仓库</a></p>
@@ -537,6 +613,23 @@
         });
       </script>
       <script>
+        // 分类筛选功能
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                const category = btn.dataset.category;
+                document.querySelectorAll('.log-item').forEach(item => {
+                    if(category === 'all' || item.dataset.category === category) {
+                        item.style.display = 'block';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            });
+        });
+
         document.querySelectorAll('.log-item').forEach(item => {
             item.addEventListener('click', (e) => {
                 if(!e.target.closest('a')) { 
