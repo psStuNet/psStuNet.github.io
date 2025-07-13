@@ -605,172 +605,1231 @@
                     vpnProtocolStats: {},
                     timeStats: Array(24).fill(0)
                 };
-
-                // 存储会话ID和IP地址的映射关系
-                // 使用两个映射表分别处理连接ID和会话ID
-                const connectionIdToIp = {}; // 连接ID -> IP
-                const sessionIdToConnectionId = {}; // 会话ID -> 连接ID
-
+                
+                // 存储正在处理的会话信息
+                const activeSessions = {};
+                
                 for (const fileName of fileNames) {
                     try {
+                        // 使用Fetch API获取文件内容
                         const response = await fetch(`${folder}/${fileName}`);
-
+                        
                         if (!response.ok) {
                             throw new Error(`无法获取文件 ${fileName}: ${response.statusText}`);
                         }
-
+                        
                         const content = await response.text();
                         const lines = content.split('\n');
-
+                        
+                        // 当前处理的会话ID
+                        let currentSessionId = null;
+                        
+                        // 解析日志行
                         for (const line of lines) {
-                            // 1. 识别会话开始行 - 提取连接ID和客户端IP
-                            const connectionStartMatch = line.match(/连接 "([^"]+)" 已建立/);
-                            if (connectionStartMatch) {
-                                const connectionId = connectionStartMatch[1];
+                            // 匹配会话开始行 - 提取连接ID
+                            const sessionStartMatch = line.match(/连接 "([^"]+)" 已建立/);
+                            if (sessionStartMatch) {
+                                const connectionId = sessionStartMatch[1];
+                                currentSessionId = connectionId;
                                 
-                                // 从同一行或后续行中提取客户端IP
-                                const ipMatch = line.match(/IP 地址\s*([\d.]+)/);
+                                // 尝试提取IP地址（使用更通用的匹配模式）
+                                const ipMatch = line.match(/\b(?:\d{1,3}\.){3}\d{1,3}\b/);
+                                const ip = ipMatch ? ipMatch[0] : '未知IP';
                                 
-                                if (ipMatch && ipMatch[1] !== '127.0.0.1') {
-                                    const clientIp = ipMatch[1];
-                                    connectionIdToIp[connectionId] = clientIp;
+                                // 提取时间戳
+                                const timestamp = line.substring(0, 19);
+                                
+                                // 创建新会话
+                                activeSessions[connectionId] = {
+                                    connectionId,
+                                    ip,
+                                    vpnProtocol: '未知协议', // 默认值
+                                    startTime: timestamp,
+                                    endTime: null,
+                                    duration: 0,
+                                    inputData: 0,
+                                    outputData: 0
+                                };
+                                
+                                // 更新时段统计
+                                const hour = parseInt(timestamp.substring(11, 13));
+                                logData.timeStats[hour]++;
+                                
+                                // 初始化IP统计信息
+                                if (!logData.ipStats[ip]) {
+                                    logData.ipStats[ip] = {
+                                        connections: 0,
+                                        totalDuration: 0,
+                                        totalData: 0,
+                                        vpnProtocols: {},
+                                        sessions: []
+                                    };
+                                }
+                                
+                                continue;
+                            }
+                            
+                            // 如果有当前会话，尝试提取VPN协议
+                            if (currentSessionId && activeSessions[currentSessionId]) {
+                                const vpnProtocolMatch = line.match(/物理底层协议："([^"]+)"/);
+                                if (vpnProtocolMatch) {
+                                    const vpnProtocol = vpnProtocolMatch[1];
+                                    activeSessions[currentSessionId].vpnProtocol = vpnProtocol;
                                     
-                                    // 初始化IP统计信息
-                                    if (!logData.ipStats[clientIp]) {
-                                        logData.ipStats[clientIp] = {
-                                            connections: 0,
-                                            totalDuration: 0,
-                                            totalData: 0,
-                                            vpnProtocols: {},
-                                            sessions: []
-                                        };
+                                    // 更新VPN协议统计
+                                    if (!logData.vpnProtocolStats[vpnProtocol]) {
+                                        logData.vpnProtocolStats[vpnProtocol] = 0;
                                     }
+                                    logData.vpnProtocolStats[vpnProtocol]++;
                                     
-                                    // 更新连接数
-                                    logData.ipStats[clientIp].connections++;
-                                    logData.connections++;
-                                    
-                                    // 更新时段统计
-                                    const timestampMatch = line.match(/^\d{4}-\d{2}-\d{2} \d{2}/);
-                                    if (timestampMatch) {
-                                        const hour = parseInt(timestampMatch[0].substring(11, 13));
-                                        logData.timeStats[hour]++;
+                                    // 更新IP使用的VPN协议统计
+                                    const ip = activeSessions[currentSessionId].ip;
+                                    if (!logData.ipStats[ip].vpnProtocols[vpnProtocol]) {
+                                        logData.ipStats[ip].vpnProtocols[vpnProtocol] = 0;
                                     }
+                                    logData.ipStats[ip].vpnProtocols[vpnProtocol]++;
                                 }
-                                
-                                continue;
                             }
-
-                            // 2. 识别会话创建行 - 关联会话ID和连接ID
-                            const sessionCreateMatch = line.match(/会话 "([^"]+)": 已创建/);
-                            if (sessionCreateMatch) {
-                                const sessionId = sessionCreateMatch[1];
+                            
+                            // 匹配会话结束行
+                            const sessionEndMatch = line.match(/会话已结束。统计信息如下: 总输出数据大小: (\d+) 字节，总输入数据大小: (\d+) 字节/);
+                            if (sessionEndMatch && currentSessionId && activeSessions[currentSessionId]) {
+                                const outputData = parseInt(sessionEndMatch[1]);
+                                const inputData = parseInt(sessionEndMatch[2]);
+                                const endTime = line.substring(0, 19);
                                 
-                                // 尝试从当前行或前几行中找到对应的连接ID
-                                // 假设连接ID在会话ID之前的几行中
-                                const connectionId = currentSessionId;
+                                const session = activeSessions[currentSessionId];
                                 
-                                if (connectionId && connectionIdToIp[connectionId]) {
-                                    sessionIdToConnectionId[sessionId] = connectionId;
-                                }
+                                // 更新会话信息
+                                session.endTime = endTime;
                                 
-                                continue;
-                            }
-
-                            // 3. 识别VPN协议信息
-                            const vpnProtocolMatch = line.match(/物理底层协议："([^"]+)"/);
-                            if (vpnProtocolMatch && currentSessionId) {
-                                const vpnProtocol = vpnProtocolMatch[1];
+                                // 计算持续时间
+                                const startTimeObj = new Date(session.startTime.replace(' ', 'T') + 'Z');
+                                const endTimeObj = new Date(endTime.replace(' ', 'T') + 'Z');
+                                session.duration = (endTimeObj - startTimeObj) / (1000 * 60); // 转换为分钟
                                 
-                                // 更新VPN协议统计
-                                if (!logData.vpnProtocolStats[vpnProtocol]) {
-                                    logData.vpnProtocolStats[vpnProtocol] = 0;
-                                }
-                                logData.vpnProtocolStats[vpnProtocol]++;
+                                session.inputData = inputData;
+                                session.outputData = outputData;
                                 
-                                // 更新IP使用的VPN协议统计
-                                const connectionId = currentSessionId;
-                                const clientIp = connectionIdToIp[connectionId];
+                                // 更新IP统计信息
+                                const ipStats = logData.ipStats[session.ip];
+                                ipStats.connections++;
+                                ipStats.totalDuration += session.duration;
+                                ipStats.totalData += inputData + outputData;
                                 
-                                if (clientIp) {
-                                    if (!logData.ipStats[clientIp].vpnProtocols[vpnProtocol]) {
-                                        logData.ipStats[clientIp].vpnProtocols[vpnProtocol] = 0;
-                                    }
-                                    logData.ipStats[clientIp].vpnProtocols[vpnProtocol]++;
-                                }
+                                // 添加会话到IP的会话列表
+                                ipStats.sessions.push(session);
                                 
-                                continue;
-                            }
-
-                            // 4. 识别会话结束行 - 提取流量数据并关联到正确的IP
-                            const sessionEndMatch = line.match(/会话 "([^"]+)": 会话已结束。统计信息如下: 总输出数据大小: (\d+) 字节，总输入数据大小: (\d+) 字节。/);
-                            if (sessionEndMatch) {
-                                const sessionId = sessionEndMatch[1];
-                                const outputData = parseInt(sessionEndMatch[2]);
-                                const inputData = parseInt(sessionEndMatch[3]);
-                                const totalData = outputData + inputData;
-                                
-                                // 找到对应的连接ID
-                                const connectionId = sessionIdToConnectionId[sessionId];
-                                
-                                if (connectionId) {
-                                    // 找到对应的客户端IP
-                                    const clientIp = connectionIdToIp[connectionId];
-                                    
-                                    if (clientIp && logData.ipStats[clientIp]) {
-                                        // 更新IP的流量统计
-                                        logData.ipStats[clientIp].totalData += totalData;
-                                        logData.totalData += totalData;
-                                        
-                                        // 记录会话持续时间
-                                        const timestampMatch = line.match(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/);
-                                        if (timestampMatch) {
-                                            const endTime = timestampMatch[0];
-                                            // 这里需要startTime来计算持续时间
-                                            // 实际实现中需要存储会话开始时间
-                                        }
-                                    }
-                                }
-                                
-                                continue;
-                            }
-
-                            // 5. 忽略本地连接断开的日志
-                            const localConnectionEndMatch = line.match(/与客户端 \(IP 地址 127\.0\.0\.1, 端口号 \d+\) 的连接已断开/);
-                            if (localConnectionEndMatch) {
-                                // 忽略本地连接断开的日志
-                                continue;
-                            }
-
-                            // 6. 处理其他类型的连接断开日志
-                            const connectionEndMatch = line.match(/连接 "([^"]+)" 已结束/);
-                            if (connectionEndMatch) {
-                                const connectionId = connectionEndMatch[1];
-                                
-                                // 清理关联数据
-                                if (connectionIdToIp[connectionId]) {
-                                    delete connectionIdToIp[connectionId];
-                                }
-                                
-                                continue;
+                                // 从活跃会话中移除
+                                delete activeSessions[currentSessionId];
                             }
                         }
                     } catch (error) {
                         console.error(`处理文件 ${fileName} 时出错:`, error);
+                        // 继续处理其他文件
                     }
                 }
-
-                // 计算唯一IP数量
+                
+                // 计算总体统计信息
+                let totalConnections = 0;
+                let totalDuration = 0;
+                let totalData = 0;
+                
+                Object.values(logData.ipStats).forEach(ipStats => {
+                    totalConnections += ipStats.connections;
+                    totalDuration += ipStats.totalDuration;
+                    totalData += ipStats.totalData;
+                });
+                
+                logData.connections = totalConnections;
                 logData.uniqueIps = Object.keys(logData.ipStats).length;
-
-                // 计算平均会话持续时间
-                // 这里需要基于实际的会话开始和结束时间计算
-                logData.avgDuration = 0;
-
+                logData.totalData = totalData;
+                logData.avgDuration = totalConnections > 0 ? totalDuration / totalConnections : 0;
+                
                 return logData;
             }
 
+            // 更新统计信息
+            function updateStats(logData) {
+                document.getElementById('total-connections').textContent = logData.connections;
+                document.getElementById('unique-ips').textContent = logData.uniqueIps;
+                
+                // 格式化总数据
+                const formatDataSize = (bytes) => {
+                    if (bytes < 1024) return bytes + ' B';
+                    else if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + ' KB';
+                    else if (bytes < 1024 * 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+                    else return (bytes / (1024 * 1024 * 1024)).toFixed(2) + ' GB';
+                };
+                
+                document.getElementById('total-data').textContent = formatDataSize(logData.totalData);
+                document.getElementById('avg-duration').textContent = logData.avgDuration.toFixed(1) + ' 分钟';
+            }
             
+            // 更新IP统计表格
+            function updateIPStatsTable(ipStats) {
+                allIPStats = Object.entries(ipStats).map(([ip, stats]) => {
+                    // 找出最常用的VPN协议
+                    let mostUsedVPNProtocol = '未知协议';
+                    let maxCount = 0;
+                    Object.entries(stats.vpnProtocols).forEach(([protocol, count]) => {
+                        if (count > maxCount) {
+                            maxCount = count;
+                            mostUsedVPNProtocol = protocol;
+                        }
+                    });
+                    
+                    return {
+                        ip,
+                        connections: stats.connections,
+                        totalDuration: stats.totalDuration,
+                        totalData: stats.totalData,
+                        mostUsedVPNProtocol,
+                        sessions: stats.sessions
+                    };
+                });
+                
+                // 按连接次数排序
+                allIPStats.sort((a, b) => b.connections - a.connections);
+                filteredIPStats = [...allIPStats];
+                
+                // 更新表格
+                renderIPStatsTable();
+            }
+            
+            // 渲染IP统计表格
+            function renderIPStatsTable() {
+                const tableBody = document.getElementById('ip-stats-table');
+                const startIndex = (currentPage - 1) * ipsPerPage;
+                const endIndex = Math.min(startIndex + ipsPerPage, filteredIPStats.length);
+                const currentIPs = filteredIPStats.slice(startIndex, endIndex);
+                
+                // 清空表格
+                tableBody.innerHTML = '';
+                
+                if (currentIPs.length === 0) {
+                    tableBody.innerHTML = `
+                        <tr>
+                            <td colspan="6" class="px-6 py-12 text-center text-gray-500">
+                                <div class="flex flex-col items-center">
+                                    <i class="fa fa-search text-4xl mb-3 text-gray-300"></i>
+                                    <p>没有找到匹配的IP记录</p>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+                
+                // 格式化数据大小
+                const formatDataSize = (bytes) => {
+                    if (bytes < 1024) return bytes + ' B';
+                    else if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + ' KB';
+                    else if (bytes < 1024 * 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+                    else return (bytes / (1024 * 1024 * 1024)).toFixed(2) + ' GB';
+                };
+                
+                // 格式化时长
+                const formatDuration = (minutes) => {
+                    if (minutes < 60) return `${minutes.toFixed(1)} 分钟`;
+                    const hours = Math.floor(minutes / 60);
+                    const remainingMinutes = minutes % 60;
+                    return `${hours} 小时 ${remainingMinutes.toFixed(1)} 分钟`;
+                };
+                
+                // 填充表格
+                currentIPs.forEach(ipData => {
+                    const row = document.createElement('tr');
+                    row.className = 'hover:bg-gray-50 transition-colors';
+                    
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center mr-3">
+                                    <i class="fa fa-server text-primary"></i>
+                                </div>
+                                <div>
+                                    <div class="text-sm font-medium text-gray-900">${ipData.ip}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">${ipData.connections}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">${formatDuration(ipData.totalDuration)}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">${formatDataSize(ipData.totalData)}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
+                                ${ipData.mostUsedVPNProtocol}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <button class="text-primary hover:text-primary/80 view-details" data-ip="${ipData.ip}">
+                                查看详情 <i class="fa fa-angle-right ml-1"></i>
+                            </button>
+                        </td>
+                    `;
+                    
+                    tableBody.appendChild(row);
+                });
+                
+                // 添加查看详情按钮事件
+                document.querySelectorAll('.view-details').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const ip = this.getAttribute('data-ip');
+                        showIPDetails(ip);
+                    });
+                });
+                
+                // 更新分页按钮状态
+                document.getElementById('prev-page').disabled = currentPage === 1;
+                document.getElementById('next-page').disabled = endIndex >= filteredIPStats.length;
+                
+                // 更新显示的记录数
+                document.getElementById('shown-ips').textContent = filteredIPStats.length;
+            }
+            
+            // 显示IP详情
+            function showIPDetails(ip) {
+                const ipData = allIPStats.find(item => item.ip === ip);
+                if (!ipData) return;
+                
+                // 格式化数据大小
+                const formatDataSize = (bytes) => {
+                    if (bytes < 1024) return bytes + ' B';
+                    else if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + ' KB';
+                    else if (bytes < 1024 * 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+                    else return (bytes / (1024 * 1024 * 1024)).toFixed(2) + ' GB';
+                };
+                
+                // 格式化时长
+                const formatDuration = (minutes) => {
+                    if (minutes < 60) return `${minutes.toFixed(1)} 分钟`;
+                    const hours = Math.floor(minutes / 60);
+                    const remainingMinutes = minutes % 60;
+                    return `${hours} 小时 ${remainingMinutes.toFixed(1)} 分钟`;
+                };
+                
+                // 更新模态框内容
+                document.getElementById('detail-ip').textContent = ipData.ip;
+                document.getElementById('detail-connections').textContent = ipData.connections;
+                document.getElementById('detail-duration').textContent = formatDuration(ipData.totalDuration);
+                document.getElementById('detail-data').textContent = formatDataSize(ipData.totalData);
+                
+                // 更新连接记录表格
+                const connectionsTable = document.getElementById('connection-details');
+                connectionsTable.innerHTML = '';
+                
+                // 按开始时间排序会话
+                const sortedSessions = [...ipData.sessions].sort((a, b) => 
+                    new Date(a.startTime) - new Date(b.startTime)
+                );
+                
+                sortedSessions.forEach(session => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${session.startTime}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${session.endTime || '-'}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${formatDuration(session.duration)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
+                                ${session.vpnProtocol}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            ${formatDataSize(session.inputData + session.outputData)}
+                        </td>
+                    `;
+                    connectionsTable.appendChild(row);
+                });
+                
+                // 显示模态框
+                document.getElementById('ip-details-modal').classList.remove('hidden');
+            }
+            
+            // 关闭IP详情模态框
+            document.getElementById('close-modal').addEventListener('click', function() {
+                document.getElementById('ip-details-modal').classList.add('hidden');
+            });
+            
+            document.getElementById('close-modal-btn').addEventListener('click', function() {
+                document.getElementById('ip-details-modal').classList.add('hidden');
+            });
+            
+            // 更新图表
+            function updateCharts(logData) {
+                // 更新VPN协议图表
+                const protocolLabels = Object.keys(logData.vpnProtocolStats);
+                const protocolData = Object.values(logData.vpnProtocolStats);
+                
+                protocolChart.data.labels = protocolLabels;
+                protocolChart.data.datasets[0].data = protocolData;
+                protocolChart.update();
+                
+                // 更新时段图表
+                timeChart.data.datasets[0].data = logData.timeStats;
+                timeChart.update();
+            }
+            
+            // 分页按钮事件
+            document.getElementById('prev-page').addEventListener('click', function() {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderIPStatsTable();
+                }
+            });
+            
+            document.getElementById('next-page').addEventListener('click', function() {
+                const startIndex = (currentPage - 1) * ipsPerPage;
+                const endIndex = startIndex + ipsPerPage;
+                
+                if (endIndex < filteredIPStats.length) {
+                    currentPage++;
+                    renderIPStatsTable();
+                }
+            });
+            
+            // 搜索IP
+            document.getElementById('ip-search').addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase().trim();
+                
+                if (searchTerm === '') {
+                    filteredIPStats = [...allIPStats];
+                } else {
+                    filteredIPStats = allIPStats.filter(ipData => 
+                        ipData.ip.toLowerCase().includes(searchTerm)
+                    );
+                }
+                
+                currentPage = 1; // 重置到第一页
+                renderIPStatsTable();
+            });
+            
+            // 排序IP
+            document.getElementById('sort-select').addEventListener('change', function() {
+                const sortBy = this.value;
+                
+                if (sortBy === 'connections') {
+                    filteredIPStats.sort((a, b) => b.connections - a.connections);
+                } else if (sortBy === 'duration') {
+                    filteredIPStats.sort((a, b) => b.totalDuration - a.totalDuration);
+                } else if (sortBy === 'data') {
+                    filteredIPStats.sort((a, b) => b.totalData - a.totalData);
+                }
+                
+                renderIPStatsTable();
+            });
+            
+            // 显示通知
+            function showNotification(message, type = 'info') {
+                // 创建通知元素
+                const notification = document.createElement('div');
+                notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 transform transition-all duration-300 translate-x-full ${
+                    type === 'success' ? 'bg-green-50 text-green-800 border-l-4 border-green-400' : 
+                    type === 'error' ? 'bg-red-50 text-red-800 border-l-4 border-red-400' : 
+                    'bg-blue-50 text-blue-800 border-l-4 border-blue-400'
+                }`;
+                
+                notification.innerHTML = `
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fa ${
+                                type === 'success' ? 'fa-check-circle' : 
+                                type === 'error' ? 'fa-exclamation-circle' : 
+                                'fa-info-circle'
+                            } text-xl"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium">${message}</p>
+                        </div>
+                        <button class="ml-auto focus:outline-none">
+                            <i class="fa fa-times text-gray-400 hover:text-gray-600"></i>
+                        </button>
+                    </div>
+                `;
+                
+                // 添加到页面
+                document.body.appendChild(notification);
+                
+                // 显示通知
+                setTimeout(() => {
+                    notification.classList.remove('translate-x-full');
+                }, 100);
+                
+                // 关闭按钮
+                notification.querySelector('button').addEventListener('click', function() {
+                    notification.classList.add('translate-x-full');
+                    setTimeout(() => {
+                        document.body.removeChild(notification);
+                    }, 300);
+                });
+                
+                // 自动关闭
+                setTimeout(() => {
+                    notification.classList.add('translate-x-full');
+                    setTimeout(() => {
+                        document.body.removeChild(notification);
+                    }, 300);
+                }, 5000);
+            }
+        });
+    </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>  来....来看个日志吧</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#0FC6C2',
+                        accent: '#722ED1',
+                        dark: '#1D2129',
+                        light: '#F2F3F5',
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .scrollbar-hide::-webkit-scrollbar {
+                display: none;
+            }
+            .scrollbar-hide {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+            .animate-pulse-slow {
+                animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+            }
+            .animate-fade-in {
+                animation: fadeIn 0.5s ease-in-out;
+            }
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-inter text-dark min-h-screen flex flex-col">
+    <!-- 导航栏 -->
+    <header class="bg-white shadow-md sticky top-0 z-50 transition-all duration-300" id="navbar">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fa fa-line-chart text-primary text-2xl"></i>
+                <h1 class="text-xl md:text-2xl font-bold text-dark">  来....来看个日志吧ヾ(≧ ▽ ≦)ゝ</h1>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="hidden md:flex items-center space-x-1 text-gray-500">
+                    <i class="fa fa-clock-o"></i>
+                    <span id="current-date">2025年2月17日</span>
+                </div>
+                <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-100 transition-colors">
+                    <i class="fa fa-moon-o text-gray-600"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主内容区 -->
+    <main class="flex-grow container mx-auto px-4 py-6">
+        <!-- 日志选择器 -->
+        <section class="bg-white rounded-xl shadow-lg p-6 mb-6 transition-all duration-300 hover:shadow-xl">
+            <h2 class="text-xl font-bold mb-4 flex items-center">
+                <i class="fa fa-file-text-o text-primary mr-2"></i>
+                日志选择
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <!-- 年份选择 -->
+                <div class="relative">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">年份</label>
+                    <select id="year-select" class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all">
+                        <option value="25">2025年</option>
+                    </select>
+                </div>
+                
+                <!-- 月份选择 -->
+                <div class="relative">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">月份</label>
+                    <select id="month-select" class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all">
+                        <option value="01">1月</option>
+                        <option value="02" selected>2月</option>
+                        <option value="03">3月</option>
+                        <option value="04">4月</option>
+                        <option value="05">5月</option>
+                        <option value="06">6月</option>
+                        <option value="07">7月</option>
+                        <option value="08">8月</option>
+                        <option value="09">9月</option>
+                        <option value="10">10月</option>
+                        <option value="11">11月</option>
+                        <option value="12">12月</option>
+                    </select>
+                </div>
+                
+                <!-- 日期范围选择 -->
+                <div class="relative">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">日期范围</label>
+                    <div class="flex space-x-2">
+                        <select id="date-type" class="flex-1 px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all">
+                            <option value="all">全月</option>
+                            <option value="single">单日</option>
+                        </select>
+                        <select id="date-select" class="flex-1 px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all" style="display: none;">
+                            <option value="01">1日</option>
+                            <option value="02">2日</option>
+                            <option value="03">3日</option>
+                            <option value="04">4日</option>
+                            <option value="05">5日</option>
+                            <option value="06">6日</option>
+                            <option value="07">7日</option>
+                            <option value="08">8日</option>
+                            <option value="09">9日</option>
+                            <option value="10">10日</option>
+                            <option value="11">11日</option>
+                            <option value="12">12日</option>
+                            <option value="13">13日</option>
+                            <option value="14">14日</option>
+                            <option value="15">15日</option>
+                            <option value="16">16日</option>
+                            <option value="17">17日</option>
+                            <option value="18">18日</option>
+                            <option value="19">19日</option>
+                            <option value="20">20日</option>
+                            <option value="21">21日</option>
+                            <option value="22">22日</option>
+                            <option value="23">23日</option>
+                            <option value="24">24日</option>
+                            <option value="25">25日</option>
+                            <option value="26">26日</option>
+                            <option value="27">27日</option>
+                            <option value="28">28日</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex flex-wrap gap-2 mb-4">
+                <div class="flex items-center px-3 py-1 bg-primary/10 text-primary rounded-full text-sm">
+                    <i class="fa fa-folder-o mr-1"></i>
+                    <span id="current-path">2502/vpn_20250217.log</span>
+                </div>
+            </div>
+            
+            <div class="flex justify-end">
+                <button id="analyze-btn" class="bg-primary hover:bg-primary/90 text-white font-medium py-2 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 focus:ring-4 focus:ring-primary/30 flex items-center">
+                    <i class="fa fa-search mr-2"></i>
+                    分析日志
+                </button>
+            </div>
+        </section>
+        
+        <!-- 加载指示器 -->
+        <section id="loading-indicator" class="hidden bg-white/80 backdrop-blur-sm fixed inset-0 flex items-center justify-center z-50">
+            <div class="bg-white rounded-xl shadow-xl p-8 flex flex-col items-center">
+                <div class="w-16 h-16 border-4 border-primary/30 border-t-primary rounded-full animate-spin mb-4"></div>
+                <p class="text-lg font-medium text-gray-700">正在分析日志文件...</p>
+                <p class="text-sm text-gray-500 mt-2">请稍候，这可能需要一些时间...</p>
+            </div>
+        </section>
+        
+        <!-- 分析结果区域 -->
+        <section id="results-container" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- 统计概览 -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-xl shadow-lg p-6 mb-6 transition-all duration-300 hover:shadow-xl">
+                    <h2 class="text-xl font-bold mb-4 flex items-center">
+                        <i class="fa fa-bar-chart text-primary mr-2"></i>
+                        统计概览
+                    </h2>
+                    
+                    <div class="space-y-4">
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-sm text-gray-500">总连接次数</p>
+                                    <p class="text-2xl font-bold" id="total-connections">0</p>
+                                </div>
+                                <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                                    <i class="fa fa-exchange text-primary"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-sm text-gray-500">唯一IP数量</p>
+                                    <p class="text-2xl font-bold" id="unique-ips">0</p>
+                                </div>
+                                <div class="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center">
+                                    <i class="fa fa-users text-secondary"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-sm text-gray-500">总传输数据</p>
+                                    <p class="text-2xl font-bold" id="total-data">0 MB</p>
+                                </div>
+                                <div class="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center">
+                                    <i class="fa fa-database text-accent"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-sm text-gray-500">平均连接时长</p>
+                                    <p class="text-2xl font-bold" id="avg-duration">0 分钟</p>
+                                </div>
+                                <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                                    <i class="fa fa-clock-o text-primary"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- VPN协议分布 -->
+                <div class="bg-white rounded-xl shadow-lg p-6 mb-6 transition-all duration-300 hover:shadow-xl">
+                    <h2 class="text-xl font-bold mb-4 flex items-center">
+                        <i class="fa fa-exchange text-primary mr-2"></i>
+                        VPN协议分布
+                    </h2>
+                    <div class="h-64">
+                        <canvas id="protocol-chart"></canvas>
+                    </div>
+                </div>
+                
+                <!-- 连接时段分布 -->
+                <div class="bg-white rounded-xl shadow-lg p-6 transition-all duration-300 hover:shadow-xl">
+                    <h2 class="text-xl font-bold mb-4 flex items-center">
+                        <i class="fa fa-clock-o text-primary mr-2"></i>
+                        连接时段分布
+                    </h2>
+                    <div class="h-64">
+                        <canvas id="time-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- IP详细统计 -->
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-xl shadow-lg p-6 mb-6 transition-all duration-300 hover:shadow-xl">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-bold flex items-center">
+                            <i class="fa fa-list-alt text-primary mr-2"></i>
+                            IP连接统计
+                        </h2>
+                        <div class="flex items-center space-x-2">
+                            <div class="relative">
+                                <input type="text" id="ip-search" placeholder="搜索IP地址..." class="pl-8 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all">
+                                <i class="fa fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            </div>
+                            <select id="sort-select" class="px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all">
+                                <option value="connections">连接次数</option>
+                                <option value="duration">连接时长</option>
+                                <option value="data">传输数据</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">IP地址</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">连接次数</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">总时长</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">传输数据</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">常用VPN协议</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">详情</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ip-stats-table" class="bg-white divide-y divide-gray-200">
+                                <!-- 数据将通过JavaScript动态填充 -->
+                                <tr class="animate-pulse-slow">
+                                    <td colspan="6" class="px-6 py-12 text-center text-gray-500">
+                                        <div class="flex flex-col items-center">
+                                            <i class="fa fa-file-text-o text-4xl mb-3 text-gray-300"></i>
+                                            <p>点击"分析日志"按钮开始分析</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="flex justify-between items-center mt-4">
+                        <p class="text-sm text-gray-500">显示 <span id="shown-ips">0</span> 条记录</p>
+                        <div class="flex space-x-2">
+                            <button id="prev-page" class="px-3 py-1 border border-gray-200 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed" disabled>上一页</button>
+                            <button id="next-page" class="px-3 py-1 border border-gray-200 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed" disabled>下一页</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- IP详情模态框 -->
+                <div id="ip-details-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 hidden">
+                    <div class="bg-white rounded-xl shadow-xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col animate-fade-in">
+                        <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+                            <h3 class="text-xl font-bold" id="modal-title">IP详情</h3>
+                            <button id="close-modal" class="text-gray-400 hover:text-gray-600">
+                                <i class="fa fa-times text-xl"></i>
+                            </button>
+                        </div>
+                        <div class="flex-grow overflow-y-auto p-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                <div>
+                                    <p class="text-sm text-gray-500">IP地址</p>
+                                    <p class="text-xl font-bold" id="detail-ip">-</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500">连接次数</p>
+                                    <p class="text-xl font-bold" id="detail-connections">-</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500">总连接时长</p>
+                                    <p class="text-xl font-bold" id="detail-duration">-</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500">总传输数据</p>
+                                    <p class="text-xl font-bold" id="detail-data">-</p>
+                                </div>
+                            </div>
+                            
+                            <h4 class="text-lg font-semibold mb-3">连接记录</h4>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">开始时间</th>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">结束时间</th>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">持续时间</th>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">VPN协议</th>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">传输数据</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="connection-details" class="bg-white divide-y divide-gray-200">
+                                        <!-- 数据将通过JavaScript动态填充 -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="p-6 border-t border-gray-200 flex justify-end">
+                            <button id="close-modal-btn" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 px-6 rounded-lg transition-all">
+                                关闭
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-white border-t border-gray-200 py-6">
+        <div class="container mx-auto px-4 text-center text-gray-500 text-sm">
+            <p>© 2025 VPN日志分析工具 | Yuebi</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <script>
+        // 页面加载完成后执行
+        document.addEventListener('DOMContentLoaded', function() {
+            // 设置当前日期
+            const setCurrentDate = () => {
+                const now = new Date();
+                const year = now.getFullYear();
+                const month = now.getMonth() + 1;
+                const day = now.getDate();
+                document.getElementById('current-date').textContent = `${year}年${month}月${day}日`;
+            };
+            setCurrentDate();
+            
+            // 主题切换
+            const themeToggle = document.getElementById('theme-toggle');
+            themeToggle.addEventListener('click', function() {
+                const icon = this.querySelector('i');
+                if (icon.classList.contains('fa-moon-o')) {
+                    icon.classList.remove('fa-moon-o');
+                    icon.classList.add('fa-sun-o');
+                    document.body.classList.add('dark-mode');
+                } else {
+                    icon.classList.remove('fa-sun-o');
+                    icon.classList.add('fa-moon-o');
+                    document.body.classList.remove('dark-mode');
+                }
+            });
+            
+            // 日期选择器逻辑
+            const dateType = document.getElementById('date-type');
+            const dateSelect = document.getElementById('date-select');
+            const yearSelect = document.getElementById('year-select');
+            const monthSelect = document.getElementById('month-select');
+            const currentPath = document.getElementById('current-path');
+            
+            // 更新当前路径显示
+            const updatePathDisplay = () => {
+                const year = yearSelect.value;
+                const month = monthSelect.value;
+                let path = `${year}${month}`;
+                
+                if (dateType.value === 'single') {
+                    const date = dateSelect.value.padStart(2, '0');
+                    path += `/vpn_20${year}${month}${date}.log`;
+                } else if (dateType.value === 'range') {
+                    path += '/...';
+                }
+                
+                currentPath.textContent = path;
+            };
+            
+            // 监听日期类型变化
+            dateType.addEventListener('change', function() {
+                if (this.value === 'all') {
+                    dateSelect.style.display = 'none';
+                } else {
+                    dateSelect.style.display = 'block';
+                }
+                updatePathDisplay();
+            });
+            
+            // 监听年份、月份和日期变化
+            yearSelect.addEventListener('change', updatePathDisplay);
+            monthSelect.addEventListener('change', updatePathDisplay);
+            dateSelect.addEventListener('change', updatePathDisplay);
+            
+            // 初始化协议图表
+            const initProtocolChart = () => {
+                const ctx = document.getElementById('protocol-chart').getContext('2d');
+                return new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            data: [],
+                            backgroundColor: [
+                                '#165DFF', '#0FC6C2', '#722ED1', '#FF7D00', '#F5222D',
+                                '#13C2C2', '#7CB305', '#FAAD14', '#EB0AA4', '#27AE60'
+                            ],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    padding: 20,
+                                    usePointStyle: true,
+                                    pointStyle: 'circle'
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const label = context.label || '';
+                                        const value = context.raw || 0;
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        const percentage = Math.round((value / total) * 100);
+                                        return `${label}: ${value} (${percentage}%)`;
+                                    }
+                                }
+                            }
+                        },
+                        cutout: '70%'
+                    }
+                });
+            };
+            
+            // 初始化时段图表
+            const initTimeChart = () => {
+                const ctx = document.getElementById('time-chart').getContext('2d');
+                const labels = Array.from({length: 24}, (_, i) => `${i}:00`);
+                
+                return new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: '连接次数',
+                            data: Array(24).fill(0),
+                            backgroundColor: '#165DFF',
+                            borderRadius: 6,
+                            barPercentage: 0.6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                grid: {
+                                    display: false
+                                }
+                            },
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.05)'
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        }
+                    }
+                });
+            };
+            
+            // 初始化图表
+            const protocolChart = initProtocolChart();
+            const timeChart = initTimeChart();
+            
+            // 分页和搜索相关变量
+            let currentPage = 1;
+            let ipsPerPage = 10;
+            let filteredIPStats = [];
+            let allIPStats = [];
+            
+            // 分析日志按钮点击事件
+            document.getElementById('analyze-btn').addEventListener('click', async function() {
+                // 显示加载指示器
+                document.getElementById('loading-indicator').classList.remove('hidden');
+                
+                try {
+                    // 获取用户选择的日期范围
+                    const year = yearSelect.value;
+                    const month = monthSelect.value;
+                    const dateTypeVal = dateType.value;
+                    let fileNames = [];
+                    
+                    if (dateTypeVal === 'all') {
+                        // 生成当月所有日期的文件名
+                        const daysInMonth = new Date(2000 + parseInt(year), parseInt(month), 0).getDate();
+                        for (let day = 1; day <= daysInMonth; day++) {
+                            const dayStr = day.toString().padStart(2, '0');
+                            fileNames.push(`vpn_20${year}${month}${dayStr}.log`);
+                        }
+                    } else if (dateTypeVal === 'single') {
+                        // 单个日期
+                        const day = dateSelect.value.padStart(2, '0');
+                        fileNames.push(`vpn_20${year}${month}${day}.log`);
+                    }
+                    
+                    // 读取并分析日志文件
+                    const logData = await readAndAnalyzeLogs(`${year}${month}`, fileNames);
+                    
+                    // 更新统计信息
+                    updateStats(logData);
+                    
+                    // 更新IP统计表格
+                    updateIPStatsTable(logData.ipStats);
+                    
+                    // 更新图表
+                    updateCharts(logData);
+                    
+                    // 隐藏加载指示器
+                    document.getElementById('loading-indicator').classList.add('hidden');
+                    
+                    // 显示成功消息
+                    showNotification('日志分析完成', 'success');
+                } catch (error) {
+                    console.error('日志分析出错:', error);
+                    
+                    // 隐藏加载指示器
+                    document.getElementById('loading-indicator').classList.add('hidden');
+                    
+                    // 显示错误消息
+                    showNotification('日志分析失败: ' + error.message, 'error');
+                }
+            });
+            
+            // 读取并分析日志文件
+            async function readAndAnalyzeLogs(folder, fileNames) {
+                const logData = {
+                    connections: 0,
+                    uniqueIps: 0,
+                    totalData: 0,
+                    avgDuration: 0,
+                    ipStats: {},
+                    vpnProtocolStats: {},
+                    timeStats: Array(24).fill(0)
+                };
+                
+                // 存储正在处理的会话信息
+                const activeSessions = {};
+                
+                for (const fileName of fileNames) {
+                    try {
+                        // 使用Fetch API获取文件内容
+                        const response = await fetch(`${folder}/${fileName}`);
+                        
+                        if (!response.ok) {
+                            throw new Error(`无法获取文件 ${fileName}: ${response.statusText}`);
+                        }
+                        
+                        const content = await response.text();
+                        const lines = content.split('\n');
+                        
+                        // 当前处理的会话ID
+                        let currentSessionId = null;
+                        
+                        // 解析日志行
+                        for (const line of lines) {
+                            // 匹配会话开始行 - 提取连接ID
+                            const sessionStartMatch = line.match(/连接 "([^"]+)" 已建立/);
+                            if (sessionStartMatch) {
+                                const connectionId = sessionStartMatch[1];
+                                currentSessionId = connectionId;
+                                
+                                // 尝试提取IP地址（使用更通用的匹配模式）
+                                const ipMatch = line.match(/\b(?:\d{1,3}\.){3}\d{1,3}\b/);
+                                const ip = ipMatch ? ipMatch[0] : '未知IP';
+                                
+                                // 提取时间戳
+                                const timestamp = line.substring(0, 19);
+                                
+                                // 创建新会话
+                                activeSessions[connectionId] = {
+                                    connectionId,
+                                    ip,
+                                    vpnProtocol: '未知协议', // 默认值
+                                    startTime: timestamp,
+                                    endTime: null,
+                                    duration: 0,
+                                    inputData: 0,
+                                    outputData: 0
+                                };
+                                
+                                // 更新时段统计
+                                const hour = parseInt(timestamp.substring(11, 13));
+                                logData.timeStats[hour]++;
+                                
+                                // 初始化IP统计信息
+                                if (!logData.ipStats[ip]) {
+                                    logData.ipStats[ip] = {
+                                        connections: 0,
+                                        totalDuration: 0,
+                                        totalData: 0,
+                                        vpnProtocols: {},
+                                        sessions: []
+                                    };
+                                }
+                                
+                                continue;
+                            }
+                            
+                            // 如果有当前会话，尝试提取VPN协议
+                            if (currentSessionId && activeSessions[currentSessionId]) {
+                                const vpnProtocolMatch = line.match(/物理底层协议："([^"]+)"/);
+                                if (vpnProtocolMatch) {
+                                    const vpnProtocol = vpnProtocolMatch[1];
+                                    activeSessions[currentSessionId].vpnProtocol = vpnProtocol;
+                                    
+                                    // 更新VPN协议统计
+                                    if (!logData.vpnProtocolStats[vpnProtocol]) {
+                                        logData.vpnProtocolStats[vpnProtocol] = 0;
+                                    }
+                                    logData.vpnProtocolStats[vpnProtocol]++;
+                                    
+                                    // 更新IP使用的VPN协议统计
+                                    const ip = activeSessions[currentSessionId].ip;
+                                    if (!logData.ipStats[ip].vpnProtocols[vpnProtocol]) {
+                                        logData.ipStats[ip].vpnProtocols[vpnProtocol] = 0;
+                                    }
+                                    logData.ipStats[ip].vpnProtocols[vpnProtocol]++;
+                                }
+                            }
+                            
+                            // 匹配会话结束行
+                            const sessionEndMatch = line.match(/会话已结束。统计信息如下: 总输出数据大小: (\d+) 字节，总输入数据大小: (\d+) 字节/);
+                            if (sessionEndMatch && currentSessionId && activeSessions[currentSessionId]) {
+                                const outputData = parseInt(sessionEndMatch[1]);
+                                const inputData = parseInt(sessionEndMatch[2]);
+                                const endTime = line.substring(0, 19);
+                                
+                                const session = activeSessions[currentSessionId];
+                                
+                                // 更新会话信息
+                                session.endTime = endTime;
+                                
+                                // 计算持续时间
+                                const startTimeObj = new Date(session.startTime.replace(' ', 'T') + 'Z');
+                                const endTimeObj = new Date(endTime.replace(' ', 'T') + 'Z');
+                                session.duration = (endTimeObj - startTimeObj) / (1000 * 60); // 转换为分钟
+                                
+                                session.inputData = inputData;
+                                session.outputData = outputData;
+                                
+                                // 更新IP统计信息
+                                const ipStats = logData.ipStats[session.ip];
+                                ipStats.connections++;
+                                ipStats.totalDuration += session.duration;
+                                ipStats.totalData += inputData + outputData;
+                                
+                                // 添加会话到IP的会话列表
+                                ipStats.sessions.push(session);
+                                
+                                // 从活跃会话中移除
+                                delete activeSessions[currentSessionId];
+                            }
+                        }
+                    } catch (error) {
+                        console.error(`处理文件 ${fileName} 时出错:`, error);
+                        // 继续处理其他文件
+                    }
+                }
+                
+                // 计算总体统计信息
+                let totalConnections = 0;
+                let totalDuration = 0;
+                let totalData = 0;
+                
+                Object.values(logData.ipStats).forEach(ipStats => {
+                    totalConnections += ipStats.connections;
+                    totalDuration += ipStats.totalDuration;
+                    totalData += ipStats.totalData;
+                });
+                
+                logData.connections = totalConnections;
+                logData.uniqueIps = Object.keys(logData.ipStats).length;
+                logData.totalData = totalData;
+                logData.avgDuration = totalConnections > 0 ? totalDuration / totalConnections : 0;
+                
+                return logData;
+            }
+
             // 更新统计信息
             function updateStats(logData) {
                 document.getElementById('total-connections').textContent = logData.connections;
