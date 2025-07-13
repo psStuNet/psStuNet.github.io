@@ -113,14 +113,25 @@
                         <select id="date-type" class="flex-1 px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all">
                             <option value="all">全月</option>
                             <option value="single">单日</option>
-                            <option value="range">区间</option>
                         </select>
-                        <select id="date-select" class="flex-1 px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all">
+                        <select id="date-select" class="flex-1 px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all" style="display: none;">
+                            <option value="01">1日</option>
+                            <option value="02">2日</option>
+                            <option value="03">3日</option>
+                            <option value="04">4日</option>
+                            <option value="05">5日</option>
+                            <option value="06">6日</option>
+                            <option value="07">7日</option>
+                            <option value="08">8日</option>
+                            <option value="09">9日</option>
+                            <option value="10">10日</option>
+                            <option value="11">11日</option>
+                            <option value="12">12日</option>
                             <option value="13">13日</option>
                             <option value="14">14日</option>
                             <option value="15">15日</option>
                             <option value="16">16日</option>
-                            <option value="17" selected>17日</option>
+                            <option value="17">17日</option>
                             <option value="18">18日</option>
                             <option value="19">19日</option>
                             <option value="20">20日</option>
@@ -551,10 +562,6 @@
                         }
                     } else if (dateTypeVal === 'single') {
                         // 单个日期
-                        const day = dateSelect.value.padStart(2, '0');
-                        fileNames.push(`vpn_20${year}${month}${day}.log`);
-                    } else if (dateTypeVal === 'range') {
-                        // 范围选择（这里简化为只选择一个日期，实际应用中可以扩展为选择开始和结束日期）
                         const day = dateSelect.value.padStart(2, '0');
                         fileNames.push(`vpn_20${year}${month}${day}.log`);
                     }
