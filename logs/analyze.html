@@ -172,7 +172,8 @@
                     <div id="progress-bar" class="bg-primary h-2.5 rounded-full" style="width: 0%"></div>
                 </div>
                 <p id="progress-text" class="text-sm text-gray-500">0% 完成</p>
-                <p class="text-sm text-gray-500 mt-2">请稍候，这可能需要一些时间...</p>
+                <p id="current-file" class="text-sm font-medium text-gray-700 mt-2 truncate w-full text-center">准备开始...</p>
+                <p class="text-sm text-gray-500 mt-1">请稍候，这可能需要一些时间...</p>
             </div>
         </section>
         
@@ -603,8 +604,10 @@
                 const loadingIndicator = document.getElementById('loading-indicator');
                 const progressBar = document.getElementById('progress-bar');
                 const progressText = document.getElementById('progress-text');
+                const currentFileElement = document.getElementById('current-file');
                 
                 loadingIndicator.classList.remove('hidden');
+                currentFileElement.textContent = '准备开始...';
                 
                 let totalFiles = fileNames.length;
                 let processedFiles = 0;
@@ -613,6 +616,10 @@
                     const progress = Math.round((processedFiles / totalFiles) * 100);
                     progressBar.style.width = `${progress}%`;
                     progressText.textContent = `${progress}% 完成`;
+                };
+                
+                const updateCurrentFile = (fileName) => {
+                    currentFileElement.textContent = `正在处理: ${fileName}`;
                 };
                 
                 const logData = {
@@ -630,6 +637,7 @@
                 
                 try {
                     for (const fileName of fileNames) {
+                        updateCurrentFile(fileName);
                         try {
                             // 使用Fetch API获取文件内容
                             const response = await fetch(`${folder}/${fileName}`);
