@@ -352,6 +352,105 @@ article {
     transform: translateY(-3px);
 }
 
+/* VPN Comparison Table Styles */
+.vpn-table {
+    width: 90%;
+    max-width: 1000px;
+    border-collapse: collapse;
+    margin: 2rem auto;
+    margin: 2rem auto;
+    font-size: 1.2rem; 
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.vpn-table th {
+    padding: 15px 20px;
+    background-color: rgba(0, 255, 157, 0.1);
+    color: var(--accent-color);
+    padding: 15px 20px;
+    text-align: left;
+    border-bottom: 1px solid rgba(224, 224, 224, 0.1);
+    transition: all 0.3s ease;
+}
+
+.vpn-table td {
+    padding: 15px 20px;
+    border-bottom: 1px solid rgba(224, 224, 224, 0.1);
+    transition: all 0.2s ease;
+}
+
+.vpn-table tr:hover {
+    background-color: rgba(0, 255, 157, 0.08);
+    transform: translateY(-3px);
+}
+
+.vpn-table tr:hover td {
+    transform: translateX(5px);
+}
+
+.vpn-table .feature {
+    font-weight: bold;
+    color: var(--accent-color);
+    font-size: 1.15rem;
+}
+
+.vpn-table .yes {
+    color: var(--accent-color);
+    position: relative;
+}
+
+.vpn-table .yes::after {
+    content: '✓';
+    margin-left: 5px;
+}
+
+.vpn-table .no {
+    color: #ff5555;
+    position: relative;
+}
+
+.vpn-table .no::after {
+    content: '✗';
+    margin-left: 5px;
+}
+
+.vpn-table .highlight {
+    background-color: rgba(0, 255, 157, 0.15);
+    animation: pulseHighlight 2s infinite;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulseHighlight {
+    0% { background-color: rgba(0, 255, 157, 0.15); }
+    50% { background-color: rgba(0, 255, 157, 0.25); }
+    100% { background-color: rgba(0, 255, 157, 0.15); }
+}
+
+@media (max-width: 768px) {
+    .vpn-table {
+        width: 95%;
+        font-size: 1rem;
+        display: block;
+        overflow-x: auto;
+    }
+    
+    .vpn-table .feature {
+        font-size: 1.05rem;
+    }
+}
+
 /* 复用主站动画 */
 @keyframes slideIn {
     from { opacity: 0; transform: translateY(20px); }
