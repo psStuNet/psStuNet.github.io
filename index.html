@@ -92,31 +92,6 @@
             }
         }
 
-        th, td {
-            padding: 1rem;
-            border-bottom: 1px solid rgba(0, 255, 157, 0.1);
-            transition: background 0.3s ease;
-        }
-
-        th {
-            background: rgba(0, 255, 157, 0.1);
-            font-weight: 700;
-        }
-
-        tr {
-            transition: background 0.5s ease; /* 增加背景颜色变化的过渡时间 */
-        }
-
-        tr:hover {
-            background: rgba(0, 255, 157, 0.2); /* 改变悬停时的背景颜色 */
-            animation: hoverBackground 0.5s forwards; /* 应用动画效果 */
-        }
-
-        @keyframes hoverBackground {
-            0% { background-color: rgba(0, 255, 157, 0.05); } /* 初始状态 */
-            100% { background-color: rgba(0, 255, 157, 0.2); } /* 最终状态 */
-        }
-
         h1 {
             font-size: 2.8rem;
             margin-bottom: 2rem;
@@ -136,14 +111,6 @@
             opacity: 0;
             animation: slideIn 0.6s ease-out 1.8s forwards;
         }
-
-        h3 {
-            font-size: 1.8rem;
-            margin: 2rem 0 1rem;
-            opacity: 0;
-            animation: slideIn 0.6s ease-out 1.8s forwards;
-        }
-
 
         h3 {
             font-size: 1.8rem;
@@ -211,7 +178,7 @@
         text-align: right;
         margin-top: 20px;
     }
-    a {
+    .link {
         position: relative;
         color: rgb(0, 189, 73) !important;
         text-decoration: none;
@@ -219,7 +186,7 @@
         transition: all 0.3s ease;
     }
 
-    a::after {
+    .link::after {
         content: '';
         position: absolute;
         width: 0;
@@ -230,12 +197,12 @@
         transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
-    a:hover {
+    .link:hover {
         color: #00ff9d !important;
         transform: translateY(-2px);
     }
 
-    a:hover::after {
+    .link:hover::after {
         width: 100%;
         left: 0;
     }
@@ -275,17 +242,9 @@
         transform: translateY(-2px);
     }
 
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+    a {
+        text-decoration: none;
+    }
 
 @keyframes itemFadeUp {
     from {
@@ -644,7 +603,7 @@
 <body>
     <div class="container" style="max-width: 1000px; padding: 20px;">
         <h1>学生目录开发日志</h1>
-        <p>此网站为公网镜像站点，完整功能<a href="http://10.88.202.71">点此前往内网官网</a></p>
+        <p>此网站为公网镜像站点，完整功能<a class="link" href="http://10.88.202.71">点此前往内网官网</a></p>
 
         <div class="category-filter">
             <button class="filter-btn active" data-category="all">全部</button>
@@ -669,7 +628,7 @@
             <div class="log-item" style="animation-delay: 0.2s;cursor: pointer;" data-category="server">
                 <div class="log-date">VPN日志分析报告 - 2025.07.13</div>
                 <div class="log-content">
-                    <p>点击查看<a href="./logs/analyze.html" target="_blank">VPN连接统计报告</a></p>
+                    <p>点击查看<a class="link" href="./logs/analyze.html" target="_blank">VPN连接统计报告</a></p>
                     <p>自动分析VPN连接数据</p>
                 </div>
             </div>
@@ -731,9 +690,9 @@
             <div class="log-item" style="animation-delay: 0.2s;cursor: pointer;" data-category="github">
                 <div class="log-date">Github 仓库</div>
                 <div class="log-content">
-                    <p>点击访问<a href="https://github.com/psStuNet/psStuNet.github.io" target="_blank">GitHub 仓库</a></p>
-                    <p>Contributors:<a href="https://github.com/psStuNet/psStuNet.github.io/graphs/contributors" target="_blank" >Check on Github</a></p>
-                    <a href="https://github.com/psstunet/psstunet.github.io/commit" 
+                    <p>点击访问<a class="link" href="https://github.com/psStuNet/psStuNet.github.io" target="_blank">GitHub 仓库</a></p>
+                    <p>Contributors:<a class="link" href="https://github.com/psStuNet/psStuNet.github.io/graphs/contributors" target="_blank" >Check on Github</a></p>
+                    <a class="link" href="https://github.com/psstunet/psstunet.github.io/commit" 
                         class="code-link">查看commit记录</a>
                 </div>
             </div>
