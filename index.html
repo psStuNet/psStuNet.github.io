@@ -499,16 +499,153 @@
         -webkit-user-select: text;
         user-select: text;
     }
+
+    /* 工具集样式 */
+    .tools-container {
+        position: fixed;
+        bottom: 100px;
+        right: 70px;
+        z-index: 1000;
+    }
+
+    .tools-toggle {
+        width: 50px;
+        height: 50px;
+        background: rgba(0, 255, 157, 0.1);
+        color: rgba(0, 227, 140, 0.693);
+        border: 2px solid var(--accent-color);
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(5px);
+        box-shadow: 0 0 10px rgba(0, 255, 157, 0.3);
+    }
+
+    .tools-toggle:hover {
+        background: rgba(0, 255, 157, 0.2);
+        transform: scale(1.1);
+        box-shadow: 0 0 15px var(--accent-color);
+    }
+
+    .tools-menu {
+        position: absolute;
+        bottom: 70px;
+        right: -10px;
+        display: none;
+        flex-direction: column;
+        gap: 15px;
+        background: rgba(42, 42, 42, 0.9);
+        padding: 15px;
+        border-radius: 15px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(0, 255, 157, 0.2);
+    }
+
+    .tools-menu.active {
+        display: flex;
+        animation: menuEntrance 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28) both;
+        will-change: transform, opacity;
+    }
+
+    .tool-item {
+        position: relative;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+    }
+
+    .tool-item:hover {
+        background: rgba(0, 255, 157, 0.1);
+    }
+
+    .tool-item:hover::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        background: rgba(30, 30, 30, 0.95);
+        left: auto;
+        bottom: -60px;
+        color: var(--text-color);
+        padding: 10px 15px;
+        border-radius: 8px;
+        font-size: 0.95em;
+        border: 2px solid var(--accent-color);
+        box-shadow: 0 0 0 1px rgba(0, 255, 157, 0.3) inset, 0 5px 20px rgba(0, 0, 0, 0.3);
+        animation: tooltipFade 0.5s ease-out;
+        width: auto;
+        height: auto;
+        white-space: nowrap; 
+    }
+
+
+    .tool-icon {
+        width: 24px;
+        height: 24px;
+        fill: var(--accent-color);
+    }
+
+
+    @keyframes menuEntrance {
+        0% {
+            opacity: 0.5;
+            transform: scale(0.8) translateY(20px);
+        }
+        70% {
+            opacity: 1;
+            transform: scale(1.05);
+        }
+        100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    @keyframes tooltipFade {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .tools-container {
+            bottom: 20px;
+            right: 20px;
+        }
+        
+        .tools-toggle {
+            width: 40px;
+            height: 40px;
+        }
+        
+        .tools-menu {
+            padding: 10px;
+            gap: 10px;
+        }
+        
+        .tool-item {
+            width: 35px;
+            height: 35px;
+        }
+    }
+
     </style>
 
 </head>
 <body>
-    <div class="markdown-container">
-      
-      <div class="container" style="max-width: 1000px; padding: 20px;">
+    <div class="container" style="max-width: 1000px; padding: 20px;">
         <h1>学生目录开发日志</h1>
         <p>此网站为公网镜像站点，完整功能<a href="http://10.88.202.71">点此前往内网官网</a></p>
-        
+
         <div class="category-filter">
             <button class="filter-btn active" data-category="all">全部</button>
             <button class="filter-btn" data-category="report">月度报告</button>
@@ -517,7 +654,7 @@
             <button class="filter-btn" data-category="server">服务器相关</button>
             <button class="filter-btn" data-category="github">GitHub信息</button>
         </div>
-    
+
         <div class="timeline" id="development-log">
             
             <div class="log-item" style="animation-delay: 0.2s;cursor: pointer;" data-category="server">
@@ -597,13 +734,37 @@
                     <p>点击访问<a href="https://github.com/psStuNet" target="_blank">GitHub 仓库</a></p>
                     <p>Contributors:<a href="https://github.com/psStuNet/psStuNet.github.io/graphs/contributors" target="_blank" >Check on Github</a></p>
                     <a href="https://github.com/psstunet/psstunet.github.io/commit" 
-                       class="code-link">查看commit记录</a>
+                        class="code-link">查看commit记录</a>
                 </div>
             </div>
         </div>
-      </div>
-    
-      <script>
+    </div>
+    <!-- 工具集 -->
+    <div class="tools-container">
+        <div class="tools-toggle" onclick="toggleTools()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
+        </div>
+        <div class="tools-menu">
+            <a href="./logs/analyze.html" class="tool-item" data-tooltip="VPN日志分析">
+                <svg class="tool-icon" viewBox="0 0 24 24">
+                    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z"/>
+                    <path d="M7.5 15h2v2H11v-4H9.5v2.5h-2V15zm6.5 0h4v2h-4z"/>
+                </svg>
+            </a>
+            
+            <a href="https://github.com/psStuNet" class="tool-item" data-tooltip="GitHub仓库">
+                <svg class="tool-icon" viewBox="0 0 24 24">
+                    <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.793-.258.793-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
+                </svg>
+            </a>
+        </div>
+    </div>
+
+
+    <script>
         // 滚动监听
         window.addEventListener('scroll', () => {
             const header = document.querySelector('.fixed-buttons');
@@ -613,13 +774,11 @@
                 header.classList.remove('scrolled');
             }
         });
-    
+
         // 延迟加载动画
         document.querySelectorAll('.log-item').forEach((item, index) => {
             item.style.animationDelay = `${0.2 + index * 0.2}s`;
         });
-      </script>
-      <script>
         // 分类筛选功能
         document.querySelectorAll('.filter-btn').forEach(btn => {
             btn.addEventListener('click', () => {
@@ -655,6 +814,21 @@
                 }
             });
         });
-        </script>
+
+        // 工具集功能
+        function toggleTools() {
+            const menu = document.querySelector('.tools-menu');
+            menu.classList.toggle('active');
+        }
+
+        // 点击外部区域关闭工具集
+        document.addEventListener('click', (e) => {
+            const toolsContainer = document.querySelector('.tools-container');
+            if (!toolsContainer.contains(e.target)) {
+                document.querySelector('.tools-menu').classList.remove('active');
+            }
+        });
+
+    </script>
 </body>
 </html>
