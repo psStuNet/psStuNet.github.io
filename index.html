@@ -467,6 +467,18 @@
         z-index: 1000;
     }
 
+    @keyframes bounce {
+        0%, 100% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(0.9);
+        }
+        70% {
+            transform: scale(1.1);
+        }
+    }
+
     .tools-toggle {
         width: 50px;
         height: 50px;
@@ -478,15 +490,19 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        transition: all 0.3s ease;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.5, 1.4);
         backdrop-filter: blur(5px);
         box-shadow: 0 0 10px rgba(0, 255, 157, 0.3);
     }
 
     .tools-toggle:hover {
         background: rgba(0, 255, 157, 0.2);
-        transform: scale(1.1);
-        box-shadow: 0 0 15px var(--accent-color);
+        box-shadow: 0 0 13px var(--accent-color);
+        transform: scale(0.9);
+    }
+
+    .tools-toggle:active {
+        animation: bounce 3.3s;
     }
 
     .tools-menu {
@@ -507,6 +523,11 @@
     .tools-menu.active {
         display: flex;
         animation: menuEntrance 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28) both;
+        will-change: transform, opacity;
+    }
+
+    .tools-menu.exit {
+        animation: menuExit 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28) both;
         will-change: transform, opacity;
     }
 
@@ -564,6 +585,21 @@
         100% {
             opacity: 1;
             transform: scale(1);
+        }
+    }
+
+    @keyframes menuExit {
+        0% {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+        70% {
+            opacity: 1;
+            transform: scale(0.8) translateY(20px);
+        }
+        100% {
+            opacity: 0;
+            transform: scale(1.05);
         }
     }
 
@@ -775,19 +811,56 @@
             });
         });
 
+        let timeoutId;
+        const toolsMenu = document.querySelector('.tools-menu');
+
+
         // 工具集功能
         function toggleTools() {
-            const menu = document.querySelector('.tools-menu');
-            menu.classList.toggle('active');
+            timeoutId = setTimeout(() => {  
+                toolsMenu.classList.add('active');
+            }, 0); 
         }
-
-        // 点击外部区域关闭工具集
+        
+        /*
         document.addEventListener('click', (e) => {
-            const toolsContainer = document.querySelector('.tools-container');
-            if (!toolsContainer.contains(e.target)) {
-                document.querySelector('.tools-menu').classList.remove('active');
+            const Menu = document.querySelector('.tools-container');
+            if (!Menu.contains(e.target)) {
+                toolsMenu.classList.add('exit');
+                timeoutId = setTimeout(() => {
+                    toolsMenu.classList.remove('active');
+                    toolsMenu.classList.remove('exit'); 
+                    clearTimeout(timeoutId);
+                }, 400); 
             }
         });
+        */
+
+        document.addEventListener('click', (e) => {
+            if (document.querySelector('.tools-toggle').contains(e.target))
+            {
+                if(toolsMenu.classList.contains('active')) {
+                    toolsMenu.classList.add('exit');
+                    setTimeout(() => {
+                        toolsMenu.classList.remove('active');
+                        toolsMenu.classList.remove('exit'); 
+                        clearTimeout(timeoutId);
+                    }, 400); 
+                }
+            }
+        });
+
+        toolsMenu.addEventListener('mouseleave', () => {
+            timeoutId = setTimeout(() => {  
+                toolsMenu.classList.add('exit');
+            }, 200); 
+            timeoutId = setTimeout(() => {
+                toolsMenu.classList.remove('active');
+                toolsMenu.classList.remove('exit'); 
+                clearTimeout(timeoutId);
+            }, 600); 
+        });
+
 
     </script>
 </body>
