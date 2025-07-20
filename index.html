@@ -515,7 +515,7 @@
         width: 40px;
         height: 40px;
         display: flex;
-        align-items: center;
+        align-items: center;    
         justify-content: center;
         border-radius: 10px;
         transition: all 0.3s ease;
@@ -529,15 +529,16 @@
         content: attr(data-tooltip);
         position: absolute;
         background: rgba(30, 30, 30, 0.95);
-        left: auto;
-        bottom: -60px;
+        z-index: 1;
+        top: -5px;
+        right: 155%;
         color: var(--text-color);
         padding: 10px 15px;
         border-radius: 8px;
         font-size: 0.95em;
         border: 2px solid var(--accent-color);
         box-shadow: 0 0 0 1px rgba(0, 255, 157, 0.3) inset, 0 5px 20px rgba(0, 0, 0, 0.3);
-        animation: tooltipFade 0.5s ease-out;
+        animation: menuEntrance 0.2s;
         width: auto;
         height: auto;
         white-space: nowrap; 
