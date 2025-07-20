@@ -61,7 +61,7 @@ a:hover::after {
     border: 2px solid;
     backdrop-filter: blur(5px);
     color: #00ff9d;
-    background-color: rgba(0, 255, 157, 0.389); /* 初始背景颜色 */
+    background-color: rgba(0, 158, 97, 0.192); /* 初始背景颜色 */
     transform: scale(1); /* 初始缩放比例 */
 }
 
