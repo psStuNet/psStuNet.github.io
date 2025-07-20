@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学生目录5~6月月度报告播客</title>
+    <script src="https://cdn.tailwindcss.com/3.3.3"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="../../style.css">
+
+    <style>
+        body {
+            font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
+            line-height: 1.7;
+        }
+        .glassmorphism {
+            background: rgba(30, 30, 30, 0.8);
+            backdrop-filter: blur(16px);
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glassmorphism:hover {
+            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.4);
+            transform: translateY(-3px);
+        }
+        .speaker-a {
+            color: #818cf8;
+            font-weight: 600;
+            padding: 0.3rem 0.6rem;
+            border-radius: 6px;
+            background-color: rgba(99, 102, 241, 0.2);
+            transition: all 0.3s ease;
+        }
+        .speaker-b {
+            color: #34d399;
+            font-weight: 600;
+            padding: 0.3rem 0.6rem;
+            border-radius: 6px;
+            background-color: rgba(52, 211, 153, 0.2);
+            transition: all 0.3s ease;
+        }
+        .speaker-a:hover, .speaker-b:hover {
+            transform: translateX(3px);
+        }
+        .transcript-container {
+            padding: 2rem;
+            background: rgba(40, 40, 40, 0.7);
+            border-radius: 16px;
+        }
+        .transcript-container p {
+            margin-bottom: 1.5rem;
+            padding: 0.8rem 0;
+            line-height: 1.8;
+        }
+        .active-line {
+            margin: 1rem -2rem;
+            padding: 1.2rem 2rem;
+        }
+        .waveform {
+            height: 160px;
+            width: 100%;
+            aspect-ratio: 21/9;
+            border-radius: 16px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        audio {
+            filter: invert(0.9) hue-rotate(180deg);
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <div class="fixed-buttons">
+        <button href="../2505_2506.html" class="floating-btn home-btn" onclick="location.href='../index.html';">返回</button>
+    </div>
+
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-100 mb-2">学生目录5~6月月度报告</h1>
+            <p class="text-gray-400">迟来的月度报告 - VPN流量分析、教师VPN搭建与网站优化</p>
+        </div>
+
+        <div class="glassmorphism p-6 mb-8">
+            <div class="waveform mb-4" style="background-image: url('https://s.coze.cn/image/RDvPL4QNMSo/')"></div>
+            
+            <div class="flex items-center justify-between mb-4">
+                <audio id="podcast-audio" controls class="w-full">
+                    <source src="../../media/podcast/2505_2506.mp3" type="audio/mpeg">
+                    您的浏览器不支持音频播放
+                </audio>
+            </div>
+        </div>
+         
+        <div class="glassmorphism p-6">
+            <h2 class="text-xl font-semibold mb-4 flex items-center text-gray-100">
+                <i class="fas fa-closed-captioning mr-2 text-indigo-400"></i>播客字幕
+            </h2>
+            
+            <div class="transcript-container p-4 bg-gray-900 rounded-lg" id="transcript">
+                <p class="mb-3"><span class="speaker-a">女生:</span> 哈喽大家好欢迎收听，我们的播客。啊今天咱们这个内容啊，是要聊一聊，学生目录。在五六月份啊，都干了些什么？啊这个包括我们的 VPN 的流量，是怎么用的啊然后包括我们这个教师的 VPN 到底是一个什么情况啊，还有一些网站的优化呀。包括一些工具的开发呀，啊还有一些人员的变动啊，等等吧反正内容还挺多的，咱们现在开始吧。</p>
+                
+                <p class="mb-3"><span class="speaker-b">男生:</span> 嗯，感觉挺丰富的那我们就赶紧开始吧，赶紧来给大家说一说这些有趣的进展。</p>
+                
+                <p class="mb-3"><span class="speaker-a">女生:</span> 咱们先来聊一聊这个，为什么这个月度报告，五六月的月度报告现在才出来？</p>
+                
+                <p class="mb-3"><span class="speaker-b">男生:</span> 啊这个是因为，五月的报告呢？写报告的人太懒了啊哈哈，然后就没有写，就拖到了六月，跟六月的合并在一起了，是由两个人。合作完成的，啊对。</p>
+                
+                <p class="mb-3"><span class="speaker-a">女生:</span> 然后就是为什么，这个五六月份的这个 VPN 的流量使用情况，跟之前比，有这么明显的变化，对吧尤其是。五月份还比六月份高，这是为什么？</p>
+                
+                <p class="mb-3"><span class="speaker-b">男生:</span> 这个是因为，五月和六月呢我们一共用了，三千三百八十八个 G 的流量。然后其中五月是一千七百三十二个 G，六月是一千六百五十六个 G啊，看起来好像差不多但是。其实我们换算成，实际的消耗的话五月是八百五十五个 G，六月是八百二十五个 G。啊，这个主要的原因就是因为六月份我们。研究出了一种新的连接方式叫教师 VPN，啊这个是不被统计在这个流量里面的。哦对，所以会有这样的差异。</p>
+                
+                <p class="mb-3"><span class="speaker-a">女生:</span> 那这个教师 VPN 是个什么东西呢，为什么我们要做这样一个东西，然后在做的过程当中遇到了什么问题，他的访问有没有什么限制呢？</p>
+                
+                <p class="mb-3"><span class="speaker-b">男生:</span> 是这样的就是，因为校园网的用户和需求越来越多了，然后就会很卡。对，我们就想要不就利用老师的电脑。来搭建一个 VPN，啊这样的话就可以。有一个比较稳定的网络，但是呢这个东西，其实在实践的时候，并没有那么顺利啊，因为我们。一开始的时候，是这个教师端和学生端的软件版本不兼容。哦，所以导致我们一直连不上，后来我们把它统一了之后就可以了。</p>
+                
+                <p class="mb-3"><span class="speaker-a">女生:</span> 哦，原来还有这样的，软件版本的问题在里面对。</p>
+                
+                <p class="mb-3"><span class="speaker-b">男生:</span> 对是的是的是的，然后。呃，但是老师的这个网络呢他其实也是有限制的啊就是他对于游戏的这个地址是有限制的。哦，比如说他会限制，云原神。对，但是他居然可以玩明日方舟。啊，对，我们为了绕开这个呢我们就又做了一个 VPN，叫七幺 VPN.啊这个 VPN 呢就是专门用来玩游戏的，对，他的这个网络速度也非常的快，是三百兆的。哦，对，教师 VPN 呢就用来干别的，就除了游戏之外的其他事情都可以干。</p>
+                
+                <p class="mb-3"><span class="speaker-a">女生:</span> 这个 VPN 的状态页面这个功能是怎么实现的呢，之前的实现方式有什么问题？</p>
+                
+                <p class="mb-3"><span class="speaker-b">男生:</span> 呃，VPN 的状态页面呢其实就是分成几个部分啊一个就是简介啊然后一个就是公告啊。还有就是最新的密码啊，这个密码是可以一键复制的啊还有就是服务器的状态，是开还是关啊有多少人连。啊，之前的实现方式呢是用一个 bat 脚本。嗯哼，不断的去查询。把结果存到一个文件里面服务器再去读这个文件。来更新这个状态，但是这样的话就会有一个问题就是他会。浪费很多服务器的资源，对因为他不断的在查询嘛，对其实很多查询都是没有意义的。</p>
+                
+                <p class="mb-3"><span class="speaker-a">女生:</span> 听起来确实很不高效，那后来是怎么优化的呢？</p>
+                
+                <p class="mb-3"><span class="speaker-b">男生:</span> 后来我们就用 Node.js 写了一个后端的服务。啊，然后这个服务呢就是，它会接收前端的一个 API 请求。哦，它会去。通过 ICMP 的请求去判断这个主机是否在线。哦，它也会去执行一些命令。去查询这个 VPN 服务器的连接人数。把这个结果呢返回给前端，嗯哼，前端就可以动态的去更新这些信息。啊，这样的话就只有在你请求的时候才会去查询。对，就不会浪费服务器的资源。</p>
+                
+                <p class="mb-3"><span class="speaker-a">女生:</span> 那这个 API 具体是怎么实现的呢，它的原理是什么然后怎么使用？</p>
+                
+                <p class="mb-3"><span class="speaker-b">男生:</span> 这个 API 呢我们是用 Express 框架写的啊然后用了一个 CORS 的中间件来处理跨域的问题。定义了两个端点，嗯哼，一个端点呢是用来检测这个 VPN 服务器是否在线的。另一个端点呢是用来查询这个 VPN 服务器的在线用户数的。哦，它的原理呢就是。对于检测服务器是否在线呢我们是尝试去建立一个 TCP 的连接到这个服务器的四三三端口。哦，如果能建立成功的话就是在线的，否则就是离线的。查询在线用户数呢我们是通过执行一个 vpncmd 的命令。哦，去解析它的输出，把这个会话数解析出来。</p>
+                
+                <p class="mb-3"><span class="speaker-a">女生:</span> 听起来还挺巧妙的对，那这个使用起来复杂吗？</p>
+                
+                <p class="mb-3"><span class="speaker-b">男生:</span> 不复杂不复杂就是你只要发一个 GET 请求就可以了。哦，然后你要检测状态的话就是 /api/vpn-status?ip=你要查询的这个服务器的地址。你要查询用户数的话就是 /api/vpn-users?ip=这个服务器的地址。它会返回给你一个。JSON 格式的数据，嗯哼，你可以很方便的去使用。我们也对这个 IP 地址做了一个验证，如果这个 IP 地址格式不对的话它会返回一个。四零零的错误，哦，对，这样的话可以保证这个 API 的安全性和稳定性。</p>
+                
+                <p class="mb-3"><span class="speaker-a">女生:</span> 那这个键盘记录器这个工具是在什么背景下产生的呢，它具体实现了哪些功能？</p>
+                
+                <p class="mb-3"><span class="speaker-b">男生:</span> 这个是因为，六月下旬的时候。老师的目录密码被重置了。哦，然后导致我们这个学生目录下面的这个共享的文件夹就用不了了。哦，我们又没有办法去。呃，英语周测的时候要抄答案什么之类的没有办法，我们就想到说。呃，在 GitHub 上面找了一个开源的项目 keyboard recorder.嗯哼，我们在这个上面进行了一些改造。啊，增加了一些功能比如说我们可以用快捷键来控制它的开始和暂停。啊，也可以设置它开机自启并且是静默启动。啊，我们把这个东西，呃修改后的代码也上传到了 GitHub 上面。也有截图啊什么之类的说明，大家也可以直接从我们的学生目录下面去下载这个编译好的版本。</p>
+                
+                <p class="mb-3"><span class="speaker-b">男生:</span> 也鼓励大家给我们点个 star 什么的。</p>
+                
+                <p class="mb-3"><span class="speaker-a">女生:</span> 那这个网站最近还有哪些功能上的优化呢？</p>
+                
+                <p class="mb-3"><span class="speaker-b">男生:</span> 我们增加了日志的筛选功能。就是现在日志越来越多了之后你很难去找到你想要的信息。所以我们现在可以按照日志的类型来进行筛选。啊，比如说你只看月度报告。或者只看项目进展等等，一共是分了五类。然后你只要点一下上面的这个标签就可以快速的筛选。</p>
+                
+                <p class="mb-3"><span class="speaker-a">女生:</span> 听起来还挺实用的，那还有什么新的东西吗？</p>
+                
+                <p class="mb-3"><span class="speaker-b">男生:</span> 还有就是我们现在可以直接在网站上面分析 VPN 的日志。啊，然后生成报告，我们在网站的右下角增加了一个工具集。啊，里面有一些常用的工具比如说直接可以跳到我们的 GitHub 仓库。或者是说可以直接分析日志等等，这个报告呢也是。目前为止最长的一次报告啊对也是感谢 Leo 的支持啊下学期开始这个网站还有服务器的管理。就会正式的交给 Leo 来接手了。</p>
+                
+                <p class="mb-3"><span class="speaker-a">女生:</span> 好的今天我们聊了这个学生目录五六月的月度报告啊，从这个 VPN 的流量的变化。到教师 VPN 的搭建，然后到这个网站的优化和一些工具的开发，真的是满满的都是干货啊。也感谢大家的收听我们期待下学期啊 Leo 能够给我们带来新的惊喜。</p>
+                
+                <p class="mb-3"><span class="speaker-b">男生:</span> 以上就是这期播客的全部内容啦然后咱们下期再见拜拜拜拜！</p>
+            </div>
+        </div>
+
+        <div class="mt-8 text-center text-gray-500 text-sm">
+            <p>实在是太抽象了（</p>
+        </div>
+    </div>
+
+</body>
+</html>
