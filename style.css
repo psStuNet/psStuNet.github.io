@@ -61,27 +61,22 @@ a:hover::after {
     border: 2px solid;
     backdrop-filter: blur(5px);
     color: #00ff9d;
-    background-color: rgba(0, 158, 97, 0.192); /* 初始背景颜色 */
-    transform: scale(1); /* 初始缩放比例 */
+    background-color: rgba(0, 158, 97, 0.192); 
+    transform: scale(1); 
 }
 
 @keyframes buttonHoverEffect {
     0% {
-        transform: scale(1);
         box-shadow: 0 0 0 rgba(0, 255, 157, 0);
     }
-    50% {
-        transform: scale(0.95);
-        box-shadow: 0 2px 4px rgba(0, 255, 157, 0.1);
-    }
     100% {
-        transform: scale(1);
-        box-shadow: 0 4px 8px rgba(0, 255, 157, 0.1);
+        box-shadow: 0 2px 4px rgba(0, 255, 157, 0.996);
+        transform: scale(1.05);
     }
 }
 
 .floating-btn:hover {
-    animation: buttonHoverEffect 0.5s ease-in-out forwards;
+    animation: buttonHoverEffect 0.3s cubic-bezier(0.4, 0, 1, 1) forwards;
 }
 
 .article-header {
