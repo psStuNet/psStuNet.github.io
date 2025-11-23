@@ -412,6 +412,70 @@ article {
     100% { background-color: rgba(0, 255, 157, 0.15); }
 }
 
+/* 预告部分特殊样式 */
+.preview-section {
+    background: linear-gradient(135deg, rgba(0, 255, 157, 0.1) 0%, rgba(0, 189, 73, 0.05) 100%);
+    border: 1px solid rgba(0, 255, 157, 0.2);
+    box-shadow: 0 4px 20px rgba(0, 255, 157, 0.1);
+    border-radius: 12px;
+    padding: 2rem;
+    margin: 3rem 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.preview-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, transparent, var(--accent-color), transparent);
+    animation: glowPulse 3s ease-in-out infinite;
+}
+
+.preview-section h2 {
+    color: var(--accent-color);
+    text-align: center;
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+    display: inline-block;
+}
+
+.preview-section h2::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: var(--accent-color);
+    border-radius: 2px;
+}
+
+.preview-section p {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    text-align: center;
+    margin: 1rem 0;
+    position: relative;
+    z-index: 1;
+}
+
+.preview-section:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 6px 25px rgba(0, 255, 157, 0.15);
+    transition: all 0.4s ease;
+}
+
+@keyframes glowPulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+}
+
 @media (max-width: 768px) {
     .comparison-table {
         width: 95%;
