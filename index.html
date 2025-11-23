@@ -875,5 +875,24 @@
 
 
     </script>
+
+<script>
+    // 检查是否需要执行首页进入动画
+    document.addEventListener('DOMContentLoaded', function() {
+        if (sessionStorage.getItem('homeAnimation') === 'true') {
+            // 移除标记，避免下次直接访问也执行动画
+            sessionStorage.removeItem('homeAnimation');
+            
+            // 给body添加进入动画类
+            document.body.classList.add('home-enter');
+            
+            // 动画结束后移除类名
+            setTimeout(() => {
+                document.body.classList.remove('home-enter');
+            }, 600);
+        }
+    });
+</script>
+    
 </body>
 </html>
