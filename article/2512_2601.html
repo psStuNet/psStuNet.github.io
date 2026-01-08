@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>学生目录12</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" type="text/css" href="../style.css">
+
+</head>
+<body>
+    <div class="fixed-buttons">
+        <button href="../index.html" class="floating-btn home-btn" onclick="location.href='../index.html';">返回首页</button>
+    </div>
+    <article class="container">
+        <header class="article-header">
+            <h1 class="article-title">学生目录12月月度报告</h1>
+           
+        </header>
+
+        <section class="content-section">
+            <h3>新的一年</h3>
+            <p>祝大家2026年新年快乐！</p>
+            <p>本篇报告由yuebi和辰艾共同完成，我们在此将这两个月的工作成果用汇报如下：</p>
+        </section>
+
+        <section class="content-section">
+            <h2>本月VPN服务流量统计</h2>
+            <!--p class="quote">  这下面是流量的1122211  </p-->
+        <!--p>从最初的4个人，到现在的日均15+活跃用户，我们的VPN已经成为学校里"最抢手"的资源。3月17日更是创下了<strong>24人连接的史诗级记录</strong>！</p-->
+            
+            <div class="chart-container">
+                <p>如下是12月份的流量统计与VPN各日的使用分析。</p>
+                <div class="tech-stack">
+                    <div class="tech-item">
+                    <p>十二月</p>
+                        <div class="chart-placeholder">
+                            <img src="..\img\2026-1-8.PNG"   alt="流量图">
+                        </div>
+                        <div class="chart-placeholder">
+                            <img src="..\img\2025-05-31 210307.png"   alt="报告图">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <p>我们这个月中，一共使用学校的<strong>320.85GB</strong>流量</p>
+            <p>十二月份使用的流量是320GB，十一月份使用的流量为2930.7GB，可以看出我们的流量使用量下降了（可能这也是因为大家在学习上的繁忙与老师查得严qwq）</p>
+        </section>
+
+       
+
+        <section class="content-section">
+            <h2>本网站功能优化</h2>
+            <h3>工具集</h3>
+            <p>我们在网站中“关于”选项中添加了一个新功能--用户中心。下面是详细的介绍</p>
+             <p>打开此界面，我们会要求先登录</p>
+            <div class="tech-stack">
+                    <div class="tech-item">
+                    <p>用户中心</p>
+                        <div class="chart-placeholder">
+                            <img src="..\img\学生目录用户中心.png"   alt="用户中心">
+                        </div>
+                    </div>
+                </div>
+            
+            <p>用户中心主要有以下功能：留言及注册Alist。通过用户中心，用户可以进行留言，并可以查看自己的留言记录。注册Alist，可以将自己的数据上传至网站</p>
+            <p>当然，这项功能仍处于实验阶段，我们将会不断优化并改进的(≧∇≦)ﾉ</p>
+        </section>
+
+        <footer class="content-section">
+        
+           
+            <div class="name">
+                <p><strong>yuebi、Leo</strong></p>
+                <p><time>2025年7月15日</time></p>
+                <p><em>暑气未升的深夜</em></p>
+            </div>
+        </footer>
+
+        <div style="text-align: center;">
+            <a href="./podcast/2505_2506.html">有没有更抽象一点的（bushi</a>
+        </div>
+    </article>
+
+<div class="modal">
+    <span class="close">&times;</span>
+    <img class="modal-content">
+</div>
+
+<style>
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 9999;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.9);
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal-content {
+        max-width: 90%;
+        max-height: 90vh;
+        object-fit: contain;
+        border: 2px solid var(--accent-color);
+        border-radius: 8px;
+    }
+
+    
+    .close {
+        position: absolute;
+        top: 20px;
+        right: 35px;
+        color: var(--accent-color);
+        font-size: 40px;
+        cursor: pointer;
+        transition: opacity 0.3s;
+    }
+
+    .close:hover {
+        opacity: 0.7;
+    }
+</style>
+
+<script>
+    document.querySelectorAll('.chart-placeholder img').forEach(img => {
+        img.onclick = function() {
+            const modal = document.querySelector('.modal');
+            const modalImg = document.querySelector('.modal-content');
+            modal.style.display = "flex";
+            modalImg.src = this.src;
+        }
+    });
+
+    document.querySelector('.close').onclick = function() {
+        document.querySelector('.modal').style.display = "none";
+    }
+
+    window.onclick = function(event) {
+        if (event.target.className === 'modal') {
+            document.querySelector('.modal').style.display = "none";
+        }
+    }
+
+    window.onkeydown = function(event) {
+        if (event.key === "Escape") {
+            document.querySelector('.modal').style.display = "none";
+        }
+    }
+</script>
+
+
+<script>
+    document.querySelectorAll('.content-section').forEach((section, index) => {
+        section.style.opacity = 0;
+        section.style.animation = 'slideIn 0.6s ease-out forwards';
+        section.style.animationDelay = `${index * 0.2}s`;
+    });
+
+
+</script>
+    
+</body>
+</html>
