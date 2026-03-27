@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>学生目录月度报告</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" type="text/css" href="../style.css">
+
+</head>
+<body>
+    <div class="fixed-buttons">
+        <button href="../index.html" class="floating-btn home-btn" onclick="location.href='../index.html';">返回首页</button>
+    </div>
+    <article class="container">
+        <header class="article-header">
+            <h1 class="article-title">学生目录2、3月月度报告</h1>
+           
+        </header>
+
+        <section class="content-section">
+            <h3>新的一学期</h3>
+            <p>祝大家能在新的学期里能越来越好</p>
+            <p>本篇报告由yuebi和辰艾共同完成，我们在此将这个月的工作成果用汇报如下：</p>
+        </section>
+
+        <section class="content-section">
+            <h2>本月VPN服务流量统计</h2>
+            <!--p class="quote">  这下面是流量的1122211  </p-->
+        <!--p>从最初的4个人，到现在的日均15+活跃用户，我们的VPN已经成为学校里"最抢手"的资源。3月17日更是创下了<strong>24人连接的史诗级记录</strong>！</p-->
+            
+            <div class="chart-container">
+                <p>如下是12月份、1月份的流量统计与VPN各日的使用分析。</p>
+                <div class="tech-stack">
+                    <div class="tech-item">
+                        <p>十二月</p>
+                        <div class="chart-placeholder">
+                            <img src="..\img\2026-1-8.PNG"   alt="流量图">
+                        </div>
+                        <div class="chart-placeholder">
+                            <img src="..\img\2512报告图"   alt="报告图">
+                        </div>
+                    </div>
+                    <div class="tech-item">
+                        <p>一月</p>
+                        <div class="chart-placeholder">
+                            <img src="..\img\2026-2-8.PNG"   alt="流量图">
+                        </div>
+                        <div class="chart-placeholder">
+                            <img src="..\img\2601报告图"   alt="报告图">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <p>我们这两个个月中，一共使用学校的<strong>542.64GB</strong>流量</p>
+            <p>两个月份使用的流量总共是542.64GB，十一月份使用的流量为2930.7GB，可以看出我们的流量使用量下降了（可能这也是因为大家在学习上的繁忙与老师查得严qwq）</p>
+        </section>
+
+       
+
+        <section class="content-section">
+            <h2>本网站功能优化</h2>
+            <h3>工具集</h3>
+            <p>经过我们的修复，学生目录用户中心可以正常使用啦！</p>
+             <p>打开此界面，我们会要求先登录</p>
+            <div class="tech-stack">
+            <p>用户中心主要有以下功能：留言及注册Alist。通过用户中心，用户可以进行留言，并可以查看自己的留言记录。注册Alist，可以将自己的数据上传至网站</p>
+            <p>当然，这项功能我们将会不断优化并改进。未来可能将会添加一个我的世界的添加器，请大家多多期待呀(≧∇≦)ﾉ</p>
+                <h3>网络优化</h3>
+        </section>
+        <section class="content-section">
+            <h2>本网站功能优化</h2>
+            <h3>工具集</h3>
+            <p>经过我们的修复，学生目录用户中心可以正常使用啦！</p>
+             <p>打开此界面，我们会要求先登录</p>
+            <div class="tech-stack">
+            
+            <p>用户中心主要有以下功能：留言及注册Alist。通过用户中心，用户可以进行留言，并可以查看自己的留言记录。注册Alist，可以将自己的数据上传至网站</p>
+            <p>当然，这项功能我们将会不断优化并改进。未来可能将会添加一个我的世界的添加器，请大家多多期待呀(≧∇≦)ﾉ</p>
+        </section>
+
+        <footer class="content-section">
+        <div style="text-align: center;">
+            <p>祝大家2026年新年快乐！</p>
+        </div>
+           
+            <div class="name">
+                <p><strong>yuebi、辰艾</strong></p>
+                <p><time>2026年2月8日</time></p>
+                
+            </div>
+        </footer>
+    </article>
+
+<div class="modal">
+    <span class="close">&times;</span>
+    <img class="modal-content">
+</div>
+
+<style>
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 9999;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.9);
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal-content {
+        max-width: 90%;
+        max-height: 90vh;
+        object-fit: contain;
+        border: 2px solid var(--accent-color);
+        border-radius: 8px;
+    }
+
+    
+    .close {
+        position: absolute;
+        top: 20px;
+        right: 35px;
+        color: var(--accent-color);
+        font-size: 40px;
+        cursor: pointer;
+        transition: opacity 0.3s;
+    }
+
+    .close:hover {
+        opacity: 0.7;
+    }
+</style>
+
+<script>
+    document.querySelectorAll('.chart-placeholder img').forEach(img => {
+        img.onclick = function() {
+            const modal = document.querySelector('.modal');
+            const modalImg = document.querySelector('.modal-content');
+            modal.style.display = "flex";
+            modalImg.src = this.src;
+        }
+    });
+
+    document.querySelector('.close').onclick = function() {
+        document.querySelector('.modal').style.display = "none";
+    }
+
+    window.onclick = function(event) {
+        if (event.target.className === 'modal') {
+            document.querySelector('.modal').style.display = "none";
+        }
+    }
+
+    window.onkeydown = function(event) {
+        if (event.key === "Escape") {
+            document.querySelector('.modal').style.display = "none";
+        }
+    }
+</script>
+
+
+<script>
+    document.querySelectorAll('.content-section').forEach((section, index) => {
+        section.style.opacity = 0;
+        section.style.animation = 'slideIn 0.6s ease-out forwards';
+        section.style.animationDelay = `${index * 0.2}s`;
+    });
+
+
+</script>
+    
+</body>
+</html>
