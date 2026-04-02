@@ -1,924 +1,1474 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
-    <title>学生目录</title>
-    <html lang="zh-CN">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>学生目录</title>
     <link rel="icon" type="image/png" href="./img/icon/favicon.png">
     <style>
-        :root {
-            --primary-color: #2a2a2a;
-            --accent-color: #00ff9d;
-            --text-color: #e0e0e0;
-        }
-
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Noto Sans SC', system-ui, sans-serif;
         }
 
         body {
-            background-color: var(--primary-color);
-            color: var(--text-color);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif;
+            background: #050508;
+            color: #fff;
             min-height: 100vh;
-            line-height: 1.8;
-            letter-spacing: 0.8px;
-            display: flex;
-            justify-content: center;
+            overflow-x: hidden;
         }
 
-        body::after {
+        /* 粒子背景 */
+        #particles-container {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        /* 全息扫描线 */
+        .scanlines {
+            position: fixed;
+            inset: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 255, 200, 0.03) 2px,
+                rgba(0, 255, 200, 0.03) 4px
+            );
+            z-index: 1;
+            pointer-events: none;
+            animation: scan 8s linear infinite;
+        }
+
+        @keyframes scan {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(100px); }
+        }
+
+        /* 全息网格 */
+        .holo-grid {
+            position: fixed;
+            inset: 0;
+            background: 
+                linear-gradient(rgba(0, 255, 200, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 200, 0.05) 1px, transparent 1px);
+            background-size: 80px 80px;
+            z-index: 0;
+            pointer-events: none;
+            transform: perspective(500px) rotateX(60deg);
+            transform-origin: center top;
+            animation: gridMove 20s linear infinite;
+        }
+
+        @keyframes gridMove {
+            0% { background-position: 0 0; }
+            100% { background-position: 0 80px; }
+        }
+
+        /* 浮动装饰元素 */
+        .floating-decorations {
+            position: fixed;
+            inset: 0;
+            z-index: 2;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .float-shape {
+            position: absolute;
+            border: 1px solid rgba(0, 255, 200, 0.15);
+            animation: floatShape 20s ease-in-out infinite;
+        }
+
+        .float-shape.circle {
+            border-radius: 50%;
+        }
+
+        .float-shape.diamond {
+            transform: rotate(45deg);
+        }
+
+        .float-shape.ring {
+            border-radius: 50%;
+            background: transparent;
+        }
+
+        .float-shape.cross::before,
+        .float-shape.cross::after {
             content: '';
+            position: absolute;
+            background: rgba(0, 255, 200, 0.15);
+        }
+
+        .float-shape.cross::before {
+            width: 100%;
+            height: 1px;
+            top: 50%;
+            left: 0;
+        }
+
+        .float-shape.cross::after {
+            width: 1px;
+            height: 100%;
+            left: 50%;
+            top: 0;
+        }
+
+        @keyframes floatShape {
+            0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.3; }
+            25% { transform: translateY(-30px) rotate(90deg); opacity: 0.6; }
+            50% { transform: translateY(-10px) rotate(180deg); opacity: 0.4; }
+            75% { transform: translateY(-40px) rotate(270deg); opacity: 0.5; }
+        }
+
+        /* 角落装饰 */
+    .corner-decor {
+        position: fixed;
+        width: 200px;
+        height: 200px;
+        z-index: 3;
+        pointer-events: none;
+    }
+
+    .corner-decor.top-left {
+        top: 0;
+        left: 0;
+        border-top: 2px solid rgba(0, 255, 200, 0.3);
+        border-left: 2px solid rgba(0, 255, 200, 0.3);
+    }
+
+    .corner-decor.top-right {
+        top: 0;
+        right: 0;
+        border-top: 2px solid rgba(0, 255, 200, 0.3);
+        border-right: 2px solid rgba(0, 255, 200, 0.3);
+    }
+
+    .corner-decor.bottom-left {
+        bottom: 0;
+        left: 0;
+        border-bottom: 2px solid rgba(0, 255, 200, 0.3);
+        border-left: 2px solid rgba(0, 255, 200, 0.3);
+    }
+
+    .corner-decor.bottom-right {
+        bottom: 0;
+        right: 0;
+        border-bottom: 2px solid rgba(0, 255, 200, 0.3);
+        border-right: 2px solid rgba(0, 255, 200, 0.3);
+    }
+
+    .corner-decor::before,
+    .corner-decor::after {
+        content: '';
+        position: absolute;
+        background: rgba(0, 255, 200, 0.3);
+    }
+
+    .corner-decor.top-left::before,
+    .corner-decor.bottom-left::before {
+        width: 1px;
+        height: 80px;
+        top: 40px;
+        left: 40px;
+    }
+
+    .corner-decor.top-left::after,
+    .corner-decor.top-right::after {
+        width: 80px;
+        height: 1px;
+        top: 40px;
+        left: 40px;
+    }
+
+    .corner-decor.top-right::before,
+    .corner-decor.bottom-right::before {
+        width: 1px;
+        height: 80px;
+        top: 40px;
+        right: 40px;
+    }
+
+    .corner-decor.bottom-right::after,
+    .corner-decor.bottom-left::after {
+        width: 80px;
+        height: 1px;
+        bottom: 40px;
+        right: 40px;
+    }
+
+    .corner-decor.bottom-left::after {
+        left: 40px;
+    }
+
+    .corner-decor.bottom-right::after {
+        right: 40px;
+    }
+
+    /* 光晕球体 */
+    .glow-orbs {
+        position: fixed;
+        inset: 0;
+        z-index: 1;
+        pointer-events: none;
+    }
+
+    .glow-orb {
+        position: absolute;
+        border-radius: 50%;
+        animation: orbFloat 15s ease-in-out infinite;
+    }
+
+    .glow-orb-1 {
+        width: 300px;
+        height: 300px;
+        background: radial-gradient(circle, rgba(0, 255, 200, 0.15) 0%, transparent 70%);
+        top: 20%;
+        left: 10%;
+    }
+
+    .glow-orb-2 {
+        width: 250px;
+        height: 250px;
+        background: radial-gradient(circle, rgba(0, 212, 255, 0.12) 0%, transparent 70%);
+        top: 60%;
+        right: 5%;
+        animation-delay: -5s;
+    }
+
+    .glow-orb-3 {
+        width: 200px;
+        height: 200px;
+        background: radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, transparent 70%);
+        bottom: 20%;
+        left: 30%;
+        animation-delay: -10s;
+    }
+
+    @keyframes orbFloat {
+        0%, 100% { transform: translate(0, 0); }
+        25% { transform: translate(30px, -20px); }
+        50% { transform: translate(-20px, 30px); }
+        75% { transform: translate(20px, 20px); }
+    }
+
+    /* 数据流装饰 */
+    .data-stream {
+        position: fixed;
+        width: 2px;
+        height: 100px;
+        background: linear-gradient(to bottom, transparent, rgba(0, 255, 200, 0.5), transparent);
+        z-index: 2;
+        pointer-events: none;
+        animation: dataFlow 8s linear infinite;
+    }
+
+    @keyframes dataFlow {
+        0% { transform: translateY(-100px); opacity: 0; }
+        10% { opacity: 1; }
+        90% { opacity: 1; }
+        100% { transform: translateY(100vh); opacity: 0; }
+    }
+
+        /* 头部 */
+        header {
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle at 50% 50%, 
-                rgba(0, 255, 157, 0.1) 0%, 
-                transparent 60%);
-            pointer-events: none;
-            z-index: -1;
-            animation: pulse 8s infinite;
-        }
-
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 2rem 0;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 8px;
-            overflow: hidden;
-            opacity: 0;
-            animation: scaleIn 0.4s ease-out 2.2s forwards;
-        }
-
-        @keyframes pulse {
-                0%, 100% { transform: scale(1); }
-                50% { transform: scale(1.2); }
-            }
-
-        @keyframes blinkCursor {
-            from, to { border-color: transparent }
-            50% { border-color: var(--accent-color) }
-        }
-
-
-        @keyframes typewriter {
-            from { width: 0; }
-            to { width: 100%; }
-        }
-
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(-20px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-
-        @keyframes scaleIn {
-            from { 
-                opacity: 0; 
-                transform: scale(0.95); 
-            }
-            to { 
-                opacity: 1; 
-                transform: scale(1); 
-            }
-        }
-
-        h1 {
-            font-size: 2.8rem;
-            margin-bottom: 2rem;
-            position: relative;
-            animation: typewriter 1.2s steps(12) 0.5s both, 
-                    blinkCursor 0.8s infinite;
-            overflow: hidden;
-            white-space: nowrap;
-            border-right: 2px solid var(--accent-color);
-            max-width: max-content;
-        }
-
-        h2 {
-            font-size: 1.8rem;
-            margin: 2rem 0 1rem;
-            color: var(--accent-color);
-            opacity: 0;
-            animation: slideIn 0.6s ease-out 1.8s forwards;
-        }
-
-        h3 {
-            font-size: 1.8rem;
-            margin: 2rem 0 1rem;
-            opacity: 0;
-            animation: slideIn 0.6s ease-out 1.8s forwards;
-        }
-
-        .fixed-buttons {
-            position: sticky;
-            top: 0;
+            right: 0;
             z-index: 100;
-            background: rgba(42, 42, 42, 0.95);
-            backdrop-filter: blur(5px);
-            padding: 15px 0;
+            padding: 24px 40px;
             display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(to bottom, rgba(5, 5, 8, 0.95), transparent);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #00ffc8, #00d4ff, #ff00e0);
+            background-size: 200% 200%;
+            animation: gradientRotate 3s ease infinite;
+            display: flex;
+            align-items: center;
             justify-content: center;
-            gap: 20px;
-            transition: all 0.3s ease;
-            background: rgba(42, 42, 42, 0); /* 完全透明 */
-            border-bottom: 0 solid rgba(0, 255, 157, 0.3); 
-            margin-bottom: 30px;
+            font-size: 1.6rem;
+            box-shadow: 
+                0 0 30px rgba(0, 255, 200, 0.4),
+                0 0 60px rgba(0, 212, 255, 0.2);
         }
 
-        .fixed-buttons.scrolled {
-            background: rgba(42, 42, 42, 0.7); /* 半透明背景 */
-            border-bottom: 1px solid rgba(0, 255, 157, 0.3); /* 底部发光边框 */
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        @keyframes gradientRotate {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
         }
 
-        .fixed-buttons .floating-btn {
-            margin: 0 8px;
+        .logo-text h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, #00ffc8, #00d4ff, #ff00e0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
-        .floating-btn {
-            padding: 10px 25px;
-            border-radius: 25px;
+        .logo-text p {
+            font-size: 0.8rem;
+            color: rgba(0, 255, 200, 0.6);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 12px;
+        }
+
+        .nav-link {
+            padding: 10px 22px;
+            border-radius: 100px;
+            font-size: 0.85rem;
+            color: rgba(0, 255, 200, 0.8);
             text-decoration: none;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            border: 2px solid;
-            backdrop-filter: blur(5px);
-            background: rgba(42, 42, 42, 0.8);
+            border: 1px solid rgba(0, 255, 200, 0.3);
+            background: rgba(0, 255, 200, 0.05);
+            transition: all 0.3s;
         }
 
-        
-
-        .home-btn {
-            color: var(--accent-color);
-            border-color: var(--accent-color);
+        .nav-link:hover {
+            background: rgba(0, 255, 200, 0.15);
+            border-color: rgba(0, 255, 200, 0.6);
+            box-shadow: 0 0 20px rgba(0, 255, 200, 0.3);
         }
 
-        .back-btn {
-            color: #00ab6a;
-            border-color: #00ab6a;
+        .nav-link.primary {
+            background: linear-gradient(135deg, #00ffc8, #00d4ff);
+            color: #050508;
+            border: none;
+            font-weight: 600;
         }
 
-        .floating-btn:hover {
-            background: rgba(0, 255, 157, 0.2);
-            box-shadow: 0 0 15px rgba(0, 255, 157, 0.3);
-            transform: translateY(-2px);
-        }
-        
-    .name {
-        text-align: right;
-        margin-top: 20px;
-    }
-    .link {
-        position: relative;
-        color: rgb(0, 189, 73) !important;
-        text-decoration: none;
-        padding: 5px 0;
-        transition: all 0.3s ease;
-    }
-
-    .link::after {
-        content: '';
-        position: absolute;
-        width: 0;
-        height: 2px;
-        bottom: 0;
-        left: 50%;
-        background: currentColor;
-        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-
-    .link:hover {
-        color: #00ff9d !important;
-        transform: translateY(-2px);
-    }
-
-    .link:hover::after {
-        width: 100%;
-        left: 0;
-    }
-    
-    .log-item {
-        transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        will-change: transform;
-        opacity: 0;
-        animation: itemFadeUp 0.5s ease-out forwards;
-    }
-
-
-    .log-item:hover {
-        transform: translateY(-5px); 
-        background: rgba(0, 255, 157, 0.05);
-        box-shadow: 0 8px 20px rgba(0, 255, 157, 0.1); /* 增加投影增强立体感 */
-    }
-
-
-    .log-item:active {
-        transform: translateX(5px) scale(0.98);
-    }
-
-    .month-report-link {
-        display: inline-block;
-        padding: 8px 15px;
-        border-radius: 18px;
-        background: rgba(0, 255, 157, 0.1);
-        color: var(--accent-color);
-        transition: all 0.3s ease;
-        margin-top: 10px;
-    }
-
-    .month-report-link:hover {
-        background: rgba(0, 255, 157, 0.2);
-        box-shadow: 0 0 12px rgba(0, 255, 157, 0.15);
-        transform: translateY(-2px);
-    }
-
-    a {
-        text-decoration: none;
-    }
-
-@keyframes itemFadeUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-        .timeline {
-            margin: 3rem auto;
-            max-width: 800px;
-            padding: 0 20px;
+        .nav-link.primary:hover {
+            box-shadow: 0 0 30px rgba(0, 255, 200, 0.5);
         }
 
-        .category-filter {
+        /* 分类选择器 - 悬浮光环 */
+        .category-orbit {
+            position: fixed;
+            left: 40px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 100;
             display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin: 2rem 0;
-            justify-content: center;
-        }
-
-        .filter-btn {
-            padding: 8px 16px;
-            border-radius: 20px;
-            background: rgba(0, 255, 157, 0.1);
-            border: 1px solid rgba(0, 255, 157, 0.3);
-            color: var(--accent-color);
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .filter-btn:hover, .filter-btn.active {
-            background: rgba(0, 255, 157, 0.2);
-            box-shadow: 0 0 10px rgba(0, 255, 157, 0.2);
-        }
-
-        .filter-btn.active {
-            background: rgba(0, 255, 157, 0.3);
-            font-weight: bold;
-        }
-
-        .log-item {
-            background: rgba(255, 255, 255, 0.03);
-            border-left: 3px solid var(--accent-color);
-            margin: 2rem 0;
-            padding: 1.5rem;
-            position: relative;
-            opacity: 0;
-            animation: fadeInUp 0.6s ease-out forwards;
-        }
-
-        .log-item[data-category="report"] {
-            border-left-color: #00b4ff;
-        }
-
-        .log-item[data-category="progress"] {
-            border-left-color: #00ff9d;
-        }
-
-        .log-item[data-category="bugfix"] {
-            border-left-color: #ff6b6b;
-        }
-
-        .log-item[data-category="server"] {
-            border-left-color: #a162e8;
-        }
-
-        .log-item[data-category="github"] {
-            border-left-color: #6e40c9;
-        }
-
-        .log-date {
-            color: var(--accent-color);
-            font-size: 0.9em;
-        }
-
-        .log-content {
-            margin-top: 1rem;
-        }
-
-
-    </style>
-    <style>
-    /* 移动端优化 */
-    @media (max-width: 768px) {
-        .category-filter {
-            gap: 8px;
-        }
-
-        .filter-btn {
-            padding: 6px 12px;
-            font-size: 0.9em;
-        }
-
-        .container {
-            padding: 0 15px !important;
-            max-width: 100% !important;
-        }
-
-        .log-item {
-            margin: 1.5rem 0;
-            padding: 1rem;
-            border-left-width: 2px;
-        }
-
-        .log-date {
-            font-size: 0.8em;
-            margin-bottom: 0.5rem;
-        }
-
-        .log-content p {
-            font-size: 0.95em;
-            line-height: 1.6;
-        }
-
-        /* 触控优化 */
-        a {
-            padding: 8px 0;
-            display: inline-block;
-            min-width: 60px;
-        }
-
-        .floating-btn {
-            padding: 8px 15px !important;
-            font-size: 0.9em;
-            margin: 0 5px !important;
-        }
-
-        /* 禁用悬停动画 */
-        @media (hover: none) {
-            tr:hover {
-                background: transparent !important;
-                animation: none !important;
-            }
-            
-            .floating-btn:hover {
-                transform: none !important;
-                box-shadow: none !important;
-            }
-        }
-
-        /* 时间轴优化 */
-        .timeline {
-            padding: 0 10px !important;
-            margin: 2rem auto;
-        }
-
-        .log-content p::before {
-            margin-right: 8px;
-        }
-    }
-
-    /* 超小屏幕优化 */
-    @media (max-width: 480px) {
-        .category-filter {
             flex-direction: column;
+            gap: 16px;
+        }
+
+        .orbit-node {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: rgba(0, 255, 200, 0.3);
+            cursor: pointer;
+            position: relative;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
             align-items: center;
         }
 
-        .filter-btn {
+        .orbit-node::before {
+            content: '';
+            position: absolute;
+            inset: -8px;
+            border-radius: 50%;
+            border: 1px solid rgba(0, 255, 200, 0.3);
+            opacity: 0;
+            transform: scale(0.5);
+            transition: all 0.4s;
+        }
+
+        .orbit-node:hover::before {
+            opacity: 1;
+            transform: scale(1.2);
+        }
+
+        .orbit-node.active {
+            background: #00ffc8;
+            box-shadow: 0 0 20px rgba(0, 255, 200, 0.6);
+        }
+
+        .orbit-node.active::before {
+            opacity: 1;
+            transform: scale(1.5);
+            border-color: rgba(0, 255, 200, 0.5);
+        }
+
+        .orbit-label {
+            position: absolute;
+            left: 36px;
+            white-space: nowrap;
+            font-size: 0.8rem;
+            color: rgba(0, 255, 200, 0.9);
+            opacity: 0;
+            transform: translateX(-10px);
+            transition: all 0.3s;
+        }
+
+        .orbit-node:hover .orbit-label,
+        .orbit-node.active .orbit-label {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* 时间胶囊容器 */
+        .capsules-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 140px 40px 80px;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* 时间轴线 */
+        .timeline-core {
+            position: absolute;
+            left: 50%;
+            top: 140px;
+            bottom: 80px;
+            width: 2px;
+            background: linear-gradient(to bottom, transparent, rgba(0, 255, 200, 0.5), transparent);
+            transform: translateX(-50%);
+        }
+
+        .timeline-glow {
+            position: absolute;
+            left: 50%;
+            top: 140px;
+            bottom: 80px;
+            width: 100px;
+            background: radial-gradient(ellipse, rgba(0, 255, 200, 0.15) 0%, transparent 70%);
+            transform: translateX(-50%);
+            pointer-events: none;
+        }
+
+        /* 时间胶囊 */
+        .time-capsule {
+            margin-bottom: 60px;
+            position: relative;
+            perspective: 1200px;
+        }
+
+        .capsule-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .capsule-node {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #050508;
+            border: 3px solid #00ffc8;
+            position: relative;
+            z-index: 2;
+            flex-shrink: 0;
+            box-shadow: 0 0 30px rgba(0, 255, 200, 0.5);
+        }
+
+        .capsule-node::before {
+            content: '';
+            position: absolute;
+            inset: -12px;
+            border-radius: 50%;
+            border: 1px solid rgba(0, 255, 200, 0.4);
+            animation: pulseRing 2s ease-out infinite;
+        }
+
+        @keyframes pulseRing {
+            0% { transform: scale(0.8); opacity: 1; }
+            100% { transform: scale(2); opacity: 0; }
+        }
+
+        .capsule-card {
+            width: 380px;
+            background: linear-gradient(135deg, rgba(0, 255, 200, 0.1), rgba(0, 212, 255, 0.05));
+            border: 1px solid rgba(0, 255, 200, 0.3);
+            border-radius: 20px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            transform-style: preserve-3d;
+            transform: perspective(1000px) rotateX(0) rotateY(0);
+        }
+
+        .time-capsule:nth-child(odd) .capsule-card {
+            margin-right: 40px;
+            transform-origin: right center;
+        }
+
+        .time-capsule:nth-child(even) .capsule-card {
+            margin-left: 40px;
+            transform-origin: left center;
+        }
+
+        .capsule-card::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: 22px;
+            background: linear-gradient(135deg, var(--color-1, #00ffc8), var(--color-2, #00d4ff), transparent, var(--color-1, #00ffc8));
+            background-size: 300% 300%;
+            opacity: 0;
+            z-index: -1;
+            transition: opacity 0.3s;
+            animation: borderGlow 4s ease infinite;
+        }
+
+        @keyframes borderGlow {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .capsule-card:hover::before {
+            opacity: 1;
+        }
+
+        .capsule-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
             width: 100%;
-            max-width: 200px;
-            text-align: center;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s;
         }
 
-        h1 {
-            font-size: 1.6rem !important;
+        .capsule-card:hover::after {
+            left: 100%;
         }
 
-        p {
-            font-size: 0.9em;
-            line-height: 1.6;
+        .capsule-card:hover {
+            transform: perspective(1000px) rotateX(5deg) rotateY(-2deg) translateZ(20px) scale(1.02);
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.4),
+                0 0 40px rgba(0, 255, 200, 0.3),
+                0 0 80px rgba(0, 212, 255, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            border-color: rgba(0, 255, 200, 0.6);
         }
 
-        .log-date {
-            font-size: 0.75em;
+        .time-capsule:nth-child(even) .capsule-card:hover {
+            transform: perspective(1000px) rotateX(5deg) rotateY(2deg) translateZ(20px) scale(1.02);
         }
 
-        .log-content p {
-            font-size: 0.85em;
+        /* 胶囊头部 */
+        .capsule-header {
+            padding: 28px 28px 20px;
+            position: relative;
+            overflow: hidden;
         }
 
-        /* 按钮组垂直排列 */
-        .fixed-buttons {
+        .capsule-bg {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, var(--color-1, #00ffc8) 0%, var(--color-2, #00d4ff) 100%);
+            opacity: 0.15;
+        }
+
+        .capsule-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            margin-bottom: 16px;
+        }
+
+        .capsule-category {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            background: rgba(0, 255, 200, 0.15);
+            border: 1px solid rgba(0, 255, 200, 0.4);
+            color: #00ffc8;
+        }
+
+        .capsule-date {
+            font-size: 0.85rem;
+            color: rgba(0, 255, 200, 0.7);
+        }
+
+        .capsule-title {
+            position: relative;
+            font-size: 1.5rem;
+            font-weight: 700;
+            line-height: 1.3;
+        }
+
+        /* 胶囊主体 */
+        .capsule-body {
+            padding: 0 28px;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .capsule-card.expanded .capsule-body {
+            padding: 20px 28px 28px;
+            max-height: 500px;
+        }
+
+        .capsule-desc {
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.7;
+            margin-bottom: 20px;
+        }
+
+        .capsule-content {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.8;
+            padding: 16px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            border: 1px solid rgba(0, 255, 200, 0.2);
+        }
+
+        .capsule-content a {
+            color: #00ffc8;
+            text-decoration: none;
+        }
+
+        .capsule-content a:hover {
+            text-decoration: underline;
+        }
+
+        .capsule-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 100px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00ffc8, #00d4ff);
+            color: #050508;
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 0 30px rgba(0, 255, 200, 0.5);
+        }
+
+        .btn-secondary {
+            background: rgba(0, 255, 200, 0.1);
+            color: #00ffc8;
+            border: 1px solid rgba(0, 255, 200, 0.4);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(0, 255, 200, 0.2);
+        }
+
+        /* 胶囊图标角标 */
+        .capsule-icon {
+            position: absolute;
+            top: -20px;
+            right: -20px;
+            width: 80px;
+            height: 80px;
+            font-size: 3rem;
+            opacity: 0.2;
+            transform: rotate(15deg);
+        }
+
+        .expand-hint {
+            position: absolute;
+            bottom: 12px;
+            right: 28px;
+            font-size: 0.75rem;
+            color: rgba(0, 255, 200, 0.6);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .expand-hint svg {
+            transition: transform 0.3s;
+        }
+
+        .capsule-card.expanded .expand-hint svg {
+            transform: rotate(180deg);
+        }
+
+        /* 页码指示器 */
+        .page-indicator {
+            position: fixed;
+            right: 40px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex;
             flex-direction: column;
-            gap: 10px;
-            padding: 10px 0 !important;
+            gap: 12px;
+            align-items: center;
         }
-    }
 
-    /* 触控反馈优化 */
-    a:active, 
-    .floating-btn:active {
-        transform: scale(0.98) !important;
-        filter: brightness(1.2);
-    }
-
-    /* 禁用长按选择 */
-    * {
-        -webkit-touch-callout: none;
-        -webkit-user-select: none;
-        user-select: none;
-    }
-
-    p, .log-content {
-        -webkit-user-select: text;
-        user-select: text;
-    }
-
-    /* 工具集样式 */
-    .tools-container {
-        position: fixed;
-        bottom: 100px;
-        right: 70px;
-        z-index: 1000;
-    }
-
-    @keyframes bounce {
-        0%, 100% {
-            transform: scale(1);
+        .page-num {
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 1.2rem;
+            color: rgba(0, 255, 200, 0.8);
+            font-weight: 600;
         }
-        50% {
-            transform: scale(0.9);
+
+        .page-slash {
+            font-size: 0.8rem;
+            color: rgba(0, 255, 200, 0.4);
         }
-        70% {
-            transform: scale(1.1);
+
+        .page-total {
+            font-size: 0.9rem;
+            color: rgba(0, 255, 200, 0.5);
         }
-    }
 
-    .tools-toggle {
-        width: 50px;
-        height: 50px;
-        background: rgba(0, 255, 157, 0.1);
-        color: rgba(0, 227, 140, 0.693);
-        border: 2px solid var(--accent-color);
-        border-radius: 50%;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.5, 1.4);
-        backdrop-filter: blur(5px);
-        box-shadow: 0 0 10px rgba(0, 255, 157, 0.3);
-    }
-
-    .tools-toggle:hover {
-        background: rgba(0, 255, 157, 0.2);
-        box-shadow: 0 0 13px var(--accent-color);
-        transform: scale(0.9);
-    }
-
-    .tools-toggle:active {
-        animation: bounce 3.3s;
-    }
-
-    .tools-menu {
-        position: absolute;
-        bottom: 70px;
-        right: -10px;
-        display: none;
-        flex-direction: column;
-        gap: 15px;
-        background: rgba(42, 42, 42, 0.9);
-        padding: 15px;
-        border-radius: 15px;
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(0, 255, 157, 0.2);
-    }
-
-    .tools-menu.active {
-        display: flex;
-        animation: menuEntrance 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28) both;
-        will-change: transform, opacity;
-    }
-
-    .tools-menu.exit {
-        animation: menuExit 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28) both;
-        will-change: transform, opacity;
-    }
-
-    .tool-item {
-        position: relative;
-        width: 40px;
-        height: 40px;
-        display: flex;
-        align-items: center;    
-        justify-content: center;
-        border-radius: 10px;
-        transition: all 0.3s ease;
-    }
-
-    .tool-item:hover {
-        background: rgba(0, 255, 157, 0.1);
-    }
-
-    .tool-item:hover::after {
-        content: attr(data-tooltip);
-        position: absolute;
-        background: rgba(30, 30, 30, 0.95);
-        z-index: 1;
-        top: -5px;
-        right: 155%;
-        color: var(--text-color);
-        padding: 10px 15px;
-        border-radius: 8px;
-        font-size: 0.95em;
-        border: 2px solid var(--accent-color);
-        box-shadow: 0 0 0 1px rgba(0, 255, 157, 0.3) inset, 0 5px 20px rgba(0, 0, 0, 0.3);
-        animation: menuEntrance 0.2s;
-        width: auto;
-        height: auto;
-        white-space: nowrap; 
-    }
-
-
-    .tool-icon {
-        width: 24px;
-        height: 24px;
-        fill: var(--accent-color);
-    }
-
-
-    @keyframes menuEntrance {
-        0% {
-            opacity: 0.5;
-            transform: scale(0.8) translateY(20px);
+        /* 滚动提示 */
+        .scroll-indicator {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            color: rgba(0, 255, 200, 0.7);
+            font-size: 0.8rem;
+            animation: float 2s ease-in-out infinite;
         }
-        70% {
-            opacity: 1;
-            transform: scale(1.05);
-        }
-        100% {
-            opacity: 1;
-            transform: scale(1);
-        }
-    }
 
-    @keyframes menuExit {
-        0% {
-            opacity: 1;
-            transform: scale(1) translateY(0);
+        @keyframes float {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(10px); }
         }
-        70% {
-            opacity: 1;
-            transform: scale(0.8) translateY(20px);
+
+        /* 浮动工具集 */
+        .floating-tools {
+            position: fixed;
+            right: 40px;
+            bottom: 40px;
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
-        100% {
+
+        .tool-btn {
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, rgba(0, 255, 200, 0.15), rgba(0, 212, 255, 0.1));
+            border: 1px solid rgba(0, 255, 200, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tool-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, #00ffc8, #00d4ff);
             opacity: 0;
-            transform: scale(1.05);
+            transition: opacity 0.3s;
         }
-    }
 
-    @keyframes tooltipFade {
-        from {
+        .tool-btn span {
+            position: relative;
+            z-index: 1;
+        }
+
+        .tool-btn:hover::before {
+            opacity: 0.2;
+        }
+
+        .tool-btn:hover {
+            transform: scale(1.1) translateY(-4px);
+            box-shadow: 
+                0 10px 40px rgba(0, 255, 200, 0.3),
+                0 0 20px rgba(0, 255, 200, 0.2);
+            border-color: rgba(0, 255, 200, 0.6);
+        }
+
+        .tool-label {
+            position: absolute;
+            bottom: 64px;
+            left: 50%;
+            transform: translateX(-50%) translateY(10px);
+            white-space: nowrap;
+            font-size: 0.8rem;
+            color: rgba(0, 255, 200, 0.9);
+            background: rgba(0, 0, 0, 0.85);
+            padding: 8px 16px;
+            border-radius: 10px;
+            border: 1px solid rgba(0, 255, 200, 0.3);
             opacity: 0;
+            transition: all 0.3s;
+            pointer-events: none;
+            z-index: 201;
         }
-        to {
+
+        .tool-label::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 8px solid transparent;
+            border-top-color: rgba(0, 0, 0, 0.85);
+        }
+
+        .tool-btn:hover .tool-label {
             opacity: 1;
+            transform: translateX(-50%) translateY(0);
         }
-    }
 
-    @media (max-width: 768px) {
-        .tools-container {
-            bottom: 20px;
-            right: 20px;
+        .scroll-indicator svg {
+            animation: bounce 1s ease-in-out infinite;
         }
-        
-        .tools-toggle {
-            width: 40px;
-            height: 40px;
-        }
-        
-        .tools-menu {
-            padding: 10px;
-            gap: 10px;
-        }
-        
-        .tool-item {
-            width: 35px;
-            height: 35px;
-        }
-    }
 
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(4px); }
+        }
+
+        /* 响应式 */
+        @media (max-width: 1024px) {
+            .capsules-container {
+                max-width: 600px;
+            }
+
+            .timeline-core,
+            .timeline-glow {
+                left: 30px;
+                transform: none;
+            }
+
+            .capsule-wrapper {
+                justify-content: flex-start;
+                padding-left: 60px;
+            }
+
+            .capsule-node {
+                position: absolute;
+                left: 18px;
+            }
+
+            .time-capsule:nth-child(odd) .capsule-card,
+            .time-capsule:nth-child(even) .capsule-card {
+                margin-left: 0;
+                margin-right: 0;
+                width: 100%;
+            }
+
+            .category-orbit {
+                left: 20px;
+            }
+
+            .orbit-label {
+                display: none;
+            }
+
+            .page-indicator {
+                right: 20px;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .floating-tools {
+                right: 20px;
+                bottom: 20px;
+            }
+
+            .tool-btn {
+                width: 44px;
+                height: 44px;
+                font-size: 1.2rem;
+            }
+        }
+
+        @media (max-width: 640px) {
+            header {
+                padding: 16px 20px;
+            }
+
+            .logo-text p {
+                display: none;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .capsules-container {
+                padding: 120px 20px 80px;
+            }
+
+            .capsule-card {
+                border-radius: 16px;
+            }
+
+            .capsule-header {
+                padding: 20px 20px 16px;
+            }
+
+            .capsule-card.expanded .capsule-body {
+                padding: 16px 20px 20px;
+            }
+
+            .category-orbit {
+                position: fixed;
+                left: auto;
+                right: auto;
+                top: auto;
+                bottom: 80px;
+                left: 50%;
+                transform: translateX(-50%);
+                flex-direction: row;
+                gap: 12px;
+            }
+
+            .page-indicator {
+                display: none;
+            }
+
+            .scroll-indicator {
+                display: none;
+            }
+
+            .floating-tools {
+                right: 16px;
+                bottom: 16px;
+                gap: 10px;
+            }
+
+            .tool-btn {
+                width: 48px;
+                height: 48px;
+                border-radius: 14px;
+            }
+
+            .tool-label {
+                display: none;
+            }
+        }
     </style>
-
 </head>
 <body>
-    <!-- 左侧装饰条 -->
-    <div class="decoration-left"></div>
-    <!-- 右侧装饰条 -->
-    <div class="decoration-right"></div>
-    <div class="container" style="max-width: 1000px; padding: 20px;">
-        <h1>学生目录开发日志</h1>
-        <p>此网站为公网镜像站点，完整功能<a class="link" href="http://10.88.202.73">点此前往内网官网</a>，或者直接访问<a class="link" href="https://ps-student-catalog-team.github.io/Ps-Student-Catalog/">外网官网</a></p>
-
-        <div class="category-filter">
-            <button class="filter-btn active" data-category="all">全部</button>
-            <button class="filter-btn" data-category="report">月度报告</button>
-            <button class="filter-btn" data-category="progress">项目进展</button>
-            <button class="filter-btn" data-category="bugfix">Bug修复</button>
-            <button class="filter-btn" data-category="server">服务器相关</button>
-            <button class="filter-btn" data-category="github">GitHub信息</button>
-        </div>
-
-        <div class="timeline" id="development-log">
-            <div class="log-item" style="animation-delay: 0.2s;cursor: pointer;" data-category="report">
-                <div class="log-date">月度报告 - 2026.3.29</div>
-                <div class="log-content">
-                    <p>3月月度报告已发布！</p>
-                    <a href="./article/2603.html" class="month-report-link">
-                                查看完整月度报告 →
-                    </a>
-                </div>
-            </div>   
-
-         <div class="timeline" id="development-log">
-            <div class="log-item" style="animation-delay: 0.2s;cursor: pointer;" data-category="report">
-                <div class="log-date">月度报告 - 2026.2.8</div>
-                <div class="log-content">
-                    <p>12、1月月度报告已发布！</p>
-                    <a href="./article/2512_2602.html" class="month-report-link">
-                        查看完整月度报告 →
-                    </a>
-                </div>
-            </div>   
-
-          
-
-            <div class="log-item" style="animation-delay: 0.2s;cursor: pointer;" data-category="report">
-                <div class="log-date">月度报告 - 2025.11.21</div>
-                <div class="log-content">
-                    <p>10、11月月度报告已发布！</p>
-                    <a href="./article/2510_2511.html" class="month-report-link">
-                        查看完整10、11月月度报告 →
-                    </a>
-                </div>
-            </div>             
-
-            <div class="log-item" style="animation-delay: 0.2s;cursor: pointer;" data-category="report">
-                <div class="log-date">月度报告 - 2025.07.15</div>
-                <div class="log-content">
-                    <p>五、六月月度报告已发布！</p>
-                    <a href="./article/2505_2506.html" class="month-report-link">
-                        查看完整5、6月月度报告 →
-                    </a>
-                </div>
-            </div>             
-            <div class="log-item" style="animation-delay: 0.2s;cursor: pointer;" data-category="server">
-                <div class="log-date">VPN日志分析报告 - 2026.01.8</div>
-                <div class="log-content">
-                    <p>点击查看<a class="link" href="https://ps-student-catalog-team.github.io/zmmmawzfl.github.io/" target="_blank">VPN连接统计报告</a></p>
-                    <p>自动分析VPN连接数据</p>
-                </div>
-            </div>
-
-
-            <div class="log-item" style="animation-delay: 0.2s;cursor: pointer;" data-category="report">
-                <div class="log-date">月度报告 - 2025.04.30</div>
-                <div class="log-content">
-                    <p>四月月度报告已发布！</p>
-                    <a href="./article/2504.html" class="month-report-link">
-                        查看完整4月月度报告 →
-                    </a>
-                </div>
-            </div>
-
-            <div class="log-item" style="animation-delay: 0.2s;cursor: pointer;" data-category="server">
-                <div class="log-date">我们搭了一个Minecraft服务器！ - 2025.04.19 </div>
-                <div class="log-content">
-                    <p>✅ 完成我的世界1.21.5的Mc服务器搭建</p>
-                    <p>✅ 使用Fabric的插件实现支持使用正版皮肤</p>
-                    <p>✅ 通过Radmin实现服务器外网访问</p>
-                </div>
-            </div>
-
-            <div class="log-item" style="animation-delay: 0.2s;cursor: pointer;" data-category="bugfix">
-                <div class="log-date">Bug fixed - 2025.04.10 </div>
-                <div class="log-content">
-                    <p>🔧 修复了会话数统计功能的一些bug</p>
-                </div>
-            </div>
-
-            <div class="log-item" style="animation-delay: 0.2s;cursor: pointer;" data-category="report">
-                <div class="log-date">月度报告 - 2025.03.31</div>
-                <div class="log-content">
-                    <p>三月月度报告已发布！</p>
-                    <a href="./article/2503.html" class="month-report-link">
-                        查看完整3月月度报告 →
-                    </a>
-                </div>
-            </div>
-
-            <div class="log-item" style="animation-delay: 0.2s;cursor: pointer;" data-category="progress">
-                <div class="log-date">会话数统计 - 2025.03.16 </div>
-                <div class="log-content">
-                    <p>✅ 完成会话数统计功能</p>
-                    <p>🔧 优化会话数统计逻辑</p>
-                </div>
-            </div>
-
-            <div class="log-item" style="animation-delay: 0.2s;cursor: pointer;" data-category="progress">
-                <div class="log-date">项目启动 - 2025.03.15</div>
-                <div class="log-content">
-                    <p>✅ 完成基本框架搭建</p>
-                    <p>✅ 配置GitHub Pages仓库</p>
-                    <p>🔧 调试CSS动画效果</p>
-                </div>
-            </div>
-
-            <div class="log-item" style="animation-delay: 0.2s;cursor: pointer;" data-category="github">
-                <div class="log-date">Github 仓库</div>
-                <div class="log-content">
-                    <p>点击访问<a class="link" href="https://github.com/psStuNet/psStuNet.github.io" target="_blank">GitHub 仓库</a></p>
-                    <p>点击访问<a class="link" href="https://github.com/Ps-Student-Catalog-Team/Ps-Student-Catalog" target="_blank">学生目录的 GitHub仓库</a>
-                    <p>Contributors:<a class="link" href="https://github.com/psStuNet/psStuNet.github.io/graphs/contributors" target="_blank" >Check on Github</a></p>
-                    <a class="link" href="https://github.com/psstunet/psstunet.github.io/commits" 
-                        class="code-link">查看commit记录</a>
-                </div>
-            </div>
-        </div>
+    <div id="particles-container">
+        <canvas id="particles"></canvas>
     </div>
-    <!-- 工具集 -->
-    <div class="tools-container">
-        <div  style="height: 610px;width: 105px;position: absolute;bottom: -17px;left: -27px;">
-        </div>
-        <div class="tools-toggle" onclick="toggleTools()">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="3"></circle>
-                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-            </svg>
-        </div>
-        <div class="tools-menu">
-            <a href="./logs/analyze.html" class="tool-item" data-tooltip="VPN日志分析">
-                <svg class="tool-icon" viewBox="0 0 24 24">
-                    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z"/>
-                    <path d="M7.5 15h2v2H11v-4H9.5v2.5h-2V15zm6.5 0h4v2h-4z"/>
-                </svg>
-            </a>
-            
-            <a href="https://github.com/psStuNet/psStuNet.github.io" class="tool-item" data-tooltip="GitHub仓库">
-                <svg class="tool-icon" viewBox="0 0 24 24">
-                    <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.793-.258.793-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
-                </svg>
-            </a>
-        </div>
+    <div class="scanlines"></div>
+    <div class="holo-grid"></div>
+
+    <div class="glow-orbs">
+        <div class="glow-orb glow-orb-1"></div>
+        <div class="glow-orb glow-orb-2"></div>
+        <div class="glow-orb glow-orb-3"></div>
     </div>
 
+    <div class="floating-decorations" id="floatingDecorations"></div>
+
+    <div class="corner-decor top-left"></div>
+    <div class="corner-decor top-right"></div>
+    <div class="corner-decor bottom-left"></div>
+    <div class="corner-decor bottom-right"></div>
+
+    <header>
+        <div class="logo">
+            <div class="logo-icon">📚</div>
+            <div class="logo-text">
+                <h1>学生目录</h1>
+                <p>HOLOGRAPHIC LOGS</p>
+            </div>
+        </div>
+        <nav class="nav-links">
+            <a href="https://github.com/psStuNet/psStuNet.github.io" class="nav-link">GitHub</a>
+            <a href="https://ps-student-catalog-team.github.io/Ps-Student-Catalog/" class="nav-link">外网官网</a>
+            <a href="http://10.88.202.73" class="nav-link primary">内网官网</a>
+        </nav>
+    </header>
+
+    <div class="category-orbit" id="categoryOrbit"></div>
+
+    <div class="page-indicator">
+        <span class="page-num" id="currentPage">01</span>
+        <span class="page-slash">—</span>
+        <span class="page-total" id="totalPages">12</span>
+    </div>
+
+    <main class="capsules-container">
+        <div class="timeline-glow"></div>
+        <div class="timeline-core"></div>
+        <div id="capsulesList"></div>
+    </main>
+
+    <div class="scroll-indicator">
+        <span>向下滚动</span>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 5v14M5 12l7 7 7-7"/>
+        </svg>
+    </div>
+
+    <div class="floating-tools">
+        <a href="https://ps-student-catalog-team.github.io/zmmmawzfl.github.io/" target="_blank" class="tool-btn">
+            <span>📊</span>
+            <span class="tool-label">VPN日志分析</span>
+        </a>
+        <a href="https://github.com/psStuNet/psStuNet.github.io" target="_blank" class="tool-btn">
+            <span>📦</span>
+            <span class="tool-label">GitHub仓库</span>
+        </a>
+        <a href="http://10.88.202.73" class="tool-btn">
+            <span>🏠</span>
+            <span class="tool-label">内网官网</span>
+        </a>
+        <a href="https://ps-student-catalog-team.github.io/Ps-Student-Catalog/" target="_blank" class="tool-btn">
+            <span>🌐</span>
+            <span class="tool-label">外网官网</span>
+        </a>
+    </div>
 
     <script>
-        // 滚动监听
-        window.addEventListener('scroll', () => {
-            const header = document.querySelector('.fixed-buttons');
-            if (window.scrollY > 50) {
-                header.classList.add('scrolled');
-            } else {
-                header.classList.remove('scrolled');
+        const logs = [
+            {
+                category: 'report',
+                date: '2026.03.29',
+                title: '3月月度报告',
+                desc: '3月月度报告已发布，包含项目最新进展和数据统计。回顾本月的重要更新和成果。',
+                content: '3月月度报告已发布！<br><br>点击查看完整报告了解项目最新进展。',
+                link: './article/2603.html',
+                icon: '📊',
+                colors: ['#00ffc8', '#00d4ff']
+            },
+            {
+                category: 'report',
+                date: '2026.02.08',
+                title: '12、1月月度报告',
+                desc: '双月合并报告，回顾年末年初的项目成果与新年规划。',
+                content: '12、1月月度报告已发布！<br><br>包含年末总结和新年规划。',
+                link: './article/2512_2602.html',
+                icon: '📊',
+                colors: ['#00d4ff', '#8b5cf6']
+            },
+            {
+                category: 'report',
+                date: '2025.11.21',
+                title: '10、11月月度报告',
+                desc: '秋季项目进展报告，展示阶段性成果。',
+                content: '10、11月月度报告已发布！<br><br>点击查看完整报告。',
+                link: './article/2510_2511.html',
+                icon: '📊',
+                colors: ['#0ea5e9', '#00ffc8']
+            },
+            {
+                category: 'server',
+                date: '2026.01.08',
+                title: 'VPN日志分析报告',
+                desc: '自动分析VPN连接数据，生成统计报告。',
+                content: 'VPN日志分析报告已生成。<br><br>点击<a href="https://ps-student-catalog-team.github.io/zmmmawzfl.github.io/" target="_blank">查看VPN连接统计报告</a>。<br><br>自动分析VPN连接数据。',
+                link: null,
+                icon: '🖥️',
+                colors: ['#8b5cf6', '#a78bfa']
+            },
+            {
+                category: 'report',
+                date: '2025.07.15',
+                title: '5、6月月度报告',
+                desc: '夏季双月报告，记录项目重要里程碑。',
+                content: '五、六月月度报告已发布！<br><br>点击查看完整报告。',
+                link: './article/2505_2506.html',
+                icon: '📊',
+                colors: ['#14b8a6', '#00ffc8']
+            },
+            {
+                category: 'server',
+                date: '2025.04.19',
+                title: 'Minecraft服务器上线',
+                desc: '搭建1.21.5版本服务器，支持正版皮肤和Radmin外网访问。',
+                content: '🎮 我们搭了一个Minecraft服务器！<br><br>✅ 完成我的世界1.21.5的Mc服务器搭建<br>✅ 使用Fabric的插件实现支持使用正版皮肤<br>✅ 通过Radmin实现服务器外网访问',
+                link: './article/minecraft-server.html',
+                icon: '🎮',
+                colors: ['#d946ef', '#8b5cf6']
+            },
+            {
+                category: 'report',
+                date: '2025.04.30',
+                title: '4月月度报告',
+                desc: '春季项目进展报告，展示新功能开发情况。',
+                content: '四月月度报告已发布！<br><br>点击查看完整报告。',
+                link: './article/2504.html',
+                icon: '📊',
+                colors: ['#00ffc8', '#00d4ff']
+            },
+            {
+                category: 'bugfix',
+                date: '2025.04.10',
+                title: 'Bug修复更新',
+                desc: '修复了会话数统计功能的若干问题。',
+                content: '🔧 修复了会话数统计功能的一些bug',
+                link: './article/0410bug-fixed.html',
+                icon: '🔧',
+                colors: ['#f87171', '#ef4444']
+            },
+            {
+                category: 'report',
+                date: '2025.03.31',
+                title: '3月月度报告',
+                desc: '项目启动后的首份月度报告。',
+                content: '三月月度报告已发布！<br><br>点击查看完整报告。',
+                link: './article/2503.html',
+                icon: '📊',
+                colors: ['#38bdf8', '#00d4ff']
+            },
+            {
+                category: 'progress',
+                date: '2025.03.16',
+                title: '会话数统计功能',
+                desc: '完成会话数统计功能开发，优化统计逻辑。',
+                content: '✅ 完成会话数统计功能<br>🔧 优化会话数统计逻辑',
+                link: './article/session-count.html',
+                icon: '🚀',
+                colors: ['#34d399', '#10b981']
+            },
+            {
+                category: 'progress',
+                date: '2025.03.15',
+                title: '项目正式启动',
+                desc: '完成基本框架搭建，配置GitHub Pages仓库。',
+                content: '🚀 项目启动<br><br>✅ 完成基本框架搭建<br>✅ 配置GitHub Pages仓库<br>🔧 调试CSS动画效果',
+                link: './article/project-start.html',
+                icon: '🚀',
+                colors: ['#6ee7b7', '#10b981']
+            },
+            {
+                category: 'github',
+                date: '持续更新',
+                title: 'GitHub仓库',
+                desc: '开源代码仓库，欢迎贡献和反馈。',
+                content: '点击访问<a href="https://github.com/psStuNet/psStuNet.github.io" target="_blank">GitHub 仓库</a><br><br>点击访问<a href="https://github.com/Ps-Student-Catalog-Team/Ps-Student-Catalog" target="_blank">学生目录的 GitHub仓库</a><br><br>Contributors: <a href="https://github.com/psStuNet/psStuNet.github.io/graphs/contributors" target="_blank">Check on Github</a><br><br><a href="https://github.com/psstunet/psstunet.github.io/commits" target="_blank">查看commit记录</a>',
+                link: 'https://github.com/psStuNet/psStuNet.github.io',
+                icon: '📦',
+                colors: ['#fbbf24', '#f59e0b']
             }
-        });
+        ];
 
-        // 延迟加载动画
-        document.querySelectorAll('.log-item').forEach((item, index) => {
-            item.style.animationDelay = `${0.2 + index * 0.2}s`;
-        });
-        // 分类筛选功能
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                
-                const category = btn.dataset.category;
-                document.querySelectorAll('.log-item').forEach(item => {
-                    if(category === 'all' || item.dataset.category === category) {
-                        item.style.display = 'block';
-                    } else {
-                        item.style.display = 'none';
+        const categories = [
+            { id: 'all', name: '全部', icon: '📋' },
+            { id: 'report', name: '月度报告', icon: '📊' },
+            { id: 'progress', name: '项目进展', icon: '🚀' },
+            { id: 'bugfix', name: 'Bug修复', icon: '🔧' },
+            { id: 'server', name: '服务器', icon: '🖥️' },
+            { id: 'github', name: 'GitHub', icon: '📦' }
+        ];
+
+        const capsulesList = document.getElementById('capsulesList');
+        const categoryOrbit = document.getElementById('categoryOrbit');
+        const currentPageEl = document.getElementById('currentPage');
+        const totalPagesEl = document.getElementById('totalPages');
+
+        function getCategoryName(category) {
+            const names = {
+                report: '月度报告',
+                progress: '项目进展',
+                bugfix: 'Bug修复',
+                server: '服务器',
+                github: 'GitHub'
+            };
+            return names[category] || category;
+        }
+
+        function createCapsule(log, index) {
+            const capsule = document.createElement('div');
+            capsule.className = 'time-capsule';
+            capsule.dataset.category = log.category;
+            capsule.dataset.index = index;
+
+            capsule.innerHTML = `
+                <div class="capsule-wrapper">
+                    <div class="capsule-card" style="--color-1: ${log.colors[0]}; --color-2: ${log.colors[1]}">
+                        <div class="capsule-icon">${log.icon}</div>
+                        <div class="capsule-header">
+                            <div class="capsule-bg"></div>
+                            <div class="capsule-meta">
+                                <span class="capsule-category">
+                                    ${log.icon}
+                                    ${getCategoryName(log.category)}
+                                </span>
+                                <span class="capsule-date">${log.date}</span>
+                            </div>
+                            <h2 class="capsule-title">${log.title}</h2>
+                        </div>
+                        <div class="capsule-body">
+                            <p class="capsule-desc">${log.desc}</p>
+                            <div class="capsule-content">${log.content}</div>
+                            <div class="capsule-actions">
+                                ${log.link ? `<a href="${log.link}" class="btn btn-primary" ${log.link.startsWith('http') ? 'target="_blank"' : ''} onclick="event.stopPropagation()">查看完整内容</a>` : ''}
+                            </div>
+                        </div>
+                        <div class="expand-hint">
+                            <span>点击展开</span>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M6 9l6 6 6-6"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="capsule-node"></div>
+                </div>
+            `;
+
+            const card = capsule.querySelector('.capsule-card');
+            card.addEventListener('click', () => {
+                card.classList.toggle('expanded');
+            });
+
+            return capsule;
+        }
+
+        function renderCategories() {
+            categoryOrbit.innerHTML = '';
+            categories.forEach(cat => {
+                const node = document.createElement('div');
+                node.className = 'orbit-node' + (cat.id === 'all' ? ' active' : '');
+                node.dataset.category = cat.id;
+                node.innerHTML = `<span class="orbit-label">${cat.icon} ${cat.name}</span>`;
+                node.addEventListener('click', () => filterByCategory(cat.id));
+                categoryOrbit.appendChild(node);
+            });
+        }
+
+        function renderCapsules() {
+            capsulesList.innerHTML = '';
+            logs.forEach((log, index) => {
+                capsulesList.appendChild(createCapsule(log, index));
+            });
+            totalPagesEl.textContent = String(logs.length).padStart(2, '0');
+        }
+
+        function filterByCategory(category) {
+            document.querySelectorAll('.orbit-node').forEach(node => {
+                node.classList.toggle('active', node.dataset.category === category);
+            });
+
+            const capsules = document.querySelectorAll('.time-capsule');
+            capsules.forEach(capsule => {
+                const card = capsule.querySelector('.capsule-card');
+                if (category === 'all' || capsule.dataset.category === category) {
+                    capsule.style.display = '';
+                    capsule.style.opacity = '1';
+                    capsule.style.transform = 'scale(1)';
+                } else {
+                    capsule.style.opacity = '0.2';
+                    capsule.style.transform = 'scale(0.95)';
+                }
+            });
+        }
+
+        function updatePageIndicator() {
+            const capsules = document.querySelectorAll('.time-capsule');
+            const scrollY = window.scrollY + window.innerHeight / 2;
+
+            capsules.forEach((capsule, index) => {
+                const rect = capsule.getBoundingClientRect();
+                const capsuleY = window.scrollY + rect.top + rect.height / 2;
+
+                if (Math.abs(scrollY - capsuleY) < rect.height) {
+                    currentPageEl.textContent = String(index + 1).padStart(2, '0');
+                }
+            });
+        }
+
+        // 粒子效果
+        const canvas = document.getElementById('particles');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        function createParticle() {
+            return {
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                vx: (Math.random() - 0.5) * 0.5,
+                vy: (Math.random() - 0.5) * 0.5,
+                size: Math.random() * 2 + 1,
+                alpha: Math.random() * 0.5 + 0.2,
+                color: `hsla(${170 + Math.random() * 40}, 100%, 60%, `
+            };
+        }
+
+        function initParticles() {
+            particles = [];
+            for (let i = 0; i < 100; i++) {
+                particles.push(createParticle());
+            }
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            particles.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+
+                if (p.x < 0) p.x = canvas.width;
+                if (p.x > canvas.width) p.x = 0;
+                if (p.y < 0) p.y = canvas.height;
+                if (p.y > canvas.height) p.y = 0;
+
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fillStyle = p.color + p.alpha + ')';
+                ctx.fill();
+
+                particles.forEach(other => {
+                    const dx = p.x - other.x;
+                    const dy = p.y - other.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < 150) {
+                        ctx.beginPath();
+                        ctx.moveTo(p.x, p.y);
+                        ctx.lineTo(other.x, other.y);
+                        ctx.strokeStyle = `rgba(0, 255, 200, ${0.15 * (1 - dist / 150)})`;
+                        ctx.stroke();
                     }
                 });
             });
+
+            requestAnimationFrame(animateParticles);
+        }
+
+        resizeCanvas();
+        initParticles();
+        animateParticles();
+
+        window.addEventListener('resize', () => {
+            resizeCanvas();
+            initParticles();
         });
 
-        document.querySelectorAll('.log-item').forEach(item => {
-            item.addEventListener('click', (e) => {
-                if(!e.target.closest('a')) { 
-                    const date = item.querySelector('.log-date').textContent;
-                    if(date.includes('项目启动')) {
-                        window.location.href = './article/project-start.html';
-                    } else if(date.includes('会话数统计')) {
-                        window.location.href = './article/session-count.html'; 
-                    }
-                    else if(date.includes('2025.04.10')) {
-                        window.location.href = './article/0410bug-fixed.html'; 
-                    }
-                    else if(date.includes('我们搭了一个Minecraft服务器')) {
-                        window.location.href = './article/minecraft-server.html'; 
-                    }
-                }
+        function createFloatingShapes() {
+            const container = document.getElementById('floatingDecorations');
+            const shapes = ['circle', 'diamond', 'ring', 'cross'];
+            const positions = [
+                { top: '15%', left: '5%' },
+                { top: '25%', right: '8%' },
+                { top: '45%', left: '15%' },
+                { top: '65%', right: '12%' },
+                { top: '80%', left: '8%' },
+                { top: '35%', right: '20%' },
+                { top: '55%', left: '25%' },
+                { top: '75%', right: '25%' },
+            ];
+
+            positions.forEach((pos, i) => {
+                const shape = document.createElement('div');
+                shape.className = `float-shape ${shapes[i % shapes.length]}`;
+                const size = 30 + Math.random() * 50;
+                shape.style.width = size + 'px';
+                shape.style.height = size + 'px';
+                Object.assign(shape.style, pos);
+                shape.style.animationDelay = (i * 2) + 's';
+                shape.style.animationDuration = (15 + Math.random() * 10) + 's';
+                container.appendChild(shape);
             });
-        });
-
-        let timeoutId;
-        const toolsMenu = document.querySelector('.tools-menu');
-
-
-        // 工具集功能
-        function toggleTools() {
-            timeoutId = setTimeout(() => {  
-                toolsMenu.classList.add('active');
-            }, 0); 
         }
-        
-        document.addEventListener('click', (e) => {
-            const Menu = document.querySelector('.tools-container');
-            if (!Menu.contains(e.target)) {
-                toolsMenu.classList.add('exit');
-                timeoutId = setTimeout(() => {
-                    toolsMenu.classList.remove('active');
-                    toolsMenu.classList.remove('exit'); 
-                    clearTimeout(timeoutId);
-                }, 400); 
-            }
-        });
 
-        document.addEventListener('click', (e) => {
-            if (document.querySelector('.tools-toggle').contains(e.target))
-            {
-                if(toolsMenu.classList.contains('active')) {
-                    toolsMenu.classList.add('exit');
-                    setTimeout(() => {
-                        toolsMenu.classList.remove('active');
-                        toolsMenu.classList.remove('exit'); 
-                        clearTimeout(timeoutId);
-                    }, 400); 
-                }
-            }
-        });
+        createFloatingShapes();
+        function createFloatingShapes() {
+            const container = document.getElementById('floatingDecorations');
+            const shapes = ['circle', 'diamond', 'ring', 'cross'];
+            const positions = [
+                { top: '15%', left: '5%' },
+                { top: '25%', left: '15%' },
+                { top: '35%', left: '25%' },
+                { top: '45%', right: '5%' },
+                { top: '55%', right: '15%' },
+                { top: '65%', right: '25%' },
+                { top: '75%', right: '35%' },
+                { top: '85%', left: '45%' },
+                { top: '15%', right: '45%' },
+                { top: '25%', right: '55%' },
+                { top: '35%', right: '65%' },
+                { top: '45%', right: '75%' },
+                { top: '55%', right: '85%' },
+                { top: '65%', right: '95%' }
+            ];
 
-        document.querySelector('.tools-container').addEventListener('mouseleave', () => {
-            timeoutId = setTimeout(() => {  
-                toolsMenu.classList.add('exit');
-            }, 200); 
-            timeoutId = setTimeout(() => {
-                toolsMenu.classList.remove('active');
-                toolsMenu.classList.remove('exit'); 
-                clearTimeout(timeoutId);
-            }, 600); 
-        });
+            positions.forEach((pos, i) => {
+                const shape = document.createElement('div');
+                shape.className = `float-shape ${shapes[i % 2]}`;
+                shape.style.cssText = `
+                    top: ${pos.top}px;
+                    left: ${pos.left}px;
+                    width: ${pos.size}px;
+                    height: ${pos.size}px;
+                    animation-delay: ${i * 2}s;
+                    animation-duration: ${15 + Math.random() * 10}s;
+                `;
+            });
+        }
 
+        createFloatingShapes();
 
+        renderCategories();
+        renderCapsules();
+        window.addEventListener('scroll', updatePageIndicator);
+        updatePageIndicator();
     </script>
-
-<script>
-    // 检查是否需要执行首页进入动画
-    document.addEventListener('DOMContentLoaded', function() {
-        if (sessionStorage.getItem('homeAnimation') === 'true') {
-            // 移除标记，避免下次直接访问也执行动画
-            sessionStorage.removeItem('homeAnimation');
-            
-            // 给body添加进入动画类
-            document.body.classList.add('home-enter');
-            
-            // 动画结束后移除类名
-            setTimeout(() => {
-                document.body.classList.remove('home-enter');
-            }, 600);
-        }
-    });
-</script>
-    
 </body>
 </html>
