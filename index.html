@@ -5,473 +5,642 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>学生目录</title>
     <link rel="icon" type="image/png" href="./img/icon/favicon.png">
-    <link rel="stylesheet" type="text/css" href="./css/style(new).css">
-    
+    <!-- 主题样式动态切换 -->
+    <link id="themeStylesheet" rel="stylesheet" href="./css/style(new).css">
+    <style>
+        /* 主题切换按钮的基础样式（与两套主题无关） */
+        #themeToggle {
+            position: fixed;
+            right: 16px;
+            bottom: 16px;
+            z-index: 9999;
+            background: rgba(0, 0, 0, 0.6);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            border-radius: 999px;
+            padding: 8px 14px;
+            font-size: 13px;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            transition: background 0.2s ease, transform 0.2s ease;
+        }
+        #themeToggle:hover {
+            background: rgba(255, 255, 255, 0.16);
+            transform: translateY(-1px);
+        }
+        /* 确保挂载容器占据全屏 */
+        #app {
+            min-height: 100vh;
+        }
+    </style>
 </head>
 <body>
-    <div id="particles-container">
-        <canvas id="particles"></canvas>
-    </div>
-    <div class="scanlines"></div>
-    <div class="holo-grid"></div>
-
-    <div class="glow-orbs">
-        <div class="glow-orb glow-orb-1"></div>
-        <div class="glow-orb glow-orb-2"></div>
-        <div class="glow-orb glow-orb-3"></div>
-    </div>
-
-    <div class="floating-decorations" id="floatingDecorations"></div>
-
-    <div class="corner-decor top-left"></div>
-    <div class="corner-decor top-right"></div>
-    <div class="corner-decor bottom-left"></div>
-    <div class="corner-decor bottom-right"></div>
-
-    <header>
-        <div class="logo">
-            <div class="logo-icon">📚</div>
-            <div class="logo-text">
-                <h1>学生目录</h1>
-                <p>HOLOGRAPHIC LOGS</p>
-            </div>
-        </div>
-        <nav class="nav-links">
-            <a href="https://github.com/psStuNet/psStuNet.github.io" class="nav-link">GitHub</a>
-            <a href="https://ps-student-catalog-team.github.io/Ps-Student-Catalog/" class="nav-link">外网官网</a>
-            <a href="http://10.88.202.73" class="nav-link primary">内网官网</a>
-        </nav>
-    </header>
-
-    <div class="category-orbit" id="categoryOrbit"></div>
-
-    <div class="page-indicator">
-        <span class="page-num" id="currentPage">01</span>
-        <span class="page-slash">—</span>
-        <span class="page-total" id="totalPages">12</span>
-    </div>
-
-    <main class="capsules-container">
-        <div class="timeline-glow"></div>
-        <div class="timeline-core"></div>
-        <div id="capsulesList"></div>
-    </main>
-
-    <div class="scroll-indicator">
-        <span>向下滚动</span>
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M12 5v14M5 12l7 7 7-7"/>
-        </svg>
-    </div>
-
-    <div class="floating-tools">
-        <a href="https://ps-student-catalog-team.github.io/zmmmawzfl.github.io/" target="_blank" class="tool-btn">
-            <span>📊</span>
-            <span class="tool-label">VPN日志分析</span>
-        </a>
-        <a href="https://github.com/psStuNet/psStuNet.github.io" target="_blank" class="tool-btn">
-            <span>📦</span>
-            <span class="tool-label">GitHub仓库</span>
-        </a>
-        <a href="http://10.88.202.73" class="tool-btn">
-            <span>🏠</span>
-            <span class="tool-label">内网官网</span>
-        </a>
-        <a href="https://ps-student-catalog-team.github.io/Ps-Student-Catalog/" target="_blank" class="tool-btn">
-            <span>🌐</span>
-            <span class="tool-label">外网官网</span>
-        </a>
-    </div>
+    <div id="app"></div>
+    <button id="themeToggle" type="button">当前样式：新样式</button>
 
     <script>
-        const logs = [
-            {
-                category: 'report',
-                date: '2026.03.29',
-                title: '3月月度报告',
-                desc: '3月月度报告已发布，包含项目最新进展和数据统计。回顾本月的重要更新和成果。',
-                content: '3月月度报告已发布！<br><br>点击查看完整报告了解项目最新进展。',
-                link: './article/2603.html',
-                icon: '📊',
-                colors: ['#00ffc8', '#00d4ff']
-            },
-            {
-                category: 'report',
-                date: '2026.02.08',
-                title: '12、1月月度报告',
-                desc: '双月合并报告，回顾年末年初的项目成果与新年规划。',
-                content: '12、1月月度报告已发布！<br><br>包含年末总结和新年规划。',
-                link: './article/2512_2602.html',
-                icon: '📊',
-                colors: ['#00d4ff', '#8b5cf6']
-            },
-            {
-                category: 'report',
-                date: '2025.11.21',
-                title: '10、11月月度报告',
-                desc: '秋季项目进展报告，展示阶段性成果。',
-                content: '10、11月月度报告已发布！<br><br>点击查看完整报告。',
-                link: './article/2510_2511.html',
-                icon: '📊',
-                colors: ['#0ea5e9', '#00ffc8']
-            },
-            {
-                category: 'server',
-                date: '2026.01.08',
-                title: 'VPN日志分析报告',
-                desc: '自动分析VPN连接数据，生成统计报告。',
-                content: 'VPN日志分析报告已生成。<br><br>点击<a href="https://ps-student-catalog-team.github.io/zmmmawzfl.github.io/" target="_blank">查看VPN连接统计报告</a>。<br><br>自动分析VPN连接数据。',
-                link: null,
-                icon: '🖥️',
-                colors: ['#8b5cf6', '#a78bfa']
-            },
-            {
-                category: 'report',
-                date: '2025.07.15',
-                title: '5、6月月度报告',
-                desc: '夏季双月报告，记录项目重要里程碑。',
-                content: '五、六月月度报告已发布！<br><br>点击查看完整报告。',
-                link: './article/2505_2506.html',
-                icon: '📊',
-                colors: ['#14b8a6', '#00ffc8']
-            },
-            {
-                category: 'server',
-                date: '2025.04.19',
-                title: 'Minecraft服务器上线',
-                desc: '搭建1.21.5版本服务器，支持正版皮肤和Radmin外网访问。',
-                content: '🎮 我们搭了一个Minecraft服务器！<br><br>✅ 完成我的世界1.21.5的Mc服务器搭建<br>✅ 使用Fabric的插件实现支持使用正版皮肤<br>✅ 通过Radmin实现服务器外网访问',
-                link: './article/minecraft-server.html',
-                icon: '🎮',
-                colors: ['#d946ef', '#8b5cf6']
-            },
-            {
-                category: 'report',
-                date: '2025.04.30',
-                title: '4月月度报告',
-                desc: '春季项目进展报告，展示新功能开发情况。',
-                content: '四月月度报告已发布！<br><br>点击查看完整报告。',
-                link: './article/2504.html',
-                icon: '📊',
-                colors: ['#00ffc8', '#00d4ff']
-            },
-            {
-                category: 'bugfix',
-                date: '2025.04.10',
-                title: 'Bug修复更新',
-                desc: '修复了会话数统计功能的若干问题。',
-                content: '🔧 修复了会话数统计功能的一些bug',
-                link: './article/0410bug-fixed.html',
-                icon: '🔧',
-                colors: ['#f87171', '#ef4444']
-            },
-            {
-                category: 'report',
-                date: '2025.03.31',
-                title: '3月月度报告',
-                desc: '项目启动后的首份月度报告。',
-                content: '三月月度报告已发布！<br><br>点击查看完整报告。',
-                link: './article/2503.html',
-                icon: '📊',
-                colors: ['#38bdf8', '#00d4ff']
-            },
-            {
-                category: 'progress',
-                date: '2025.03.16',
-                title: '会话数统计功能',
-                desc: '完成会话数统计功能开发，优化统计逻辑。',
-                content: '✅ 完成会话数统计功能<br>🔧 优化会话数统计逻辑',
-                link: './article/session-count.html',
-                icon: '🚀',
-                colors: ['#34d399', '#10b981']
-            },
-            {
-                category: 'progress',
-                date: '2025.03.15',
-                title: '项目正式启动',
-                desc: '完成基本框架搭建，配置GitHub Pages仓库。',
-                content: '🚀 项目启动<br><br>✅ 完成基本框架搭建<br>✅ 配置GitHub Pages仓库<br>🔧 调试CSS动画效果',
-                link: './article/project-start.html',
-                icon: '🚀',
-                colors: ['#6ee7b7', '#10b981']
-            },
-            {
-                category: 'github',
-                date: '持续更新',
-                title: 'GitHub仓库',
-                desc: '开源代码仓库，欢迎贡献和反馈。',
-                content: '点击访问<a href="https://github.com/psStuNet/psStuNet.github.io" target="_blank">GitHub 仓库</a><br><br>点击访问<a href="https://github.com/Ps-Student-Catalog-Team/Ps-Student-Catalog" target="_blank">学生目录的 GitHub仓库</a><br><br>Contributors: <a href="https://github.com/psStuNet/psStuNet.github.io/graphs/contributors" target="_blank">Check on Github</a><br><br><a href="https://github.com/psstunet/psstunet.github.io/commits" target="_blank">查看commit记录</a>',
-                link: 'https://github.com/psStuNet/psStuNet.github.io',
-                icon: '📦',
-                colors: ['#fbbf24', '#f59e0b']
+        (function(){
+            // ---------- 全局数据（与新版 logs 保持一致）----------
+            const logs = [
+                {
+                    category: 'report',
+                    date: '2026.03.29',
+                    title: '3月月度报告',
+                    desc: '3月月度报告已发布，包含项目最新进展和数据统计。',
+                    content: '3月月度报告已发布！<br><br>点击查看完整报告了解项目最新进展。',
+                    link: './article/2603.html',
+                    icon: '📊',
+                    colors: ['#00ffc8', '#00d4ff']
+                },
+                {
+                    category: 'report',
+                    date: '2026.02.08',
+                    title: '12、1月月度报告',
+                    desc: '双月合并报告，回顾年末年初的项目成果与新年规划。',
+                    content: '12、1月月度报告已发布！<br><br>包含年末总结和新年规划。',
+                    link: './article/2512_2602.html',
+                    icon: '📊',
+                    colors: ['#00d4ff', '#8b5cf6']
+                },
+                {
+                    category: 'report',
+                    date: '2025.11.21',
+                    title: '10、11月月度报告',
+                    desc: '秋季项目进展报告，展示阶段性成果。',
+                    content: '10、11月月度报告已发布！<br><br>点击查看完整报告。',
+                    link: './article/2510_2511.html',
+                    icon: '📊',
+                    colors: ['#0ea5e9', '#00ffc8']
+                },
+                {
+                    category: 'server',
+                    date: '2026.01.08',
+                    title: 'VPN日志分析报告',
+                    desc: '自动分析VPN连接数据，生成统计报告。',
+                    content: 'VPN日志分析报告已生成。<br><br>点击<a href="https://ps-student-catalog-team.github.io/zmmmawzfl.github.io/" target="_blank">查看VPN连接统计报告</a>。<br><br>自动分析VPN连接数据。',
+                    link: null,
+                    icon: '🖥️',
+                    colors: ['#8b5cf6', '#a78bfa']
+                },
+                {
+                    category: 'report',
+                    date: '2025.07.15',
+                    title: '5、6月月度报告',
+                    desc: '夏季双月报告，记录项目重要里程碑。',
+                    content: '五、六月月度报告已发布！<br><br>点击查看完整报告。',
+                    link: './article/2505_2506.html',
+                    icon: '📊',
+                    colors: ['#14b8a6', '#00ffc8']
+                },
+                {
+                    category: 'server',
+                    date: '2025.04.19',
+                    title: 'Minecraft服务器上线',
+                    desc: '搭建1.21.5版本服务器，支持正版皮肤和Radmin外网访问。',
+                    content: '🎮 我们搭了一个Minecraft服务器！<br><br>✅ 完成我的世界1.21.5的Mc服务器搭建<br>✅ 使用Fabric的插件实现支持使用正版皮肤<br>✅ 通过Radmin实现服务器外网访问',
+                    link: './article/minecraft-server.html',
+                    icon: '🎮',
+                    colors: ['#d946ef', '#8b5cf6']
+                },
+                {
+                    category: 'report',
+                    date: '2025.04.30',
+                    title: '4月月度报告',
+                    desc: '春季项目进展报告，展示新功能开发情况。',
+                    content: '四月月度报告已发布！<br><br>点击查看完整报告。',
+                    link: './article/2504.html',
+                    icon: '📊',
+                    colors: ['#00ffc8', '#00d4ff']
+                },
+                {
+                    category: 'bugfix',
+                    date: '2025.04.10',
+                    title: 'Bug修复更新',
+                    desc: '修复了会话数统计功能的若干问题。',
+                    content: '🔧 修复了会话数统计功能的一些bug',
+                    link: './article/0410bug-fixed.html',
+                    icon: '🔧',
+                    colors: ['#f87171', '#ef4444']
+                },
+                {
+                    category: 'report',
+                    date: '2025.03.31',
+                    title: '3月月度报告',
+                    desc: '项目启动后的首份月度报告。',
+                    content: '三月月度报告已发布！<br><br>点击查看完整报告。',
+                    link: './article/2503.html',
+                    icon: '📊',
+                    colors: ['#38bdf8', '#00d4ff']
+                },
+                {
+                    category: 'progress',
+                    date: '2025.03.16',
+                    title: '会话数统计功能',
+                    desc: '完成会话数统计功能开发，优化统计逻辑。',
+                    content: '✅ 完成会话数统计功能<br>🔧 优化会话数统计逻辑',
+                    link: './article/session-count.html',
+                    icon: '🚀',
+                    colors: ['#34d399', '#10b981']
+                },
+                {
+                    category: 'progress',
+                    date: '2025.03.15',
+                    title: '项目正式启动',
+                    desc: '完成基本框架搭建，配置GitHub Pages仓库。',
+                    content: '🚀 项目启动<br><br>✅ 完成基本框架搭建<br>✅ 配置GitHub Pages仓库<br>🔧 调试CSS动画效果',
+                    link: './article/project-start.html',
+                    icon: '🚀',
+                    colors: ['#6ee7b7', '#10b981']
+                },
+                {
+                    category: 'github',
+                    date: '持续更新',
+                    title: 'GitHub仓库',
+                    desc: '开源代码仓库，欢迎贡献和反馈。',
+                    content: '点击访问<a href="https://github.com/psStuNet/psStuNet.github.io" target="_blank">GitHub 仓库</a><br><br>点击访问<a href="https://github.com/Ps-Student-Catalog-Team/Ps-Student-Catalog" target="_blank">学生目录的 GitHub仓库</a><br><br>Contributors: <a href="https://github.com/psStuNet/psStuNet.github.io/graphs/contributors" target="_blank">Check on Github</a><br><br><a href="https://github.com/psstunet/psstunet.github.io/commits" target="_blank">查看commit记录</a>',
+                    link: 'https://github.com/psStuNet/psStuNet.github.io',
+                    icon: '📦',
+                    colors: ['#fbbf24', '#f59e0b']
+                }
+            ];
+
+            const categories = [
+                { id: 'all', name: '全部', icon: '📋' },
+                { id: 'report', name: '月度报告', icon: '📊' },
+                { id: 'progress', name: '项目进展', icon: '🚀' },
+                { id: 'bugfix', name: 'Bug修复', icon: '🔧' },
+                { id: 'server', name: '服务器', icon: '🖥️' },
+                { id: 'github', name: 'GitHub', icon: '📦' }
+            ];
+
+            // 分类名称映射（用于旧版显示）
+            function getCategoryName(catId) {
+                const found = categories.find(c => c.id === catId);
+                return found ? found.name : catId;
             }
-        ];
 
-        const categories = [
-            { id: 'all', name: '全部', icon: '📋' },
-            { id: 'report', name: '月度报告', icon: '📊' },
-            { id: 'progress', name: '项目进展', icon: '🚀' },
-            { id: 'bugfix', name: 'Bug修复', icon: '🔧' },
-            { id: 'server', name: '服务器', icon: '🖥️' },
-            { id: 'github', name: 'GitHub', icon: '📦' }
-        ];
+            // ---------- 主题管理 ----------
+            const STORAGE_KEY = 'pageThemeMode';
+            const themeToggle = document.getElementById('themeToggle');
+            const themeStylesheet = document.getElementById('themeStylesheet');
+            const appContainer = document.getElementById('app');
 
-        const capsulesList = document.getElementById('capsulesList');
-        const categoryOrbit = document.getElementById('categoryOrbit');
-        const currentPageEl = document.getElementById('currentPage');
-        const totalPagesEl = document.getElementById('totalPages');
-
-        function getCategoryName(category) {
-            const names = {
-                report: '月度报告',
-                progress: '项目进展',
-                bugfix: 'Bug修复',
-                server: '服务器',
-                github: 'GitHub'
+            const themePaths = {
+                new: './css/style(new).css',
+                old: './css/style(old).css'
             };
-            return names[category] || category;
-        }
 
-        function createCapsule(log, index) {
-            const capsule = document.createElement('div');
-            capsule.className = 'time-capsule';
-            capsule.dataset.category = log.category;
-            capsule.dataset.index = index;
+            let currentTheme = 'new'; // 默认新样式
 
-            capsule.innerHTML = `
-                <div class="capsule-wrapper">
-                    <div class="capsule-card" style="--color-1: ${log.colors[0]}; --color-2: ${log.colors[1]}">
-                        <div class="capsule-icon">${log.icon}</div>
-                        <div class="capsule-header">
-                            <div class="capsule-bg"></div>
-                            <div class="capsule-meta">
-                                <span class="capsule-category">
-                                    ${log.icon}
-                                    ${getCategoryName(log.category)}
-                                </span>
-                                <span class="capsule-date">${log.date}</span>
+            function setTheme(theme) {
+                currentTheme = theme;
+                themeStylesheet.href = themePaths[theme];
+                themeToggle.textContent = theme === 'new' ? '切换旧样式' : '切换新样式';
+                localStorage.setItem(STORAGE_KEY, theme);
+                renderApp(theme);
+            }
+
+            function toggleTheme() {
+                const nextTheme = currentTheme === 'new' ? 'old' : 'new';
+                setTheme(nextTheme);
+            }
+
+            // ---------- 渲染引擎 ----------
+            function renderApp(theme) {
+                if (theme === 'new') {
+                    renderNewVersion();
+                } else {
+                    renderOldVersion();
+                }
+            }
+
+            // ---------- 新版渲染（全息胶囊风格）----------
+            function renderNewVersion() {
+                // 构建新版所需的全部DOM结构（背景、头部、分类、时间轴、工具集等）
+                const html = `
+                    <div id="particles-container">
+                        <canvas id="particles"></canvas>
+                    </div>
+                    <div class="scanlines"></div>
+                    <div class="holo-grid"></div>
+                    <div class="glow-orbs">
+                        <div class="glow-orb glow-orb-1"></div>
+                        <div class="glow-orb glow-orb-2"></div>
+                        <div class="glow-orb glow-orb-3"></div>
+                    </div>
+                    <div class="floating-decorations" id="floatingDecorations"></div>
+                    <div class="corner-decor top-left"></div>
+                    <div class="corner-decor top-right"></div>
+                    <div class="corner-decor bottom-left"></div>
+                    <div class="corner-decor bottom-right"></div>
+
+                    <header>
+                        <div class="logo">
+                            <div class="logo-icon">📚</div>
+                            <div class="logo-text">
+                                <h1>学生目录</h1>
+                                <p>HOLOGRAPHIC LOGS</p>
                             </div>
-                            <h2 class="capsule-title">${log.title}</h2>
                         </div>
-                        <div class="capsule-body">
-                            <p class="capsule-desc">${log.desc}</p>
-                            <div class="capsule-content">${log.content}</div>
-                            <div class="capsule-actions">
-                                ${log.link ? `<a href="${log.link}" class="btn btn-primary" ${log.link.startsWith('http') ? 'target="_blank"' : ''} onclick="event.stopPropagation()">查看完整内容</a>` : ''}
+                        <nav class="nav-links">
+                            <a href="https://github.com/psStuNet/psStuNet.github.io" class="nav-link">GitHub</a>
+                            <a href="https://ps-student-catalog-team.github.io/Ps-Student-Catalog/" class="nav-link">外网官网</a>
+                            <a href="http://10.88.202.73" class="nav-link primary">内网官网</a>
+                        </nav>
+                    </header>
+
+                    <div class="category-orbit" id="categoryOrbit"></div>
+
+                    <div class="page-indicator">
+                        <span class="page-num" id="currentPage">01</span>
+                        <span class="page-slash">—</span>
+                        <span class="page-total" id="totalPages">12</span>
+                    </div>
+
+                    <main class="capsules-container">
+                        <div class="timeline-glow"></div>
+                        <div class="timeline-core"></div>
+                        <div id="capsulesList"></div>
+                    </main>
+
+                    <div class="scroll-indicator">
+                        <span>向下滚动</span>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 5v14M5 12l7 7 7-7"/>
+                        </svg>
+                    </div>
+
+                    <div class="floating-tools">
+                        <a href="https://ps-student-catalog-team.github.io/zmmmawzfl.github.io/" target="_blank" class="tool-btn">
+                            <span>📊</span>
+                            <span class="tool-label">VPN日志分析</span>
+                        </a>
+                        <a href="https://github.com/psStuNet/psStuNet.github.io" target="_blank" class="tool-btn">
+                            <span>📦</span>
+                            <span class="tool-label">GitHub仓库</span>
+                        </a>
+                        <a href="http://10.88.202.73" class="tool-btn">
+                            <span>🏠</span>
+                            <span class="tool-label">内网官网</span>
+                        </a>
+                        <a href="https://ps-student-catalog-team.github.io/Ps-Student-Catalog/" target="_blank" class="tool-btn">
+                            <span>🌐</span>
+                            <span class="tool-label">外网官网</span>
+                        </a>
+                    </div>
+                `;
+
+                appContainer.innerHTML = html;
+
+                // 动态插入胶囊列表和分类节点
+                const capsulesList = document.getElementById('capsulesList');
+                const categoryOrbit = document.getElementById('categoryOrbit');
+                const totalPagesEl = document.getElementById('totalPages');
+
+                // 渲染分类光环
+                categories.forEach(cat => {
+                    const node = document.createElement('div');
+                    node.className = 'orbit-node' + (cat.id === 'all' ? ' active' : '');
+                    node.dataset.category = cat.id;
+                    node.innerHTML = `<span class="orbit-label">${cat.icon} ${cat.name}</span>`;
+                    node.addEventListener('click', () => filterByCategory(cat.id));
+                    categoryOrbit.appendChild(node);
+                });
+
+                // 渲染胶囊
+                logs.forEach((log, index) => {
+                    const capsule = createNewCapsule(log, index);
+                    capsulesList.appendChild(capsule);
+                });
+
+                totalPagesEl.textContent = String(logs.length).padStart(2, '0');
+
+                // 分类筛选函数
+                function filterByCategory(category) {
+                    document.querySelectorAll('.orbit-node').forEach(node => {
+                        node.classList.toggle('active', node.dataset.category === category);
+                    });
+                    document.querySelectorAll('.time-capsule').forEach(capsule => {
+                        if (category === 'all' || capsule.dataset.category === category) {
+                            capsule.style.opacity = '1';
+                            capsule.style.transform = 'scale(1)';
+                        } else {
+                            capsule.style.opacity = '0.2';
+                            capsule.style.transform = 'scale(0.95)';
+                        }
+                    });
+                }
+
+                // 页码指示器更新
+                function updatePageIndicator() {
+                    const capsules = document.querySelectorAll('.time-capsule');
+                    const scrollY = window.scrollY + window.innerHeight / 2;
+                    capsules.forEach((capsule, index) => {
+                        const rect = capsule.getBoundingClientRect();
+                        const capsuleY = window.scrollY + rect.top + rect.height / 2;
+                        if (Math.abs(scrollY - capsuleY) < rect.height) {
+                            document.getElementById('currentPage').textContent = String(index + 1).padStart(2, '0');
+                        }
+                    });
+                }
+
+                window.addEventListener('scroll', updatePageIndicator);
+                updatePageIndicator();
+
+                // 初始化粒子效果
+                initNewParticles();
+                // 浮动装饰
+                createFloatingShapesNew();
+            }
+
+            // 新版辅助函数：创建单个胶囊
+            function createNewCapsule(log, index) {
+                const capsule = document.createElement('div');
+                capsule.className = 'time-capsule';
+                capsule.dataset.category = log.category;
+                capsule.dataset.index = index;
+
+                capsule.innerHTML = `
+                    <div class="capsule-wrapper">
+                        <div class="capsule-card" style="--color-1: ${log.colors[0]}; --color-2: ${log.colors[1]}">
+                            <div class="capsule-icon">${log.icon}</div>
+                            <div class="capsule-header">
+                                <div class="capsule-bg"></div>
+                                <div class="capsule-meta">
+                                    <span class="capsule-category">${log.icon} ${getCategoryName(log.category)}</span>
+                                    <span class="capsule-date">${log.date}</span>
+                                </div>
+                                <h2 class="capsule-title">${log.title}</h2>
+                            </div>
+                            <div class="capsule-body">
+                                <p class="capsule-desc">${log.desc}</p>
+                                <div class="capsule-content">${log.content}</div>
+                                <div class="capsule-actions">
+                                    ${log.link ? `<a href="${log.link}" class="btn btn-primary" ${log.link.startsWith('http') ? 'target="_blank"' : ''} onclick="event.stopPropagation()">查看完整内容</a>` : ''}
+                                </div>
+                            </div>
+                            <div class="expand-hint">
+                                <span>点击展开</span>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M6 9l6 6 6-6"/>
+                                </svg>
                             </div>
                         </div>
-                        <div class="expand-hint">
-                            <span>点击展开</span>
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M6 9l6 6 6-6"/>
+                        <div class="capsule-node"></div>
+                    </div>
+                `;
+
+                const card = capsule.querySelector('.capsule-card');
+                card.addEventListener('click', () => {
+                    card.classList.toggle('expanded');
+                });
+
+                return capsule;
+            }
+
+            // 新版粒子系统（精简，保留核心功能）
+            function initNewParticles() {
+                const canvas = document.getElementById('particles');
+                if (!canvas) return;
+                const ctx = canvas.getContext('2d');
+                let particles = [];
+                let animationFrame;
+
+                function resizeCanvas() {
+                    canvas.width = window.innerWidth;
+                    canvas.height = window.innerHeight;
+                }
+
+                function createParticle() {
+                    return {
+                        x: Math.random() * canvas.width,
+                        y: Math.random() * canvas.height,
+                        vx: (Math.random() - 0.5) * 0.5,
+                        vy: (Math.random() - 0.5) * 0.5,
+                        size: Math.random() * 2 + 1,
+                        alpha: Math.random() * 0.5 + 0.2,
+                        color: `hsla(${170 + Math.random() * 40}, 100%, 60%, `
+                    };
+                }
+
+                function initParticles() {
+                    particles = [];
+                    for (let i = 0; i < 100; i++) {
+                        particles.push(createParticle());
+                    }
+                }
+
+                function animateParticles() {
+                    if (!canvas || !ctx) return;
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    particles.forEach(p => {
+                        p.x += p.vx;
+                        p.y += p.vy;
+                        if (p.x < 0) p.x = canvas.width;
+                        if (p.x > canvas.width) p.x = 0;
+                        if (p.y < 0) p.y = canvas.height;
+                        if (p.y > canvas.height) p.y = 0;
+
+                        ctx.beginPath();
+                        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                        ctx.fillStyle = p.color + p.alpha + ')';
+                        ctx.fill();
+
+                        particles.forEach(other => {
+                            const dx = p.x - other.x;
+                            const dy = p.y - other.y;
+                            const dist = Math.sqrt(dx * dx + dy * dy);
+                            if (dist < 150) {
+                                ctx.beginPath();
+                                ctx.moveTo(p.x, p.y);
+                                ctx.lineTo(other.x, other.y);
+                                ctx.strokeStyle = `rgba(0, 255, 200, ${0.15 * (1 - dist / 150)})`;
+                                ctx.stroke();
+                            }
+                        });
+                    });
+                    animationFrame = requestAnimationFrame(animateParticles);
+                }
+
+                resizeCanvas();
+                initParticles();
+                animateParticles();
+
+                window.addEventListener('resize', () => {
+                    if (!canvas) return;
+                    resizeCanvas();
+                    initParticles();
+                });
+
+                // 保存以便清理（切换主题时可取消动画）
+                window.__newParticlesCleanup = () => {
+                    if (animationFrame) cancelAnimationFrame(animationFrame);
+                };
+            }
+
+            function createFloatingShapesNew() {
+                const container = document.getElementById('floatingDecorations');
+                if (!container) return;
+                const shapes = ['circle', 'diamond', 'ring', 'cross'];
+                const positions = [
+                    { top: '15%', left: '5%' }, { top: '25%', right: '8%' }, { top: '45%', left: '15%' },
+                    { top: '65%', right: '12%' }, { top: '80%', left: '8%' }, { top: '35%', right: '20%' }
+                ];
+                positions.forEach((pos, i) => {
+                    const shape = document.createElement('div');
+                    shape.className = `float-shape ${shapes[i % shapes.length]}`;
+                    const size = 30 + Math.random() * 50;
+                    shape.style.width = size + 'px';
+                    shape.style.height = size + 'px';
+                    Object.assign(shape.style, pos);
+                    shape.style.animationDelay = (i * 2) + 's';
+                    shape.style.animationDuration = (15 + Math.random() * 10) + 's';
+                    container.appendChild(shape);
+                });
+            }
+
+            // ---------- 旧版渲染（经典日志列表）----------
+            function renderOldVersion() {
+                // 清理可能残留的新版动画
+                if (window.__newParticlesCleanup) window.__newParticlesCleanup();
+
+                const html = `
+                    <div class="container" style="max-width: 1000px; padding: 20px; margin: 0 auto;">
+                        <h1>学生目录开发日志</h1>
+                        <p>此网站为公网镜像站点，完整功能<a class="link" href="http://10.88.202.73">点此前往内网官网</a>，或者直接访问<a class="link" href="https://ps-student-catalog-team.github.io/Ps-Student-Catalog/">外网官网</a></p>
+
+                        <div class="category-filter">
+                            <button class="filter-btn active" data-category="all">全部</button>
+                            <button class="filter-btn" data-category="report">月度报告</button>
+                            <button class="filter-btn" data-category="progress">项目进展</button>
+                            <button class="filter-btn" data-category="bugfix">Bug修复</button>
+                            <button class="filter-btn" data-category="server">服务器相关</button>
+                            <button class="filter-btn" data-category="github">GitHub信息</button>
+                        </div>
+
+                        <div class="timeline" id="oldTimeline"></div>
+                    </div>
+
+                    <!-- 旧版工具集（右下角） -->
+                    <div class="tools-container">
+                        <div class="tools-toggle" onclick="toggleOldTools()">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="3"></circle>
+                                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
                             </svg>
                         </div>
+                        <div class="tools-menu">
+                            <a href="./logs/analyze.html" class="tool-item" data-tooltip="VPN日志分析">
+                                <svg class="tool-icon" viewBox="0 0 24 24">
+                                    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z"/>
+                                    <path d="M7.5 15h2v2H11v-4H9.5v2.5h-2V15zm6.5 0h4v2h-4z"/>
+                                </svg>
+                            </a>
+                            <a href="https://github.com/psStuNet/psStuNet.github.io" class="tool-item" data-tooltip="GitHub仓库">
+                                <svg class="tool-icon" viewBox="0 0 24 24">
+                                    <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.793-.258.793-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
+                                </svg>
+                            </a>
+                        </div>
                     </div>
-                    <div class="capsule-node"></div>
-                </div>
-            `;
+                `;
 
-            const card = capsule.querySelector('.capsule-card');
-            card.addEventListener('click', () => {
-                card.classList.toggle('expanded');
-            });
+                appContainer.innerHTML = html;
 
-            return capsule;
-        }
+                const timeline = document.getElementById('oldTimeline');
 
-        function renderCategories() {
-            categoryOrbit.innerHTML = '';
-            categories.forEach(cat => {
-                const node = document.createElement('div');
-                node.className = 'orbit-node' + (cat.id === 'all' ? ' active' : '');
-                node.dataset.category = cat.id;
-                node.innerHTML = `<span class="orbit-label">${cat.icon} ${cat.name}</span>`;
-                node.addEventListener('click', () => filterByCategory(cat.id));
-                categoryOrbit.appendChild(node);
-            });
-        }
+                // 根据 logs 生成旧版 .log-item
+                logs.forEach((log, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'log-item';
+                    item.style.animationDelay = `${0.2 + index * 0.1}s`;
+                    item.style.cursor = 'pointer';
+                    item.dataset.category = log.category;
 
-        function renderCapsules() {
-            capsulesList.innerHTML = '';
-            logs.forEach((log, index) => {
-                capsulesList.appendChild(createCapsule(log, index));
-            });
-            totalPagesEl.textContent = String(logs.length).padStart(2, '0');
-        }
+                    let contentHtml = '';
+                    if (log.category === 'report') {
+                        contentHtml = `<p>${log.desc}</p>
+                                       ${log.link ? `<a href="${log.link}" class="month-report-link">查看完整月度报告 →</a>` : ''}`;
+                    } else if (log.category === 'server' && log.title.includes('VPN')) {
+                        contentHtml = `<p>点击查看<a class="link" href="https://ps-student-catalog-team.github.io/zmmmawzfl.github.io/" target="_blank">VPN连接统计报告</a></p>
+                                       <p>自动分析VPN连接数据</p>`;
+                    } else if (log.category === 'server' && log.title.includes('Minecraft')) {
+                        contentHtml = `<p>✅ 完成我的世界1.21.5的Mc服务器搭建</p>
+                                       <p>✅ 使用Fabric的插件实现支持使用正版皮肤</p>
+                                       <p>✅ 通过Radmin实现服务器外网访问</p>`;
+                    } else if (log.category === 'bugfix') {
+                        contentHtml = `<p>🔧 修复了会话数统计功能的一些bug</p>`;
+                    } else if (log.category === 'progress') {
+                        contentHtml = log.content.split('<br>').map(line => `<p>${line}</p>`).join('');
+                    } else if (log.category === 'github') {
+                        contentHtml = `<p>点击访问<a class="link" href="https://github.com/psStuNet/psStuNet.github.io" target="_blank">GitHub 仓库</a></p>
+                                       <p>点击访问<a class="link" href="https://github.com/Ps-Student-Catalog-Team/Ps-Student-Catalog" target="_blank">学生目录的 GitHub仓库</a></p>
+                                       <p>Contributors: <a class="link" href="https://github.com/psStuNet/psStuNet.github.io/graphs/contributors" target="_blank">Check on Github</a></p>
+                                       <a class="link" href="https://github.com/psstunet/psstunet.github.io/commits">查看commit记录</a>`;
+                    } else {
+                        contentHtml = `<p>${log.desc}</p>`;
+                    }
 
-        function filterByCategory(category) {
-            document.querySelectorAll('.orbit-node').forEach(node => {
-                node.classList.toggle('active', node.dataset.category === category);
-            });
+                    item.innerHTML = `
+                        <div class="log-date">${getCategoryName(log.category)} - ${log.date}</div>
+                        <div class="log-content">
+                            ${contentHtml}
+                        </div>
+                    `;
 
-            const capsules = document.querySelectorAll('.time-capsule');
-            capsules.forEach(capsule => {
-                const card = capsule.querySelector('.capsule-card');
-                if (category === 'all' || capsule.dataset.category === category) {
-                    capsule.style.display = '';
-                    capsule.style.opacity = '1';
-                    capsule.style.transform = 'scale(1)';
-                } else {
-                    capsule.style.opacity = '0.2';
-                    capsule.style.transform = 'scale(0.95)';
-                }
-            });
-        }
+                    // 点击跳转（部分条目有链接）
+                    item.addEventListener('click', (e) => {
+                        if (e.target.closest('a')) return; // 链接已处理
+                        if (log.link && !log.link.startsWith('http')) {
+                            window.location.href = log.link;
+                        }
+                    });
 
-        function updatePageIndicator() {
-            const capsules = document.querySelectorAll('.time-capsule');
-            const scrollY = window.scrollY + window.innerHeight / 2;
+                    timeline.appendChild(item);
+                });
 
-            capsules.forEach((capsule, index) => {
-                const rect = capsule.getBoundingClientRect();
-                const capsuleY = window.scrollY + rect.top + rect.height / 2;
+                // 旧版筛选功能
+                document.querySelectorAll('.filter-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        const category = btn.dataset.category;
+                        document.querySelectorAll('.log-item').forEach(item => {
+                            if (category === 'all' || item.dataset.category === category) {
+                                item.style.display = 'block';
+                            } else {
+                                item.style.display = 'none';
+                            }
+                        });
+                    });
+                });
 
-                if (Math.abs(scrollY - capsuleY) < rect.height) {
-                    currentPageEl.textContent = String(index + 1).padStart(2, '0');
-                }
-            });
-        }
+                // 旧版工具集交互
+                window.toggleOldTools = function() {
+                    const menu = document.querySelector('.tools-menu');
+                    if (menu) {
+                        menu.classList.toggle('active');
+                    }
+                };
 
-        // 粒子效果
-        const canvas = document.getElementById('particles');
-        const ctx = canvas.getContext('2d');
-        let particles = [];
-
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-
-        function createParticle() {
-            return {
-                x: Math.random() * canvas.width,
-                y: Math.random() * canvas.height,
-                vx: (Math.random() - 0.5) * 0.5,
-                vy: (Math.random() - 0.5) * 0.5,
-                size: Math.random() * 2 + 1,
-                alpha: Math.random() * 0.5 + 0.2,
-                color: `hsla(${170 + Math.random() * 40}, 100%, 60%, `
-            };
-        }
-
-        function initParticles() {
-            particles = [];
-            for (let i = 0; i < 100; i++) {
-                particles.push(createParticle());
-            }
-        }
-
-        function animateParticles() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            particles.forEach(p => {
-                p.x += p.vx;
-                p.y += p.vy;
-
-                if (p.x < 0) p.x = canvas.width;
-                if (p.x > canvas.width) p.x = 0;
-                if (p.y < 0) p.y = canvas.height;
-                if (p.y > canvas.height) p.y = 0;
-
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                ctx.fillStyle = p.color + p.alpha + ')';
-                ctx.fill();
-
-                particles.forEach(other => {
-                    const dx = p.x - other.x;
-                    const dy = p.y - other.y;
-                    const dist = Math.sqrt(dx * dx + dy * dy);
-                    if (dist < 150) {
-                        ctx.beginPath();
-                        ctx.moveTo(p.x, p.y);
-                        ctx.lineTo(other.x, other.y);
-                        ctx.strokeStyle = `rgba(0, 255, 200, ${0.15 * (1 - dist / 150)})`;
-                        ctx.stroke();
+                document.addEventListener('click', function oldToolsClose(e) {
+                    const container = document.querySelector('.tools-container');
+                    if (container && !container.contains(e.target)) {
+                        const menu = document.querySelector('.tools-menu');
+                        if (menu) menu.classList.remove('active');
                     }
                 });
-            });
+            }
 
-            requestAnimationFrame(animateParticles);
-        }
+            // ---------- 初始化 ----------
+            function init() {
+                const savedTheme = localStorage.getItem(STORAGE_KEY) || 'new';
+                setTheme(savedTheme);
+                themeToggle.addEventListener('click', toggleTheme);
+            }
 
-        resizeCanvas();
-        initParticles();
-        animateParticles();
-
-        window.addEventListener('resize', () => {
-            resizeCanvas();
-            initParticles();
-        });
-
-        function createFloatingShapes() {
-            const container = document.getElementById('floatingDecorations');
-            const shapes = ['circle', 'diamond', 'ring', 'cross'];
-            const positions = [
-                { top: '15%', left: '5%' },
-                { top: '25%', right: '8%' },
-                { top: '45%', left: '15%' },
-                { top: '65%', right: '12%' },
-                { top: '80%', left: '8%' },
-                { top: '35%', right: '20%' },
-                { top: '55%', left: '25%' },
-                { top: '75%', right: '25%' },
-            ];
-
-            positions.forEach((pos, i) => {
-                const shape = document.createElement('div');
-                shape.className = `float-shape ${shapes[i % shapes.length]}`;
-                const size = 30 + Math.random() * 50;
-                shape.style.width = size + 'px';
-                shape.style.height = size + 'px';
-                Object.assign(shape.style, pos);
-                shape.style.animationDelay = (i * 2) + 's';
-                shape.style.animationDuration = (15 + Math.random() * 10) + 's';
-                container.appendChild(shape);
-            });
-        }
-
-        createFloatingShapes();
-        function createFloatingShapes() {
-            const container = document.getElementById('floatingDecorations');
-            const shapes = ['circle', 'diamond', 'ring', 'cross'];
-            const positions = [
-                { top: '15%', left: '5%' },
-                { top: '25%', left: '15%' },
-                { top: '35%', left: '25%' },
-                { top: '45%', right: '5%' },
-                { top: '55%', right: '15%' },
-                { top: '65%', right: '25%' },
-                { top: '75%', right: '35%' },
-                { top: '85%', left: '45%' },
-                { top: '15%', right: '45%' },
-                { top: '25%', right: '55%' },
-                { top: '35%', right: '65%' },
-                { top: '45%', right: '75%' },
-                { top: '55%', right: '85%' },
-                { top: '65%', right: '95%' }
-            ];
-
-            positions.forEach((pos, i) => {
-                const shape = document.createElement('div');
-                shape.className = `float-shape ${shapes[i % 2]}`;
-                shape.style.cssText = `
-                    top: ${pos.top}px;
-                    left: ${pos.left}px;
-                    width: ${pos.size}px;
-                    height: ${pos.size}px;
-                    animation-delay: ${i * 2}s;
-                    animation-duration: ${15 + Math.random() * 10}s;
-                `;
-            });
-        }
-
-        createFloatingShapes();
-
-        renderCategories();
-        renderCapsules();
-        window.addEventListener('scroll', updatePageIndicator);
-        updatePageIndicator();
+            init();
+        })();
     </script>
 </body>
 </html>
