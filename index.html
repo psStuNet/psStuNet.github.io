@@ -8,26 +8,6 @@
     <!-- 主题样式动态切换 -->
     <link id="themeStylesheet" rel="stylesheet" href="./css/style(new).css">
     <style>
-        /* 主题切换按钮的基础样式（与两套主题无关） */
-        #themeToggle {
-            position: fixed;
-            right: 16px;
-            bottom: 16px;
-            z-index: 9999;
-            background: rgba(0, 0, 0, 0.6);
-            color: #ffffff;
-            border: 1px solid rgba(255, 255, 255, 0.35);
-            border-radius: 999px;
-            padding: 8px 14px;
-            font-size: 13px;
-            cursor: pointer;
-            backdrop-filter: blur(10px);
-            transition: background 0.2s ease, transform 0.2s ease;
-        }
-        #themeToggle:hover {
-            background: rgba(255, 255, 255, 0.16);
-            transform: translateY(-1px);
-        }
         /* 确保挂载容器占据全屏 */
         #app {
             min-height: 100vh;
@@ -36,11 +16,11 @@
 </head>
 <body>
     <div id="app"></div>
-    <button id="themeToggle" type="button">当前样式：新样式</button>
+    <button id="themeToggle" class="theme-toggle" type="button">当前样式：新样式</button>
 
     <script>
         (function(){
-            // ---------- 全局数据（与新版 logs 保持一致）----------
+            // 全局数据（与新版 logs 保持一致）-
             const logs = [
                 {
                     category: 'report',
@@ -77,7 +57,7 @@
                     date: '2026.01.08',
                     title: 'VPN日志分析报告',
                     desc: '自动分析VPN连接数据，生成统计报告。',
-                    content: 'VPN日志分析报告已生成。<br><br>点击<a href="https://ps-student-catalog-team.github.io/zmmmawzfl.github.io/" target="_blank">查看VPN连接统计报告</a>。<br><br>自动分析VPN连接数据。',
+                    content: 'VPN日志分析报告已生成。<br><br>点击<a href="https://ps-student-catalog-team.github.io/VPN_logs_anal/" target="_blank">查看VPN连接统计报告</a>。<br><br>自动分析VPN连接数据。',
                     link: null,
                     icon: '🖥️',
                     colors: ['#8b5cf6', '#a78bfa']
@@ -179,7 +159,7 @@
                 return found ? found.name : catId;
             }
 
-            // ---------- 主题管理 ----------
+            // 主题管理
             const STORAGE_KEY = 'pageThemeMode';
             const themeToggle = document.getElementById('themeToggle');
             const themeStylesheet = document.getElementById('themeStylesheet');
@@ -205,7 +185,7 @@
                 setTheme(nextTheme);
             }
 
-            // ---------- 渲染引擎 ----------
+            // 渲染引擎
             function renderApp(theme) {
                 if (theme === 'new') {
                     renderNewVersion();
@@ -214,7 +194,7 @@
                 }
             }
 
-            // ---------- 新版渲染（全息胶囊风格）----------
+            // 新版渲染（全息胶囊风格）-
             function renderNewVersion() {
                 // 构建新版所需的全部DOM结构（背景、头部、分类、时间轴、工具集等）
                 const html = `
@@ -271,20 +251,28 @@
                     </div>
 
                     <div class="floating-tools">
-                        <a href="https://ps-student-catalog-team.github.io/zmmmawzfl.github.io/" target="_blank" class="tool-btn">
-                            <span>📊</span>
+                        <a href="https://ps-student-catalog-team.github.io/VPN_logs_anal/" target="_blank" class="tool-btn">
+                            <svg class="tool-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                <path d="M4 16h4V8H4v8zm6 0h4V4h-4v12zm6 0h4V12h-4v4z"/>
+                            </svg>
                             <span class="tool-label">VPN日志分析</span>
                         </a>
                         <a href="https://github.com/psStuNet/psStuNet.github.io" target="_blank" class="tool-btn">
-                            <span>📦</span>
+                            <svg class="tool-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                <path d="M4 6h16v2H4V6zm0 4h16v10H4V10zm4 2v6h2v-6H8z"/>
+                            </svg>
                             <span class="tool-label">GitHub仓库</span>
                         </a>
                         <a href="http://10.88.202.73" class="tool-btn">
-                            <span>🏠</span>
+                            <svg class="tool-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                <path d="M3 11.5L12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-8.5z"/>
+                            </svg>
                             <span class="tool-label">内网官网</span>
                         </a>
                         <a href="https://ps-student-catalog-team.github.io/Ps-Student-Catalog/" target="_blank" class="tool-btn">
-                            <span>🌐</span>
+                            <svg class="tool-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                <path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 2a8 8 0 0 1 0 16 8 8 0 0 1 0-16zm0 2a6 6 0 0 0 0 12 6 6 0 0 0 0-12zm-1 1h2v2h-2V7zm0 4h2v6h-2v-6z"/>
+                            </svg>
                             <span class="tool-label">外网官网</span>
                         </a>
                     </div>
@@ -499,7 +487,7 @@
                 });
             }
 
-            // ---------- 旧版渲染（经典日志列表）----------
+            // 旧版渲染（经典日志列表）-
             function renderOldVersion() {
                 // 清理可能残留的新版动画
                 if (window.__newParticlesCleanup) window.__newParticlesCleanup();
@@ -530,7 +518,7 @@
                             </svg>
                         </div>
                         <div class="tools-menu">
-                            <a href="./logs/analyze.html" class="tool-item" data-tooltip="VPN日志分析">
+                            <a href="https://ps-student-catalog-team.github.io/VPN_logs_anal/" class="tool-item" data-tooltip="VPN日志分析">
                                 <svg class="tool-icon" viewBox="0 0 24 24">
                                     <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z"/>
                                     <path d="M7.5 15h2v2H11v-4H9.5v2.5h-2V15zm6.5 0h4v2h-4z"/>
@@ -562,7 +550,7 @@
                         contentHtml = `<p>${log.desc}</p>
                                        ${log.link ? `<a href="${log.link}" class="month-report-link">查看完整月度报告 →</a>` : ''}`;
                     } else if (log.category === 'server' && log.title.includes('VPN')) {
-                        contentHtml = `<p>点击查看<a class="link" href="https://ps-student-catalog-team.github.io/zmmmawzfl.github.io/" target="_blank">VPN连接统计报告</a></p>
+                        contentHtml = `<p>点击查看<a class="link" href="https://ps-student-catalog-team.github.io/VPN_logs_anal/" target="_blank">VPN连接统计报告</a></p>
                                        <p>自动分析VPN连接数据</p>`;
                     } else if (log.category === 'server' && log.title.includes('Minecraft')) {
                         contentHtml = `<p>✅ 完成我的世界1.21.5的Mc服务器搭建</p>
@@ -632,7 +620,7 @@
                 });
             }
 
-            // ---------- 初始化 ----------
+            // 初始化
             function init() {
                 const savedTheme = localStorage.getItem(STORAGE_KEY) || 'new';
                 setTheme(savedTheme);

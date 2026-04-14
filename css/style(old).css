@@ -21,6 +21,28 @@ body {
     justify-content: center;
 }
 
+.theme-toggle {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    z-index: 9999;
+    padding: 10px 16px;
+    border-radius: 999px;
+    border: 1px solid rgba(0, 255, 157, 0.45);
+    background: rgba(0, 255, 157, 0.2);
+    color: var(--text-color);
+    font-size: 0.95rem;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 0 14px rgba(0, 255, 157, 0.15);
+    transition: all 0.2s ease;
+}
+
+.theme-toggle:hover {
+    background: rgba(0, 255, 157, 0.12);
+}
+
 body::after {
     content: '';
     position: fixed;
@@ -540,7 +562,8 @@ p,
 .tool-icon {
     width: 24px;
     height: 24px;
-    fill: var(--accent-color);
+    color: var(--accent-color);
+    fill: currentColor;
 }
 
 @keyframes menuEntrance {

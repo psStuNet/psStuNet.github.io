@@ -12,6 +12,29 @@ body {
     overflow-x: hidden;
 }
 
+.theme-toggle {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    z-index: 9999;
+    padding: 11px 18px;
+    border-radius: 999px;
+    border: 1px solid rgba(0, 255, 200, 0.35);
+    background: rgba(0, 255, 200, 0.08);
+    color: rgba(232, 255, 255, 0.95);
+    font-size: 0.95rem;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    backdrop-filter: blur(16px);
+    box-shadow: 0 0 20px rgba(0, 255, 200, 0.18);
+    transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.theme-toggle:hover {
+    transform: translateY(-1px);
+    background: rgba(0, 255, 200, 0.14);
+}
+
 /* 粒子背景 */
 #particles-container {
     position: fixed;
@@ -706,7 +729,9 @@ header {
     width: 80px;
     height: 80px;
     font-size: 3rem;
-    opacity: 0.2;
+    opacity: 0.45;
+    color: rgba(0, 255, 255, 0.85);
+    text-shadow: 0 0 20px rgba(0, 255, 255, 0.25);
     transform: rotate(15deg);
 }
 
@@ -819,6 +844,12 @@ header {
 .tool-btn span {
     position: relative;
     z-index: 1;
+    color: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    font-family: 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', 'Segoe UI Symbol', sans-serif;
 }
 
 .tool-btn:hover::before {
