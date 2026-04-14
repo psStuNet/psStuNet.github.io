@@ -4,6 +4,10 @@
     box-sizing: border-box;
 }
 
+html {
+    min-height: 100%;
+}
+
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif;
     background: #050508;
@@ -521,7 +525,8 @@ header {
 }
 
 .capsule-card {
-    width: 380px;
+    width: 100%;
+    max-width: 380px;
     background: linear-gradient(135deg, rgba(0, 255, 200, 0.1), rgba(0, 212, 255, 0.05));
     border: 1px solid rgba(0, 255, 200, 0.3);
     border-radius: 20px;
@@ -653,7 +658,7 @@ header {
 
 .capsule-card.expanded .capsule-body {
     padding: 20px 28px 28px;
-    max-height: 500px;
+    max-height: 1000px;
 }
 
 .capsule-desc {
@@ -946,9 +951,7 @@ header {
     .page-indicator {
         right: 20px;
     }
-}
 
-@media (max-width: 1024px) {
     .floating-tools {
         right: 20px;
         bottom: 20px;
@@ -990,13 +993,18 @@ header {
         padding: 16px 20px 20px;
     }
 
+    .theme-toggle {
+        left: 18px;
+        right: auto;
+        bottom: 18px;
+    }
+
     .category-orbit {
         position: fixed;
-        left: auto;
+        left: 50%;
         right: auto;
         top: auto;
         bottom: 80px;
-        left: 50%;
         transform: translateX(-50%);
         flex-direction: row;
         gap: 12px;
