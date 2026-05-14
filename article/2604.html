@@ -1,10 +1,160 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <title>学生目录2026年4月报告</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- 完全沿用原始样式表，保证主题色彩、装饰线条与动画基调不变 -->
     <link rel="stylesheet" type="text/css" href="../css/style(article).css">
+    <style4>
+        /* 增强圆角与视觉精致度 —— 完全维持原有风格 (暗色系 + neon green) */
+        /* 使所有主要容器圆角更柔和，同时保留原始背景纹理 */
+        .content-section {
+            border-radius: 20px !important;          /* 大卡片圆角升级 */
+            transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);4
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+        }
+        .content-section:hover {
+            box-shadow: 0 12px 24px rgba(0, 255, 157, 0.08);
+            transform: translateY(-3px);
+        }
+
+        /* 技术栈卡片 (tech-item) 圆角提升 & 轻量玻璃质感 */
+        .tech-item {
+            border-radius: 16px !important;
+            background: rgba(0, 255, 157, 0.08);
+            backdrop-filter: blur(2px);
+            padding: 1.2rem;
+            transition: all 0.25s ease;
+            border: 1px solid rgba(0, 255, 157, 0.12);
+        }
+        .tech-item:hover {
+            background: rgba(0, 255, 157, 0.12);
+            border-color: rgba(0, 255, 157, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* 图片占位框 (chart-placeholder) 更圆润，图片本身也有圆角 */
+        .chart-placeholder {
+            border-radius: 18px !important;
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid rgba(0, 255, 157, 0.25);
+            padding: 8px;
+            transition: all 0.2s;
+        }
+        .chart-placeholder img {
+            border-radius: 12px !important;
+            transition: transform 0.25s ease, box-shadow 0.2s;
+        }
+        .chart-placeholder img:hover {
+            transform: scale(1.01);
+            box-shadow: 0 8px 18px rgba(0, 255, 157, 0.2);
+        }
+
+        /* 返回首页按钮圆角加大 & 悬浮细节 */
+        .floating-btn, .home-btn {
+            border-radius: 40px !important;
+            padding: 10px 24px !important;
+            background: rgba(20, 20, 30, 0.85);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(0, 255, 157, 0.6);
+            transition: all 0.25s;
+        }
+        .floating-btn:hover, .home-btn:hover {
+            background: rgba(0, 255, 157, 0.2);
+            border-color: var(--accent-color);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 255, 157, 0.2);
+        }
+
+        /* 下月计划列表项 (plan-list 样式, 尽管原html用ul但class可能缺失, 额外美化) */
+        .plan-list, .content-section ul:not(.tech-stack ul) {
+            list-style: none;
+            padding-left: 0;
+        }
+        .plan-list li, .content-section ul:not(.tech-stack ul) li {
+            background: rgba(0, 255, 157, 0.04);
+            border-radius: 16px;
+            margin: 0.8rem 0;
+            padding: 0.8rem 1.2rem;
+            border-left: 3px solid var(--accent-color);
+            transition: all 0.2s;
+        }
+        .plan-list li:hover, .content-section ul:not(.tech-stack ul) li:hover {
+            background: rgba(0, 255, 157, 0.09);
+            transform: translateX(4px);
+        }
+
+        /* 引用块圆角微调 */
+        .quote {
+            border-radius: 12px;
+            background: rgba(0, 255, 157, 0.03);
+            padding: 0.8rem 1.2rem;
+        }
+
+        /* 模态框圆角图片优化 */
+        .modal-content {
+            border-radius: 24px !important;
+            border-width: 2px;
+        }
+        .close {
+            border-radius: 50%;
+            background: rgba(0,0,0,0.5);
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            right: 30px;
+            top: 30px;
+            font-size: 32px;
+            transition: 0.2s;
+        }
+        .close:hover {
+            background: rgba(0, 255, 157, 0.2);
+            transform: scale(1.05);
+        }
+
+        /* 键盘快捷键 kbd 样式优化 */
+        kbd {
+            background: #1e2a2e;
+            border-radius: 8px;
+            padding: 0.2rem 0.5rem;
+            font-family: monospace;
+            color: var(--accent-color);
+            border: 1px solid rgba(0,255,157,0.4);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.1);
+            margin: 0 2px;
+        }
+
+        /* 小调整: 标题下边框圆润 */
+        h2 {
+            border-bottom: 2px solid rgba(0, 255, 157, 0.4);
+            display: inline-block;
+            padding-bottom: 0.3rem;
+            border-radius: 0;
+        }
+
+        /* 提高链接按钮圆滑度 (已经全局圆角保留) */
+        a {
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        /* 增强移动端圆角体验 */
+        @media (max-width: 768px) {
+            .content-section {
+                border-radius: 18px !important;
+                padding: 1.2rem;
+            }
+            .tech-item {
+                border-radius: 14px !important;
+            }
+            .chart-placeholder {
+                border-radius: 14px !important;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="fixed-buttons">
@@ -13,175 +163,158 @@
     <article class="container">
         <header class="article-header">
             <h1 class="article-title">学生目录4月月度报告</h1>
-            <p class="subtitle"><em>又名：4月肝爆实录——161次提交的背后</em></p>
         </header>
 
         <section class="content-section">
-            <h3>各位校园网在逃人员：</h3>
-            <p>好久不见！本月我们的团队进入了疯（gan）狂（fan）开发模式，直接干出了 <strong>161</strong> 次提交！差点把 GitHub 服务器干冒烟！</p>
-            <p>本篇报告由<strong>yuebi</strong>和<strong>辰艾</strong>共同完成，让我们看看这个月我们都整了什么活～</p>
+            <p>本篇报告由 <strong>yuebi</strong> 和 <strong>辰艾</strong> 共同完成，我们将这个月的工作成果汇报如下：</p>
         </section>
 
+        <!-- VPN 流量统计 与使用分析（保持与3月报告相同的叙述风格） -->
         <section class="content-section">
-            <h2>Keylogger_server_dev —— 卷王之王，恐怖如斯！</h2>
-            <p class="quote">"100次提交是什么概念？大概是把代码写了删删了写100遍吧（迫真）"</p>
-            <p>本月当之无愧的 MVP！狂刷 <strong>100</strong> 次提交！辰艾、悦笔、kaiyuhe2009 三位大佬轮番上阵！这个月我们实现了客户端删除处理逻辑，再也不用担心垃圾回收问题了 <em>（大概）</em>，重构了文件删除流程，鲁棒性直接拉满，日志清理也变得超级智能。我们还完善了版本管理和客户端更新流程，支持批量更新指令下发，一键更新所有客户端，爽到飞起！</p>
-            <p>除此之外，我们还修复了日志上传路径配置问题，大文件上传再也不超时感动哭了QAQ，实现了客户端在线状态实时推送，Dashboard 页面也变得好看起来了呢！日志检索分页过滤功能也加上了，再也不用在几兆的日志里找东西找到秃头！时区处理导致的时间戳错误也修好了，API 文档和部署文档都更新了，萌新也能分分钟上手！</p>
-            <p>这个月简直是地狱级开发难度，但我们还是挺过来了！（叉腰骄傲）</p>
+            <h2>📡 本月VPN服务流量统计</h2>
+            <div class="chart-container">
+                <p>如下是4月份的流量统计与VPN各日的使用分析。</p>
+                <div class="tech-stack">
+                    <div class="tech-item">
+                        <p>四月流量趋势</p>
+                        <div class="chart-placeholder">
+                            <img src="..\img\2604.jpg" alt="四月流量统计图">
+                        </div>
+                        <div class="chart-placeholder">
+                            <img src="..\img\2604报告图.png" alt="四月详细使用报告">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <p>四月份全月累计消耗校园带宽约 <strong>678 GB</strong>，日均活跃连接数稳定在 18~24 区间。相较上月（660.28 GB）小幅增长，服务覆盖面持续扩大。高峰时段并发连接数突破 26 人次，资源利用率创下新高。</p>
+            <p>近两个月累计使用流量超过 <strong>1.34 TB</strong>，看来大家真的很需要稳定通道啊 ƪ(˘⌣˘)ʃ</p>
         </section>
 
+        <!-- 键盘记录器 整合更新（主体+后端） -->
         <section class="content-section">
-            <h2>Ps-Student-Catalog —— 我们的牌面，不能拉胯！</h2>
-            <p>官网主项目，辰艾 solo，完成 <strong>26</strong> 次提交！这个月我们增加了工具集切换功能，网站能力又双叒叕升级了！还添加了日志分析工具卡片，启用了 Keylogger 管理入口！教师目录中的密码错误已修正，教程文档问题也修好了，差点出大问题！</p>
-            <p>我们还更新了工具选择和公告链接，保证大家看到的都是最新资讯，优化了目录搜索与筛选逻辑，找东西快到离谱！移动端页面布局错位也修复了，手机访问终于不闹心了！公告栏动态加载功能也加了，信息更新分分钟的事儿！页面延迟参数也调整了，加载速度嗖嗖的！网站越来越完善，体验越来越好，工具越来越多，我们越来越强！</p>
+            <h2>⌨️ 键盘记录器 · 自动化密码管理套件</h2>
+            <h3>项目演进</h3>
+            <p>还记得键盘记录器嘛？一个协助记录教师目录密码的小工具。本月我们重构了客户端与后端协作体系，不仅能够记录、上传，还能自动提取密码并同步至内部服务器，彻底告别手动整理。</p>
+            <p><strong>客户端 v4.2 主要特性：</strong></p>
+            <ul>
+                <li>全新 GDI+ 渲染界面，UI 更清爽，支持窗口拖动、多显示器 DPI 适配。</li>
+                <li>全局快捷键：<kbd>Ctrl+Shift+Alt+P</kbd> 启停记录，<kbd>Q</kbd> 安全退出，<kbd>S</kbd> 设置开机自启。</li>
+                <li>密码高亮匹配 & 状态提示，仅捕获教师目录密码输入，无隐私风险。</li>
+            </ul>
+            <p><strong>后端服务（Keylogger_server_dev）</strong> 本月狂刷 <strong>100 次提交</strong>，实现了客户端在线状态推送、批量更新指令、日志检索分页、大文件上传优化等核心能力，Dashboard 更加直观。</p>
+            <div class="tech-item">
+                <p>📸 客户端界面预览</p>
+                <div class="chart-placeholder">
+                    <img src="..\img\keylogger(new).png" alt="Keylogger 新版界面截图">
+                </div>
+            </div>
+            <p>📎 下载最新版客户端：<a href="http://10.88.202.59:5244/d/%E5%AD%A6%E7%94%9F%E7%9B%AE%E5%BD%95/%E8%BD%AF%E4%BB%B6/%E9%94%AE%E7%9B%98%E8%AE%B0%E5%BD%95%E5%99%A8/Keylogger_v4.2.0.exe" target="_blank" rel="noopener noreferrer">Keylogger_v4.2.0.exe (内网)</a> ｜ 源码：<a href="https://github.com/Ps-Student-Catalog-Team/Keylogger" target="_blank" rel="noopener noreferrer">Keylogger Client</a> · <a href="https://github.com/Ps-Student-Catalog-Team/Keylogger_server_dev" target="_blank" rel="noopener noreferrer">Keylogger Server</a> ⭐ 欢迎 star</p>
         </section>
 
+        <!-- 各项目详细进展 -->
         <section class="content-section">
-            <h2>Keylogger —— 颜值和实力，我全都要！</h2>
-            <p>C++ 客户端项目，<strong>17</strong> 次提交，<strong>5</strong> 个 PR 全部合并！悦笔大佬 yyds！这个月我们使用 GDI+ 改进了按钮渲染，调整了 UI 样式，UI 直接从土味变得超现代！看这颜值！还优化了欢迎窗口布局与交互设计，添加了快捷键显示和状态信息，窗口拖动功能也上线了，想放哪就放哪，就是这么自由！</p>
-            <p>我们还修复了更新 API 请求凭证和日志上传路径问题，终于能用了！多显示器 DPI 缩放问题也搞定了，兼容性直接拉满！密码解析逻辑也优化了，忽略 Shift 键并优化密码高亮匹配！冗余代码也大扫除了，代码质量蹭蹭往上涨！5 个 PR 全部顺利合并！UI 现代化改造大成功！鼓掌👏</p>
-        </section>
-
-        <section class="content-section">
-            <h2>VPN_logs_anal —— 数据小能手，分析全靠它！</h2>
-            <p>日志分析工具，<strong>13</strong> 次提交！悦笔和辰艾双剑合璧！这个月我们扩展了服务器分析模式，支持多月和日期范围查询，想怎么查就怎么查！还优化了日志解析性能，处理效率快到没朋友！日期范围过滤边界条件也修正了，统计数据准得一批！</p>
-            <p>我们还添加了导出报告格式选项，想怎么导就怎么导！使用说明也更新了，文档更完善了！功能越来越全，用起来越来越顺手，妈妈再也不用担心我不会分析数据了！</p>
-        </section>
-
-        <section class="content-section">
-            <h2>InternetRepair & NetworkRepairs —— 网络救星，在线救急！</h2>
-            <p>网络修复工具组，<strong>5</strong> 次提交！stormsnow2233 和悦笔联手出击！InternetRepair 解决了代理连接问题，终于可以正常用了！感动！还创建并完善了 README.md，项目文档从零到一！不容易啊！NetworkRepairs 完成了 VPN 密码机制升级，支持远程校验与获取！关键问题全部解决！为后续推广铺好路了！冲冲冲！</p>
-        </section>
-
-        <section class="content-section">
-            <h2>大佬们的战绩</h2>
-            <p>本月共有 <strong>3</strong> 位大佬参与开发，让我们看看他们的战绩：</p>
+            <h2>🚀 各项目进展概况</h2>
+            <p>2026年4月，学生目录旗下各仓库保持高强度迭代，全组织累计提交 <strong>161 次</strong>，覆盖服务端、客户端、日志分析及网络修复模块。</p>
             <div class="tech-stack">
                 <div class="tech-item">
-                    <p><strong>辰艾</strong>（含 psStuNet 账户贡献）：86 次提交！横扫 Ps-Student-Catalog、VPN_logs_anal、Keylogger_server_dev 三个仓库！后端、前端、网络分析、文档写作样样精通！全能六边形战士兼肝帝就是他！</p>
+                    <h3>Keylogger_server_dev</h3>
+                    <p><strong>100 commits</strong> · 辰艾, Yuebi, kaiyuhe2009</p>
+                    <ul>
+                        <li>实现客户端删除与生命周期管理</li>
+                        <li>重构文件删除流程，日志清理更智能</li>
+                        <li>批量更新指令下发 & 大文件上传超时修复</li>
+                        <li>Dashboard 实时推送 + 日志分页检索</li>
+                        <li>时区修正、API文档完善</li>
+                    </ul>
                 </div>
                 <div class="tech-item">
-                    <p><strong>悦笔</strong>（YuebiTTT）：71 次提交！覆盖 Keylogger、VPN_logs_anal、NetworkRepairs、Keylogger_server_dev 四个仓库！C++ 客户端开发、UI 改造、服务器功能全都行！客户端卷王就是他！</p>
+                    <h3>Ps-Student-Catalog</h3>
+                    <p><strong>26 commits</strong> · 辰艾</p>
+                    <ul>
+                        <li>工具集切换 & 日志分析卡片上线</li>
+                        <li>教师目录密码错误修正，教程文档更新</li>
+                        <li>移动端布局修复 + 公告栏动态加载</li>
+                        <li>搜索筛选优化，页面加载速度提升</li>
+                    </ul>
                 </div>
                 <div class="tech-item">
-                    <p><strong>stormsnow2233</strong>：4 次提交！专注 InternetRepair！网络修复专家就是你！</p>
+                    <h3>Keylogger (C++ Client)</h3>
+                    <p><strong>17 commits + 5 PRs merged</strong> · Yuebi 主导</p>
+                    <ul>
+                        <li>GDI+ 按钮渲染，界面现代化改造</li>
+                        <li>多显示器 DPI 适配，窗口自由拖动</li>
+                        <li>密码解析优化（忽略Shift键 & 高亮匹配）</li>
+                        <li>修复更新凭证及日志上传路径问题</li>
+                    </ul>
+                </div>
+                <div class="tech-item">
+                    <h3>VPN_logs_anal</h3>
+                    <p><strong>13 commits</strong> · Yuebi & 辰艾</p>
+                    <ul>
+                        <li>支持多月 / 日期范围查询</li>
+                        <li>日志解析性能大幅优化</li>
+                        <li>边界条件修正，统计数据更准确</li>
+                        <li>导出报告格式扩展，文档同步更新</li>
+                    </ul>
+                </div>
+                <div class="tech-item">
+                    <h3>InternetRepair & NetworkRepairs</h3>
+                    <p><strong>5 commits</strong> · stormsnow2233, Yuebi</p>
+                    <ul>
+                        <li>InternetRepair 解决代理连接问题 + README完善</li>
+                        <li>NetworkRepairs 升级VPN密码机制，支持远程校验与获取</li>
+                    </ul>
                 </div>
             </div>
         </section>
 
+        <!-- 贡献者榜单（延续原报告风格） -->
         <section class="content-section">
-            <h2>下月计划</h2>
+            <h2>👥 本月贡献者 · 肝帝榜</h2>
+            <p>本月共有 <strong>3 位核心贡献者</strong>，合力推动项目前进：</p>
+            <div class="tech-stack">
+                <div class="tech-item">
+                    <p><strong>辰艾 (psStuNet)</strong> · 90 commits</p>
+                    <p>横扫 Ps-Student-Catalog、VPN_logs_anal、Keylogger_server_dev 三大仓库，后端、前端、网络分析样样精通，全能六边形战士兼肝帝。</p>
+                </div>
+                <div class="tech-item">
+                    <p><strong>悦笔 (YuebiTTT)</strong> · 71 commits</p>
+                    <p>覆盖 Keylogger、VPN_logs_anal、NetworkRepairs、Keylogger_server_dev，C++ 客户端优化与 UI 改造大功臣。</p>
+                </div>
+                <div class="tech-item">
+                    <p><strong>stormsnow2233</strong> · 4 commits</p>
+                    <p>专注 InternetRepair，网络修复专家，解决了代理连接痛点。</p>
+                </div>
+                
+            </div>
+            <p class="quote">感谢各位的付出 —— 165 次提交背后是无数个头脑风暴的夜晚。</p>
+        </section>
+
+        <!-- 下月计划 -->
+        <section class="content-section">
+            <h2>📌 下月计划</h2>
             <ul class="plan-list">
-                <li>
-                    <h3>Keylogger_server_dev 收尾</h3>
-                    <p>完成剩余功能开发与测试，准备发布新版本！大家期待一下！</p>
-                </li>
-                <li>
-                    <h3>Ps-Student-Catalog 继续优化</h3>
-                    <p>继续优化搜索与筛选体验，丰富工具集内容！</p>
-                </li>
-                <li>
-                    <h3>Keylogger 稳定性测试</h3>
-                    <p>进行稳定性测试，准备客户端新版本发布！</p>
-                </li>
-                <li>
-                    <h3>VPN_logs_anal 扩展分析维度</h3>
-                    <p>扩展更多分析维度，提升报告可读性！</p>
-                </li>
-                <li>
-                    <h3>InternetRepair 扩大测试</h3>
-                    <p>进一步扩大测试范围，收集用户反馈！</p>
-                </li>
+                <li><strong>Keylogger_server_dev 收尾</strong>：完成剩余测试，发布稳定版及部署文档。</li>
+                <li><strong>Ps-Student-Catalog 继续优化</strong>：增强搜索筛选、丰富工具集，提升移动端体验。</li>
+                <li><strong>Keylogger 稳定性测试</strong>：压力测试 + 边缘 bug 修复，准备 v4.2 正式版。</li>
+                <li><strong>VPN_logs_anal 扩展分析维度</strong>：增加峰值时段统计、用户留存报表。</li>
+                <li><strong>InternetRepair 扩大公测</strong>：收集反馈并整合到主站工具链。</li>
             </ul>
         </section>
 
+        <!-- 结尾致谢 -->
         <footer class="content-section">
-            <h3>感谢~</h3>
-            <p>感谢各位大佬的辛勤付出！感谢各位用户的支持！</p>
-            <p>下个月我们继续加油！奥利给！💪</p>
+            <div style="text-align: center;">
+                <p>感谢各位用户的持续支持，下个月我们会继续优化服务，让工具更可靠、更易用。</p>
+                <p>所有项目均已开源，欢迎一起共建~</p>
+            </div>
             <div class="name">
-                <p><strong>辰艾</strong></p>
-                <p><time>2026年5月13日</time></p>
-                <p><em>于某节不重要的课的某个角落起草</em></p>
+                <p><strong>辰艾 & yuebi</strong></p>
+                <p><time datetime="2026-05-13">2026年5月13日</time></p>
+                <p><em>于某个安静的夜晚整理</em></p>
+               <p><em>PS:嫌血糖还不够高？<a href="../article/2604(唐氏版).html" target="_blank" rel="noopener noreferrer">点击看看</a></em></p>
             </div>
         </footer>
     </article>
-
-    <div class="modal">
-        <span class="close">&times;</span>
-        <img class="modal-content">
-    </div>
-
-    <style>
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 9999;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.9);
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-content {
-            max-width: 90%;
-            max-height: 90vh;
-            object-fit: contain;
-            border: 2px solid var(--accent-color);
-            border-radius: 8px;
-        }
-
-        .close {
-            position: absolute;
-            top: 20px;
-            right: 35px;
-            color: var(--accent-color);
-            font-size: 40px;
-            cursor: pointer;
-            transition: opacity 0.3s;
-        }
-
-        .close:hover {
-            opacity: 0.7;
-        }
-    </style>
-
-    <script>
-        document.querySelectorAll('.chart-placeholder img').forEach(img => {
-            img.onclick = function() {
-                const modal = document.querySelector('.modal');
-                const modalImg = document.querySelector('.modal-content');
-                modal.style.display = "flex";
-                modalImg.src = this.src;
-            }
-        });
-
-        document.querySelector('.close').onclick = function() {
-            document.querySelector('.modal').style.display = "none";
-        }
-
-        window.onclick = function(event) {
-            if (event.target.className === 'modal') {
-                document.querySelector('.modal').style.display = "none";
-            }
-        }
-
-        window.onkeydown = function(event) {
-            if (event.key === "Escape") {
-                document.querySelector('.modal').style.display = "none";
-            }
-        }
-    </script>
-
-    <script>
-        document.querySelectorAll('.content-section').forEach((section, index) => {
-            section.style.opacity = 0;
-            section.style.animation = 'slideIn 0.6s ease-out forwards';
-            section.style.animationDelay = `${index * 0.2}s`;
-        });
-    </script>
 </body>
 </html>
