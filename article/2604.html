@@ -6,155 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <!-- 完全沿用原始样式表，保证主题色彩、装饰线条与动画基调不变 -->
     <link rel="stylesheet" type="text/css" href="../css/style(article).css">
-    <style4>
-        /* 增强圆角与视觉精致度 —— 完全维持原有风格 (暗色系 + neon green) */
-        /* 使所有主要容器圆角更柔和，同时保留原始背景纹理 */
-        .content-section {
-            border-radius: 20px !important;          /* 大卡片圆角升级 */
-            transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);4
-            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
-        }
-        .content-section:hover {
-            box-shadow: 0 12px 24px rgba(0, 255, 157, 0.08);
-            transform: translateY(-3px);
-        }
-
-        /* 技术栈卡片 (tech-item) 圆角提升 & 轻量玻璃质感 */
-        .tech-item {
-            border-radius: 16px !important;
-            background: rgba(0, 255, 157, 0.08);
-            backdrop-filter: blur(2px);
-            padding: 1.2rem;
-            transition: all 0.25s ease;
-            border: 1px solid rgba(0, 255, 157, 0.12);
-        }
-        .tech-item:hover {
-            background: rgba(0, 255, 157, 0.12);
-            border-color: rgba(0, 255, 157, 0.3);
-            transform: translateY(-2px);
-        }
-
-        /* 图片占位框 (chart-placeholder) 更圆润，图片本身也有圆角 */
-        .chart-placeholder {
-            border-radius: 18px !important;
-            background: rgba(0, 0, 0, 0.35);
-            border: 1px solid rgba(0, 255, 157, 0.25);
-            padding: 8px;
-            transition: all 0.2s;
-        }
-        .chart-placeholder img {
-            border-radius: 12px !important;
-            transition: transform 0.25s ease, box-shadow 0.2s;
-        }
-        .chart-placeholder img:hover {
-            transform: scale(1.01);
-            box-shadow: 0 8px 18px rgba(0, 255, 157, 0.2);
-        }
-
-        /* 返回首页按钮圆角加大 & 悬浮细节 */
-        .floating-btn, .home-btn {
-            border-radius: 40px !important;
-            padding: 10px 24px !important;
-            background: rgba(20, 20, 30, 0.85);
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(0, 255, 157, 0.6);
-            transition: all 0.25s;
-        }
-        .floating-btn:hover, .home-btn:hover {
-            background: rgba(0, 255, 157, 0.2);
-            border-color: var(--accent-color);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(0, 255, 157, 0.2);
-        }
-
-        /* 下月计划列表项 (plan-list 样式, 尽管原html用ul但class可能缺失, 额外美化) */
-        .plan-list, .content-section ul:not(.tech-stack ul) {
-            list-style: none;
-            padding-left: 0;
-        }
-        .plan-list li, .content-section ul:not(.tech-stack ul) li {
-            background: rgba(0, 255, 157, 0.04);
-            border-radius: 16px;
-            margin: 0.8rem 0;
-            padding: 0.8rem 1.2rem;
-            border-left: 3px solid var(--accent-color);
-            transition: all 0.2s;
-        }
-        .plan-list li:hover, .content-section ul:not(.tech-stack ul) li:hover {
-            background: rgba(0, 255, 157, 0.09);
-            transform: translateX(4px);
-        }
-
-        /* 引用块圆角微调 */
-        .quote {
-            border-radius: 12px;
-            background: rgba(0, 255, 157, 0.03);
-            padding: 0.8rem 1.2rem;
-        }
-
-        /* 模态框圆角图片优化 */
-        .modal-content {
-            border-radius: 24px !important;
-            border-width: 2px;
-        }
-        .close {
-            border-radius: 50%;
-            background: rgba(0,0,0,0.5);
-            width: 44px;
-            height: 44px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            right: 30px;
-            top: 30px;
-            font-size: 32px;
-            transition: 0.2s;
-        }
-        .close:hover {
-            background: rgba(0, 255, 157, 0.2);
-            transform: scale(1.05);
-        }
-
-        /* 键盘快捷键 kbd 样式优化 */
-        kbd {
-            background: #1e2a2e;
-            border-radius: 8px;
-            padding: 0.2rem 0.5rem;
-            font-family: monospace;
-            color: var(--accent-color);
-            border: 1px solid rgba(0,255,157,0.4);
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.1);
-            margin: 0 2px;
-        }
-
-        /* 小调整: 标题下边框圆润 */
-        h2 {
-            border-bottom: 2px solid rgba(0, 255, 157, 0.4);
-            display: inline-block;
-            padding-bottom: 0.3rem;
-            border-radius: 0;
-        }
-
-        /* 提高链接按钮圆滑度 (已经全局圆角保留) */
-        a {
-            border-radius: 6px;
-            transition: all 0.2s;
-        }
-
-        /* 增强移动端圆角体验 */
-        @media (max-width: 768px) {
-            .content-section {
-                border-radius: 18px !important;
-                padding: 1.2rem;
-            }
-            .tech-item {
-                border-radius: 14px !important;
-            }
-            .chart-placeholder {
-                border-radius: 14px !important;
-            }
-        }
-    </style>
 </head>
 <body>
     <div class="fixed-buttons">
@@ -172,8 +23,9 @@
         <!-- VPN 流量统计 与使用分析（保持与3月报告相同的叙述风格） -->
         <section class="content-section">
             <h2>📡 本月VPN服务流量统计</h2>
+            <p>如下是4月份的流量统计与VPN各日的使用分析。</p>
             <div class="chart-container">
-                <p>如下是4月份的流量统计与VPN各日的使用分析。</p>
+                
                 <div class="tech-stack">
                     <div class="tech-item">
                         <p>四月流量趋势</p>
