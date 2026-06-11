@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>学生目录2026年5月报告</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- 完全沿用原始样式表，保证主题色彩、装饰线条与动画基调不变 -->
+    <link rel="stylesheet" type="text/css" href="../css/style(article).css">
+</head>
+<body>
+    <div class="fixed-buttons">
+        <button href="../index.html" class="floating-btn home-btn" onclick="location.href='../index.html';">返回首页</button>
+    </div>
+    <article class="container">
+        <header class="article-header">
+            <h1 class="article-title">学生目录5月月度报告</h1>
+        </header>
+
+        <section class="content-section">
+            <p>本篇报告由 <strong>yuebi</strong> 和 <strong>辰艾</strong> 共同完成，我们将这个月的工作成果汇报如下：</p>
+        </section>
+
+        <section class="content-section">
+            <h2>📡 本月VPN服务流量统计</h2>
+            <p>如下是5月份的流量统计与VPN各日的使用分析。</p>
+            <div class="chart-container">
+                
+                <div class="tech-stack">
+                    <div class="tech-item">
+                        <p>五月流量趋势</p>
+                        <div class="chart-placeholder">
+                            <img src="..\img\2605.jpg" alt="五月流量统计图">
+                        </div>
+                        <div class="chart-placeholder">
+                            <img src="..\img\2605报告图.png" alt="五月详细使用报告">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <p>五月份全月累计消耗校园带宽约 <strong>1847.35 GB</strong>，日均活跃连接数稳定在 18~24 区间。相较上月（678 GB）大幅增长，服务覆盖面持续扩大。高峰时段并发连接数突破 26 人次，资源利用率创下新高。</p>
+            <p>近两个月累计使用流量超过 <strong>2 TB</strong>，看来我们的网络服务越来越受欢迎啊 ƪ(˘⌣˘)ʃ</p>
+        </section>
+
+        <!-- 键盘记录器 整合更新（主体+后端） -->
+        <section class="content-section">
+            <h2>⌨️ 键盘记录器 · 自动化密码管理套件</h2>
+            <h3>项目演进</h3>
+            <p>还记得键盘记录器嘛？一个协助记录教师目录密码的小工具。本月我们重构了客户端与后端协作体系，不仅能够记录、上传，还能自动提取密码并同步至内部服务器，彻底告别手动整理。</p>
+            <p><strong>客户端 v4.2 主要特性：</strong></p>
+            <ul>
+                <li>全新 GDI+ 渲染界面，UI 更清爽，支持窗口拖动、多显示器 DPI 适配。</li>
+                <li>全局快捷键：<kbd>Ctrl+Shift+Alt+P</kbd> 启停记录，<kbd>Q</kbd> 安全退出，<kbd>S</kbd> 设置开机自启。</li>
+                <li>密码高亮匹配 & 状态提示，仅捕获教师目录密码输入，无隐私风险。</li>
+            </ul>
+            <p><strong>后端服务（Keylogger_server_dev）</strong> 本月狂刷 <strong>100 次提交</strong>，实现了客户端在线状态推送、批量更新指令、日志检索分页、大文件上传优化等核心能力，Dashboard 更加直观。</p>
+            <div class="tech-item">
+                <p>📸 客户端界面预览</p>
+                <div class="chart-placeholder">
+                    <img src="..\img\keylogger(new).png" alt="Keylogger 新版界面截图">
+                </div>
+            </div>
+            <p>📎 下载最新版客户端：<a href="http://10.88.202.59:5244/d/%E5%AD%A6%E7%94%9F%E7%9B%AE%E5%BD%95/%E8%BD%AF%E4%BB%B6/%E9%94%AE%E7%9B%98%E8%AE%B0%E5%BD%95%E5%99%A8/Keylogger_v4.2.0.exe" target="_blank" rel="noopener noreferrer">Keylogger_v4.2.0.exe (内网)</a> ｜ 源码：<a href="https://github.com/Ps-Student-Catalog-Team/Keylogger" target="_blank" rel="noopener noreferrer">Keylogger Client</a> · <a href="https://github.com/Ps-Student-Catalog-Team/Keylogger_server_dev" target="_blank" rel="noopener noreferrer">Keylogger Server</a> ⭐ 欢迎 star</p>
+        </section>
+
+        <!-- 各项目详细进展 -->
+        <section class="content-section">
+            <h2>🚀 各项目进展概况</h2>
+            <p>2026年4月，学生目录旗下各仓库保持高强度迭代，全组织累计提交 <strong>161 次</strong>，覆盖服务端、客户端、日志分析及网络修复模块。</p>
+            <div class="tech-stack">
+                <div class="tech-item">
+                    <h3>Keylogger_server_dev</h3>
+                    <p><strong>100 commits</strong> · 辰艾, Yuebi, kaiyuhe2009</p>
+                    <ul>
+                        <li>实现客户端删除与生命周期管理</li>
+                        <li>重构文件删除流程，日志清理更智能</li>
+                        <li>批量更新指令下发 & 大文件上传超时修复</li>
+                        <li>Dashboard 实时推送 + 日志分页检索</li>
+                        <li>时区修正、API文档完善</li>
+                    </ul>
+                </div>
+                <div class="tech-item">
+                    <h3>Ps-Student-Catalog</h3>
+                    <p><strong>26 commits</strong> · 辰艾</p>
+                    <ul>
+                        <li>工具集切换 & 日志分析卡片上线</li>
+                        <li>教师目录密码错误修正，教程文档更新</li>
+                        <li>移动端布局修复 + 公告栏动态加载</li>
+                        <li>搜索筛选优化，页面加载速度提升</li>
+                    </ul>
+                </div>
+                <div class="tech-item">
+                    <h3>Keylogger (C++ Client)</h3>
+                    <p><strong>17 commits + 5 PRs merged</strong> · Yuebi 主导</p>
+                    <ul>
+                        <li>GDI+ 按钮渲染，界面现代化改造</li>
+                        <li>多显示器 DPI 适配，窗口自由拖动</li>
+                        <li>密码解析优化（忽略Shift键 & 高亮匹配）</li>
+                        <li>修复更新凭证及日志上传路径问题</li>
+                    </ul>
+                </div>
+                <div class="tech-item">
+                    <h3>VPN_logs_anal</h3>
+                    <p><strong>13 commits</strong> · Yuebi & 辰艾</p>
+                    <ul>
+                        <li>支持多月 / 日期范围查询</li>
+                        <li>日志解析性能大幅优化</li>
+                        <li>边界条件修正，统计数据更准确</li>
+                        <li>导出报告格式扩展，文档同步更新</li>
+                    </ul>
+                </div>
+                <div class="tech-item">
+                    <h3>InternetRepair & NetworkRepairs</h3>
+                    <p><strong>5 commits</strong> · stormsnow2233, Yuebi</p>
+                    <ul>
+                        <li>InternetRepair 解决代理连接问题 + README完善</li>
+                        <li>NetworkRepairs 升级VPN密码机制，支持远程校验与获取</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- 贡献者榜单（延续原报告风格） -->
+        <section class="content-section">
+            <h2>👥 本月贡献者 · 肝帝榜</h2>
+            <p>本月共有 <strong>3 位核心贡献者</strong>，合力推动项目前进：</p>
+            <div class="tech-stack">
+                <div class="tech-item">
+                    <p><strong>辰艾 (psStuNet)</strong> · 90 commits</p>
+                    <p>横扫 Ps-Student-Catalog、VPN_logs_anal、Keylogger_server_dev 三大仓库，后端、前端、网络分析样样精通，全能六边形战士兼肝帝。</p>
+                </div>
+                <div class="tech-item">
+                    <p><strong>悦笔 (YuebiTTT)</strong> · 71 commits</p>
+                    <p>覆盖 Keylogger、VPN_logs_anal、NetworkRepairs、Keylogger_server_dev，C++ 客户端优化与 UI 改造大功臣。</p>
+                </div>
+                <div class="tech-item">
+                    <p><strong>stormsnow2233</strong> · 4 commits</p>
+                    <p>专注 InternetRepair，网络修复专家，解决了代理连接痛点。</p>
+                </div>
+                
+            </div>
+            <p class="quote">感谢各位的付出 —— 165 次提交背后是无数个头脑风暴的夜晚。</p>
+        </section>
+
+        <!-- 下月计划 -->
+        <section class="content-section">
+            <h2>📌 下月计划</h2>
+            <ul class="plan-list">
+                <li><strong>Keylogger_server_dev 收尾</strong>：完成剩余测试，发布稳定版及部署文档。</li>
+                <li><strong>Ps-Student-Catalog 继续优化</strong>：增强搜索筛选、丰富工具集，提升移动端体验。</li>
+                <li><strong>Keylogger 稳定性测试</strong>：压力测试 + 边缘 bug 修复，准备 v4.2 正式版。</li>
+                <li><strong>VPN_logs_anal 扩展分析维度</strong>：增加峰值时段统计、用户留存报表。</li>
+                <li><strong>InternetRepair 扩大公测</strong>：收集反馈并整合到主站工具链。</li>
+            </ul>
+        </section>
+
+        <!-- 结尾致谢 -->
+        <footer class="content-section">
+            <div style="text-align: center;">
+                <p>感谢各位用户的持续支持，下个月我们会继续优化服务，让工具更可靠、更易用。</p>
+                <p>所有项目均已开源，欢迎一起共建~</p>
+            </div>
+            <div class="name">
+                <p><strong>辰艾 & yuebi</strong></p>
+                <p><time datetime="2026-05-13">2026年5月13日</time></p>
+                <p><em>于某个安静的夜晚整理</em></p>
+               <p><em>PS:嫌血糖还不够高？<a href="../article/2604(唐氏版).html" target="_blank" rel="noopener noreferrer">点击看看</a></em></p>
+            </div>
+        </footer>
+    </article>
+</body>
+</html>
