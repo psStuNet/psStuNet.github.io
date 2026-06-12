@@ -1,3 +1,8 @@
+:root {
+    --color-1: #00ffc8;
+    --color-2: #00d4ff;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -29,9 +34,26 @@ body {
     font-size: 0.95rem;
     letter-spacing: 0.04em;
     cursor: pointer;
+    -webkit-backdrop-filter: blur(16px);
     backdrop-filter: blur(16px);
     box-shadow: 0 0 20px rgba(0, 255, 200, 0.18);
     transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+button:focus-visible,
+a:focus-visible,
+.tool-btn:focus-visible {
+    outline: 2px solid rgba(0, 255, 200, 0.9);
+    outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
 }
 
 .theme-toggle:hover {
@@ -586,7 +608,7 @@ header {
 }
 
 .capsule-card:hover {
-    transform: perspective(1000px) rotateX(5deg) rotateY(-2deg) translateZ(20px) scale(1.02);
+    transform: translateY(-4px) scale(1.01);
     box-shadow: 
         0 20px 60px rgba(0, 0, 0, 0.4),
         0 0 40px rgba(0, 255, 200, 0.3),
@@ -596,7 +618,7 @@ header {
 }
 
 .time-capsule:nth-child(even) .capsule-card:hover {
-    transform: perspective(1000px) rotateX(5deg) rotateY(2deg) translateZ(20px) scale(1.02);
+    transform: translateY(-4px) scale(1.01);
 }
 
 /* 胶囊头部 */
@@ -945,7 +967,11 @@ header {
     }
 
     .orbit-label {
-        display: none;
+        opacity: 0.9;
+        font-size: 0.72rem;
+        transform: translateX(-50%) translateY(4px);
+        max-width: 90px;
+        text-align: center;
     }
 
     .page-indicator {

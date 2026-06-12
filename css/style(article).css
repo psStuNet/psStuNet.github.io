@@ -92,6 +92,28 @@ body::before {
     }
 }
 
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 0.8;
+    }
+    50% {
+        transform: scale(1.03);
+        opacity: 1;
+    }
+}
+
+@keyframes shimmer {
+    0%, 100% {
+        opacity: 0.3;
+        box-shadow: 0 0 4px rgba(0, 255, 157, 0.25);
+    }
+    50% {
+        opacity: 0.7;
+        box-shadow: 0 0 12px rgba(0, 255, 157, 0.45);
+    }
+}
+
 /* 移除闪烁动画，保持简约 */
 /* 响应式设计 */
 /* 移动设备 */
@@ -129,6 +151,22 @@ body::before {
     margin: 0 auto;
     padding: 2rem 20px;
     box-sizing: border-box;
+}
+
+a:focus-visible,
+button:focus-visible,
+.floating-btn:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
 }
 
 /* 中等屏幕设备响应式设计 */
@@ -234,33 +272,28 @@ body::before {
         }
     }
 }
-a {
-    position: relative;
-    color: rgb(0, 189, 73) !important;
-    text-decoration: none;
-    padding: 5px 0;
-    transition: all 0.3s ease;
+article a,
+.content-section a,
+.plan-list a,
+.quote a,
+.chat-link {
+    color: var(--accent-color);
+    text-decoration: underline;
+    text-decoration-color: rgba(0, 255, 157, 0.45);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+    transition: color 0.2s ease, text-decoration-color 0.2s ease;
+    overflow-wrap: anywhere;
+    word-break: break-word;
 }
 
-a::after {
-    content: '';
-    position: absolute;
-    width: 0;
-    height: 2px;
-    bottom: 0;
-    left: 50%;
-    background: currentColor;
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-a:hover {
-    color: #00ff9d !important;
-    transform: translateY(-2px);
-}
-
-a:hover::after {
-    width: 100%;
-    left: 0;
+article a:hover,
+.content-section a:hover,
+.plan-list a:hover,
+.quote a:hover,
+.chat-link:hover {
+    color: #9dffd0;
+    text-decoration-color: var(--accent-color);
 }
 
 .home-btn {
@@ -369,7 +402,8 @@ font-style: italic;
 article ul {
 padding-left: 2em;
 margin: 1.5rem 0;
-list-style-type: "⇥";
+list-style-type: none;
+padding-left: 0;
 }
 
 article li {
@@ -502,7 +536,6 @@ article {
     padding: 1.5rem;
     background: rgba(255, 255, 255, 0.03);
     border-radius: 8px;
-    will-change: transform, opacity;
 }
 
 .fixed-buttons {
@@ -513,6 +546,7 @@ article {
     justify-content: center;
     top: 20px;
     left: 40px;
+    -webkit-backdrop-filter: blur(1px);
     backdrop-filter: blur(1px);
     position: fixed;
     z-index: 1000;
@@ -581,10 +615,10 @@ article {
 
 /* 奇数卡片（最后一行只有一个）自动水平居中，宽度与其他卡片一致 */
 .tech-stack .tech-item:last-child:nth-child(odd) {
-    grid-column: 1 / -1;          /* 占满整行 */
-    justify-self: center;          /* 水平居中 */
-    max-width: 500px;              /* 限制最大宽度，避免过宽 */
-    width: 100%;
+    grid-column: span 2;
+    justify-self: center;
+    max-width: 500px;
+    width: min(100%, 500px);
     margin: 0 auto;
 }
 /* ========== 修改结束 ========== */
@@ -596,7 +630,6 @@ article {
     width: 90%;
     max-width: 1000px;
     border-collapse: collapse;
-    margin: 2rem auto;
     margin: 2rem auto;
     font-size: 1.2rem; 
     opacity: 0;

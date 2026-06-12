@@ -9,6 +9,17 @@
     padding: 0;
     box-sizing: border-box;
     font-family: 'Noto Sans SC', system-ui, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+}
+
+button, input, textarea, select, .tools-toggle, .tool-item {
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+p, .log-content, li, a, code, pre, .link {
+    -webkit-user-select: text;
+    user-select: text;
 }
 
 body {
@@ -103,12 +114,11 @@ h1 {
     font-size: 2.8rem;
     margin-bottom: 2rem;
     position: relative;
-    animation: typewriter 1.2s steps(12) 0.5s both, 
-               blinkCursor 0.8s infinite;
-    overflow: hidden;
-    white-space: nowrap;
-    border-right: 2px solid var(--accent-color);
-    max-width: max-content;
+    animation: fadeInUp 0.8s ease-out 0.3s both;
+    overflow: visible;
+    white-space: normal;
+    border-right: 0;
+    max-width: 100%;
 }
 
 h2 {
@@ -120,7 +130,7 @@ h2 {
 }
 
 h3 {
-    font-size: 1.8rem;
+    font-size: 1.4rem;
     margin: 2rem 0 1rem;
     opacity: 0;
     animation: slideIn 0.6s ease-out 1.8s forwards;
@@ -130,14 +140,14 @@ h3 {
     position: sticky;
     top: 0;
     z-index: 100;
-    background: rgba(42, 42, 42, 0.95);
+    background: rgba(42, 42, 42, 0.72);
+    -webkit-backdrop-filter: blur(5px);
     backdrop-filter: blur(5px);
     padding: 15px 0;
     display: flex;
     justify-content: center;
     gap: 20px;
     transition: all 0.3s ease;
-    background: rgba(42, 42, 42, 0);
     border-bottom: 0 solid rgba(0, 255, 157, 0.3); 
     margin-bottom: 30px;
 }
@@ -442,16 +452,21 @@ a:active,
     filter: brightness(1.2);
 }
 
-* {
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    user-select: none;
+a:focus-visible,
+button:focus-visible,
+.floating-btn:focus-visible,
+.tools-toggle:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 3px;
 }
 
-p,
-.log-content {
-    -webkit-user-select: text;
-    user-select: text;
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
 }
 
 .tools-container {
@@ -496,7 +511,7 @@ p,
 }
 
 .tools-toggle:active {
-    animation: bounce 3.3s;
+    animation: bounce 0.2s;
 }
 
 .tools-menu {
