@@ -8,8 +8,9 @@
 </head>
 <body>
     <div class="fixed-buttons">
-        <button href="../index.html" class="floating-btn home-btn" onclick="location.href='../index.html';">返回首页</button>
+        <button class="floating-btn home-btn" onclick="location.href='../index.html';">返回首页</button>
     </div>
+
     <article class="container">
         <header class="article-header">
             <h1 class="article-title">学生目录九月月度报告</h1>
@@ -20,59 +21,139 @@
         </section>
 
         <section class="content-section">
-            <h2>📡 本月VPN服务流量统计</h2>
-            <p>如下是六月、九月份的流量统计与VPN各日的使用分析。</p>
+            <h2>一、本月VPN服务流量统计</h2>
+            <p>如下是六月、九月份的流量统计与VPN各日的使用分析。为了更直观地看到变化，我们把六月作为对照月一起放出。</p>
+
             <div class="chart-container">
-                
                 <div class="tech-stack">
                     <div class="tech-item">
                         <p>六月流量趋势</p>
-                        
                         <div class="chart-placeholder">
-                            <img src="..\img\2606报告图.png" alt="六月详细使用报告">
+                            <img src="../img/2606报告图.png" alt="六月详细使用报告">
                         </div>
                     </div>
                 </div>
             </div>
+
             <div class="chart-container">
-                
                 <div class="tech-stack">
                     <div class="tech-item">
                         <p>九月流量趋势</p>
                         <div class="chart-placeholder">
-                            <img src="..\img\2609.jpg" alt="九月流量统计图">
+                            <img src="../img/2609.png" alt="九月流量统计图">
                         </div>
                         <div class="chart-placeholder">
-                            <img src="..\img\2609报告图.png" alt="九月详细使用报告">
+                            <img src="../img/2609报告图.png" alt="九月详细使用报告">
                         </div>
                     </div>
                 </div>
             </div>
-            <p>六月份全月累计消耗校园带宽约 <strong>581.47GB</strong>，九月份全月累计消耗校园带宽约 <strong> </strong></p>
-            <p>近两个月累计使用流量超过 <strong>2 TB</strong>，看来大家真的很需要稳定通道啊 ƪ(˘⌣˘)ʃ</p>
+
+            <p>六月份全月累计消耗校园带宽约 <strong>581.47GB</strong>，九月份全月累计消耗校园带宽约 <strong>750.57GB</strong>。</p>
+            <p>近两个月累计使用流量超过 <strong>1.33 TB</strong>，看来这两个月大家使用也挺高的啊 ƪ(˘⌣˘)ʃ</p>
         </section>
 
         <section class="content-section">
-            <h2>功能更新-音乐网站</h2>
-            <h3></h3>
-            <p>本月我们增加了一个新功能--音乐网站，并增加了新的音乐资源分类，方便同学们在学习之余享受音乐。</p>
-            <p>该网站是由我们的成员--菀妙海耗时将近一个月，从无到有制作出来的。</P>
-            <P>网站通过将请求转发到服务器，再由服务器转发到互联网上，使使用者无须在本地配置网络，从而达到本地无网也可对音乐进行搜索、播放。</p>
-            <p>有了它，同学们再也不用每次想听新音乐时都要从网络上下载拷贝到班级电脑啦o(*^＠^*)o</p>
-            
-            <p>📎 下载最新版网页端：<a href="http://10.88.202.78:30000" target="_blank" rel="noopener noreferrer">音乐网站(内网)</a></p>
+            <h2>二、本月功能更新</h2>
+
+            <h3>（一）AI聊天室</h3>
+            <p>本月我们增加了一个新功能——AI聊天室，方便同学们在离网状态下使用。</p>
+            <p>该聊天室也依旧是由我们的成员<strong>菀妙海</strong>制作出来的。</p>
+            <p>聊天室通过将请求转发到服务器，再由服务器转发到互联网上，使使用者无须在本地配置网络，从而达到本地无网也可进行聊天。</p>
+            <p><strong>并且，我们已经着手构建一个适用于学校的AI聊天室版本给信息科老师进行教学，预计将在下个月上线。</strong></p>
+            <p>最新版网页端：<a href="http://10.88.202.78:8000" target="_blank" rel="noopener noreferrer">AI聊天室（内网）</a></p>
+
+            <h3>（二）音乐网站</h3>
+            <p>我们增加了一个新功能——音乐网站，并增加了新的音乐资源分类，方便同学们在学习之余享受音乐。</p>
+            <p>该网站是由我们的成员<strong>菀妙海</strong>耗时将近一个月，从无到有制作出来的。</p>
+            <p>网站通过将请求转发到服务器，再由服务器转发到互联网上，使使用者无须在本地配置网络，从而达到本地无网也可对音乐进行搜索、播放。</p>
+            <p>有了它，同学们再也不用每次想听新音乐时都要从网络上下载拷贝到班级电脑啦 o(*^＠^*)o</p>
+            <p>网页端：<a href="http://10.88.202.78:30000" target="_blank" rel="noopener noreferrer">音乐网站（内网）</a></p>
         </section>
-        
-
-
 
         <section class="content-section">
-            <h2>📌 下月计划</h2>
+            <h2>三、服务更新</h2>
+
+            <h3>（一）代理服务转变</h3>
+            <p>我们将原有的代理服务进行了转变，原有的服务是通过 gost 进行提供的，而现在我们将其转变为通过 <strong>v2rayN</strong> 进行提供。</p>
+            <p>通过这种方式，我们可以更好地管理和监控网络流量，同时也提高了服务的稳定性和安全性。</p>
+            <p>并且，本次服务变更还使得使用者可以直接连接外网。</p>
+            <p>点击了解如何给手机/电脑配置代理：<a href="http://10.88.202.78/public/tutorial/show.html?file=web#heading-2" class="btn btn-outline-primary">查看教程</a></p>
+
+            <h3>（二）存储服务转变</h3>
+            <p>本月我们也将原有的存储服务进行了转变，原本由 alist 进行提供，而现在我们将其转变为通过 <strong>openlist</strong> 进行提供。</p>
+            <p>在完成迁移之后，我们还为 openlist 前端套上了一套由团队成员 <strong>YuebiTTT</strong> 开发的玻璃拟态主题——<strong>openlist_beautification</strong>。该主题支持明暗双视频背景、自定义顶栏与底栏、搜索面板和快捷入口菜单，点击主题按钮时还会有从鼠标位置扩散的转场特效。整套方案由纯 CSS 与原生 JS 实现，不修改任何页面模板，后台粘贴两段代码即可生效。</p>
+            <p>原有 UI 经过这次优化后，界面更加简洁、易用、好看，同学们打开存储服务时的观感提升了不少。</p>
+            <p>项目均已开源，欢迎访问 <a href="https://github.com/YuebiTTT/openlist_beautification" target="_blank" rel="noopener noreferrer">openlist_beautification 项目主页</a> 一起共建～</p>
+            <p>如果你觉得这个项目对你有帮助，欢迎来给一个Star⭐哦~</p>
+        </section>
+
+        <section class="content-section">
+            <h2>四、硬件升级</h2>
+            <h3>我们将我们的服务器配置进行了升级</h3>
+            <p>我们升级了服务器配置，增加了内存和硬盘空间，以满足更高的需求。</p>
+            <p>目前服务器 CPU 为 <strong>Intel Xeon E5-2680 v4 @ 2.40GHz</strong>，内存已扩充至 <strong>28GB</strong>，实际运行中内存使用约 <strong>7GB</strong>，空闲内存保持在 <strong>24GB</strong> 左右。得益于这些升级，服务器能够更好地处理更多的请求，提高服务的响应速度。</p>
+            <p>从任务管理器的截图也能直观看到，在 2 小时 23 分钟的持续运行中，CPU 占用率稳定在 <strong>8%</strong> 上下，各核心负载曲线分布均匀，说明当前配置对日常流量有比较充裕的余量。</p>
+            <p>看着这么多框框和 28GB 的内存，真是不知道该怎么样才能喂饱这些性能怪兽 ヾ(≧▽≦*)o</p>
+            <p>当然，如果有什么想在我们服务器上跑的程序，也欢迎提出建议！</p>
+            <div class="tech-item">
+                <p>服务器配置</p>
+                <div class="chart-placeholder">
+                    <img src="../img/image.png" alt="服务器配置">
+                </div>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <h2>五、本月贡献者</h2>
+            <div class="tech-stack">
+                <div class="tech-item">
+                    <p><strong>辰艾</strong> · 报告整理、流量统计、主站维护</p>
+                    <p>负责本月报告撰写、六月与九月流量数据汇总，以及主站信息同步和项目协调。</p>
+                </div>
+                <div class="tech-item">
+                    <p><strong>菀妙海</strong> · AI聊天室、音乐网站</p>
+                    <p>本月两个新功能均由菀妙海完成，从请求转发架构到网页端体验都有参与，耗时近一个月。</p>
+                </div>
+                <div class="tech-item">
+                    <p><strong>YuebiTTT</strong> · openlist_beautification</p>
+                    <p>虽然已经毕业，但依然为存储服务提供了前端美化主题，支持明暗双视频背景、自定义顶栏底栏等功能。</p>
+                </div>
+            </div>
+            <p class="quote">感谢各位的付出，正是这些提交让工具矩阵更加可靠。</p>
+        </section>
+
+        <section class="content-section">
+            <h2>六、附：GitHub 组织仓库索引</h2>
+            <p>下面是学生目录在 GitHub 上托管的部分开源仓库，欢迎感兴趣的同学一起 fork 和共建。</p>
+            <ul>
+                <li><strong>核心项目</strong>：
+                    <a href="https://github.com/Ps-Student-Catalog-Team/Ps-Student-Catalog" target="_blank" rel="noopener noreferrer">Ps-Student-Catalog</a>（主站点）、
+                    <a href="https://github.com/Ps-Student-Catalog-Team/NetworkRepairs" target="_blank" rel="noopener noreferrer">NetworkRepairs</a>（网络连接工具）、
+                    <a href="https://github.com/Ps-Student-Catalog-Team/Chatbox-Front" target="_blank" rel="noopener noreferrer">Chatbox-Front</a>（局域网聊天室）
+                </li>
+                <li><strong>数据分析</strong>：
+                    <a href="https://github.com/Ps-Student-Catalog-Team/VPN_logs_anal" target="_blank" rel="noopener noreferrer">VPN_logs_anal</a>（VPN日志分析）
+                </li>
+                <li><strong>网络工具</strong>：
+                    <a href="https://github.com/Ps-Student-Catalog-Team/InternetRepair" target="_blank" rel="noopener noreferrer">InternetRepair</a>（网络修复组件）
+                </li>
+                <li><strong>存储美化</strong>：
+                    <a href="https://github.com/YuebiTTT/openlist_beautification" target="_blank" rel="noopener noreferrer">openlist_beautification</a>（openlist 玻璃拟态主题）
+                </li>
+                <li><strong>组织页面</strong>：
+                    <a href="https://github.com/Ps-Student-Catalog-Team/Ps-Student-Catalog-Team.github.io" target="_blank" rel="noopener noreferrer">Ps-Student-Catalog-Team.github.io</a>
+                </li>
+            </ul>
+            <p>所有项目均已开源，欢迎访问 <a href="https://github.com/Ps-Student-Catalog-Team" target="_blank" rel="noopener noreferrer">GitHub 组织主页</a> 一起共建。</p>
+        </section>
+
+        <section class="content-section">
+            <h2>七、下月计划</h2>
             <ul class="plan-list">
-                <li><strong>Ps-Student-Catalog 继续优化</strong>：增强搜索筛选、丰富工具集，提升移动端体验。</li>
                 <li><strong>Ps-Student-Catalog 升级</strong>：将推出学生目录 3.0 版本，支持更多功能。</li>
-                <li><strong>VPN_logs_anal 扩展分析维度</strong>：增加峰值时段统计、用户留存报表。</li>
-                <li><strong>InternetRepair 扩大公测</strong>：收集反馈并整合到主站工具链。</li>
+                <li><strong>AI聊天室校园版上线</strong>：面向信息科教学场景的版本预计下月上线。</li>
+                <li><strong>音乐网站继续补充资源</strong>：优化分类与搜索体验。</li>
             </ul>
         </section>
 
@@ -82,8 +163,8 @@
                 <p>所有项目均已开源，欢迎一起共建~</p>
             </div>
             <div class="name">
-                <p><strong>辰艾 </strong></p>
-                <p><time datetime="2026-06-13">2026年6月13日</time></p>
+                <p><strong>辰艾</strong></p>
+                <p><time datetime="2026-10-01">2026年10月1日</time></p>
                 <p><em>于某个安静的午休整理</em></p>
             </div>
         </footer>
